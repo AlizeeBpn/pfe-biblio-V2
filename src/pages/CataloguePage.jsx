@@ -25,6 +25,7 @@ import {
   NOUVEAUTES_IDS,
 } from '../data/books';
 import BookCover from '../components/BookCover';
+import { searchGoogleBooks } from '../services/googleBooks';
 
 /* ════════════════════════════════════════════════════
    SHADOWS
@@ -339,6 +340,8 @@ export default function CataloguePage({
   const [sortOpen,     setSortOpen]     = useState(false);
   const [sortBy,       setSortBy]       = useState('pertinence');
   const [selections,   setSelections]   = useState({});
+  const [googleResults, setGoogleResults] = useState([]);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const meriadeckActive = selections.bibliotheque?.['Mériadeck'] ?? true;
   const toggleMeriadeck = (val) =>
@@ -376,6 +379,23 @@ export default function CataloguePage({
     }
     if (e.key === 'Escape') handleBackFromSearch();
   };
+
+  /* Google Books live search — debounced 400ms */
+  useEffect(() => {
+    const q = searchValue.trim();
+    if (!q) { setGoogleResults([]); return; }
+
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      setGoogleLoading(true);
+      searchGoogleBooks(q, 6)
+        .then(res  => { if (!cancelled) setGoogleResults(res); })
+        .catch(()  => { if (!cancelled) setGoogleResults([]); })
+        .finally(() => { if (!cancelled) setGoogleLoading(false); });
+    }, 400);
+
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [searchValue]);
 
   /* Live search results — title + author only, case-insensitive */
   let results = [];
@@ -508,19 +528,42 @@ export default function CataloguePage({
               {/* Results */}
               {searchValue.trim() ? (
                 <>
-                  <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-subtle)', margin: 0 }}>
-                    {results.length} résultat{results.length !== 1 ? 's' : ''} pour votre recherche
-                  </p>
-                  <div className="flex flex-col" style={{ gap: '12px' }}>
-                    {results.map(book => (
-                      <ResultCard key={book.id} book={book} onClick={() => onBookSelect?.(book)} />
-                    ))}
-                    {results.length === 0 && (
-                      <p style={{ fontSize: '15px', fontWeight: 500, color: 'var(--color-text-subtle)', textAlign: 'center', padding: '40px 0' }}>
-                        Aucun livre trouvé pour cette recherche.
+                  {/* Local catalogue results */}
+                  {results.length > 0 && (
+                    <>
+                      <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-subtle)', margin: 0 }}>
+                        {results.length} résultat{results.length !== 1 ? 's' : ''} dans le catalogue
                       </p>
-                    )}
-                  </div>
+                      <div className="flex flex-col" style={{ gap: '12px' }}>
+                        {results.map(book => (
+                          <ResultCard key={book.id} book={book} onClick={() => onBookSelect?.(book)} />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {/* Google Books results */}
+                  {(googleLoading || googleResults.length > 0 || results.length === 0) && (
+                    <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-subtle)', margin: 0 }}>
+                      {googleLoading
+                        ? 'Recherche dans Google Books…'
+                        : googleResults.length > 0
+                          ? <>{googleResults.length} résultat{googleResults.length !== 1 ? 's' : ''} sur <span style={{ color: 'var(--primary-11)' }}>Google Books</span></>
+                          : 'Aucun livre trouvé pour cette recherche.'
+                      }
+                    </p>
+                  )}
+                  {!googleLoading && googleResults.length > 0 && (
+                    <div className="flex flex-col" style={{ gap: '12px' }}>
+                      {googleResults.map(book => (
+                        <ResultCard
+                          key={book.id}
+                          book={{ ...book, available: false }}
+                          onClick={() => onBookSelect?.(book)}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </>
               ) : null}
             </m.div>
