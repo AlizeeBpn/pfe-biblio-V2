@@ -342,6 +342,7 @@ export default function CataloguePage({
   const [selections,   setSelections]   = useState({});
   const [googleResults, setGoogleResults] = useState([]);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError,   setGoogleError]   = useState(null);
 
   const meriadeckActive = selections.bibliotheque?.['Mériadeck'] ?? true;
   const toggleMeriadeck = (val) =>
@@ -383,14 +384,15 @@ export default function CataloguePage({
   /* Google Books live search — debounced 400ms */
   useEffect(() => {
     const q = searchValue.trim();
-    if (!q) { setGoogleResults([]); return; }
+    if (!q) { setGoogleResults([]); setGoogleError(null); return; }
 
     let cancelled = false;
     const timer = setTimeout(() => {
       setGoogleLoading(true);
+      setGoogleError(null);
       searchGoogleBooks(q, 6)
-        .then(res  => { if (!cancelled) setGoogleResults(res); })
-        .catch(()  => { if (!cancelled) setGoogleResults([]); })
+        .then(res  => { if (!cancelled) { setGoogleResults(res); } })
+        .catch(err => { if (!cancelled) { setGoogleResults([]); setGoogleError(err.message); } })
         .finally(() => { if (!cancelled) setGoogleLoading(false); });
     }, 400);
 
@@ -543,13 +545,15 @@ export default function CataloguePage({
                   )}
 
                   {/* Google Books results */}
-                  {(googleLoading || googleResults.length > 0 || results.length === 0) && (
-                    <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-subtle)', margin: 0 }}>
+                  {(googleLoading || googleError || googleResults.length > 0 || results.length === 0) && (
+                    <p style={{ fontSize: '14px', fontWeight: 600, color: googleError ? 'var(--warning-11)' : 'var(--color-text-subtle)', margin: 0 }}>
                       {googleLoading
                         ? 'Recherche dans Google Books…'
-                        : googleResults.length > 0
-                          ? <>{googleResults.length} résultat{googleResults.length !== 1 ? 's' : ''} sur <span style={{ color: 'var(--primary-11)' }}>Google Books</span></>
-                          : 'Aucun livre trouvé pour cette recherche.'
+                        : googleError
+                          ? 'Google Books indisponible (quota dépassé)'
+                          : googleResults.length > 0
+                            ? <>{googleResults.length} résultat{googleResults.length !== 1 ? 's' : ''} sur <span style={{ color: 'var(--primary-11)' }}>Google Books</span></>
+                            : 'Aucun livre trouvé pour cette recherche.'
                       }
                     </p>
                   )}
