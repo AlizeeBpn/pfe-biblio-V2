@@ -39,11 +39,8 @@ function toBook(item) {
 export async function searchGoogleBooks(query, maxResults = 10) {
   if (!query?.trim()) return [];
 
-  const params = new URLSearchParams({
-    q: query,
-    maxResults,
-    key: API_KEY,
-  });
+  const params = new URLSearchParams({ q: query, maxResults });
+  if (API_KEY) params.set('key', API_KEY);
 
   const res = await fetch(`${BASE_URL}?${params}`);
   if (!res.ok) throw new Error(`Google Books API error: ${res.status}`);
@@ -58,7 +55,9 @@ export async function searchGoogleBooks(query, maxResults = 10) {
  * @returns {Promise<Object>}
  */
 export async function getGoogleBook(volumeId) {
-  const res = await fetch(`${BASE_URL}/${volumeId}?key=${API_KEY}`);
+  const params = new URLSearchParams();
+  if (API_KEY) params.set('key', API_KEY);
+  const res = await fetch(`${BASE_URL}/${volumeId}?${params}`);
   if (!res.ok) throw new Error(`Google Books API error: ${res.status}`);
   const item = await res.json();
   return toBook(item);
