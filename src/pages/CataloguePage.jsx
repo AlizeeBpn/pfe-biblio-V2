@@ -527,47 +527,32 @@ export default function CataloguePage({
                 </div>
               </div>
 
-              {/* Results */}
+              {/* Results — catalogue local + Google Books fusionnés */}
               {searchValue.trim() ? (
                 <>
-                  {/* Local catalogue results */}
-                  {results.length > 0 && (
-                    <>
-                      <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-subtle)', margin: 0 }}>
-                        {results.length} résultat{results.length !== 1 ? 's' : ''} dans le catalogue
-                      </p>
-                      <div className="flex flex-col" style={{ gap: '12px' }}>
-                        {results.map(book => (
-                          <ResultCard key={book.id} book={book} onClick={() => onBookSelect?.(book)} />
-                        ))}
-                      </div>
-                    </>
-                  )}
-
-                  {/* Google Books results */}
-                  {(googleLoading || googleError || googleResults.length > 0 || results.length === 0) && (
-                    <p style={{ fontSize: '14px', fontWeight: 600, color: googleError ? 'var(--warning-11)' : 'var(--color-text-subtle)', margin: 0 }}>
-                      {googleLoading
-                        ? 'Recherche dans Google Books…'
-                        : googleError
-                          ? 'Google Books indisponible (quota dépassé)'
-                          : googleResults.length > 0
-                            ? <>{googleResults.length} résultat{googleResults.length !== 1 ? 's' : ''} sur <span style={{ color: 'var(--primary-11)' }}>Google Books</span></>
-                            : 'Aucun livre trouvé pour cette recherche.'
-                      }
-                    </p>
-                  )}
-                  {!googleLoading && googleResults.length > 0 && (
-                    <div className="flex flex-col" style={{ gap: '12px' }}>
-                      {googleResults.map(book => (
-                        <ResultCard
-                          key={book.id}
-                          book={{ ...book, available: false }}
-                          onClick={() => onBookSelect?.(book)}
-                        />
-                      ))}
-                    </div>
-                  )}
+                  {(() => {
+                    const merged = [
+                      ...results,
+                      ...googleResults.map(b => ({ ...b, available: true })),
+                    ];
+                    return (
+                      <>
+                        <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-subtle)', margin: 0 }}>
+                          {googleLoading
+                            ? 'Recherche en cours…'
+                            : merged.length > 0
+                              ? `${merged.length} résultat${merged.length !== 1 ? 's' : ''} pour votre recherche`
+                              : 'Aucun livre trouvé pour cette recherche.'
+                          }
+                        </p>
+                        <div className="flex flex-col" style={{ gap: '12px' }}>
+                          {merged.map(book => (
+                            <ResultCard key={book.id} book={book} onClick={() => onBookSelect?.(book)} />
+                          ))}
+                        </div>
+                      </>
+                    );
+                  })()}
                 </>
               ) : null}
             </m.div>
