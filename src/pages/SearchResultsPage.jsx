@@ -15,6 +15,7 @@ import FilterBottomSheet from '../components/ui/FilterBottomSheet';
 import SortBottomSheet from '../components/ui/SortBottomSheet';
 import BookCover from '../components/BookCover';
 import { searchBooks, filterByGenre, BOOKS as ALL_BOOKS } from '../data/books';
+import { searchGoogleBooks } from '../services/googleBooks';
 
 /* ════════════════════════════════════════════════════
    FILTER HELPERS
@@ -272,6 +273,29 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
   /* Scroll to top on mount */
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, []);
 
+  /* ── Google Books results ── */
+  const [googleResults, setGoogleResults] = useState([]);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError,   setGoogleError]   = useState(null);
+
+  useEffect(() => {
+    const q = query?.trim();
+    if (!q || genre) { setGoogleResults([]); setGoogleError(null); return; }
+
+    let cancelled = false;
+    setGoogleLoading(true);
+    setGoogleError(null);
+    searchGoogleBooks(q, 10)
+      .then((res) => { if (!cancelled) { setGoogleResults(res); } })
+      .catch((err) => { if (!cancelled) { setGoogleResults([]); setGoogleError(err.message); } })
+      .finally(() => { if (!cancelled) setGoogleLoading(false); });
+
+    return () => { cancelled = true; };
+  }, [query, genre]);
+
+  /* Sync inputValue when query prop changes (nouvelle recherche depuis App) */
+  useEffect(() => { setInputValue(query); }, [query]);
+
   /* ── Sheets ── */
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen,   setSortOpen]   = useState(false);
@@ -515,12 +539,40 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
             />
           ))}
 
-          {results.length === 0 && (
+          {results.length === 0 && !googleLoading && googleResults.length === 0 && (
             <p style={{ fontSize: '16px', fontWeight: 500, color: 'var(--color-text-subtle)', textAlign: 'center', padding: '32px 0' }}>
               Aucun livre trouvé.
             </p>
           )}
         </div>
+
+        {/* ══ GOOGLE BOOKS ════════════════════════════ */}
+        {!genre && query?.trim() && (
+          <div className="flex flex-col" style={{ gap: '16px' }}>
+            <p style={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.5, color: 'var(--color-text-subtle)', margin: 0 }}>
+              {googleLoading
+                ? 'Recherche dans Google Books…'
+                : googleError
+                  ? <span style={{ color: 'var(--warning-11)' }}>Google Books indisponible</span>
+                  : <>{googleResults.length} résultat{googleResults.length !== 1 ? 's' : ''} sur <span style={{ color: 'var(--primary-11)' }}>Google Books</span></>
+              }
+            </p>
+
+            {!googleLoading && !googleError && googleResults.map((book) => (
+              <ResultCard
+                key={book.id}
+                cover={book.cover}
+                title={book.title}
+                author={book.author}
+                genres={Array.isArray(book.genres) ? book.genres.join(', ') : book.genres}
+                available={false}
+                returnDate={null}
+                rating={book.rating ?? 0}
+                onClick={() => onBookSelect?.(book)}
+              />
+            ))}
+          </div>
+        )}
 
       </main>
 
