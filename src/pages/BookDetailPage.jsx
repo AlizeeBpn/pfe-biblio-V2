@@ -16,6 +16,7 @@ import { BOOKS as ALL_BOOKS, AUTHORS } from '../data/books';
 import Badge from '../components/ui/Badge';
 import { TabList } from '../components/ui/Tab';
 import BookCover from '../components/BookCover';
+import { searchGoogleBooks } from '../services/googleBooks';
 
 /* ════════════════════════════════════════════════════
    SHADOWS (exact Figma values)
@@ -302,13 +303,51 @@ function TabPropos({ book, onBookSelect }) {
   const { synopsis, author, genres } = book;
   const genreList = Array.isArray(genres) ? genres : (genres ?? '').split(',').map(g => g.trim()).filter(Boolean);
 
-  /* Books by same author (excluding current) */
-  const autresDuMemeAuteur = ALL_BOOKS.filter(b => b.id !== book.id && b.author === author);
-
-  /* Similar books by genre overlap */
-  const titresSimilaires = ALL_BOOKS.filter(
+  /* Local books by same author / similar genre */
+  const localAuthorBooks = ALL_BOOKS.filter(b => b.id !== book.id && b.author === author);
+  const localSimilarBooks = ALL_BOOKS.filter(
     b => b.id !== book.id && b.author !== author && b.genres.some(g => genreList.includes(g))
   ).slice(0, 8);
+
+  /* Google Books enrichment */
+  const [googleAuthorBooks,  setGoogleAuthorBooks]  = useState([]);
+  const [googleSimilarBooks, setGoogleSimilarBooks] = useState([]);
+
+  useEffect(() => {
+    if (!author) return;
+    searchGoogleBooks(`inauthor:"${author}"`, 8)
+      .then(res => setGoogleAuthorBooks(
+        res.filter(b => b.title.toLowerCase() !== book.title.toLowerCase())
+      ))
+      .catch(() => setGoogleAuthorBooks([]));
+  }, [author, book.title]);
+
+  useEffect(() => {
+    const genre = genreList[0];
+    if (!genre) return;
+    searchGoogleBooks(`subject:${genre}`, 10)
+      .then(res => setGoogleSimilarBooks(
+        res.filter(b => b.title.toLowerCase() !== book.title.toLowerCase() && b.author !== author)
+      ))
+      .catch(() => setGoogleSimilarBooks([]));
+  }, [book.title, author]);
+
+  /* Merge local + Google Books, deduplicate by title */
+  const seen = new Set();
+  const autresDuMemeAuteur = [...localAuthorBooks, ...googleAuthorBooks].filter(b => {
+    const key = b.title.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  const seen2 = new Set();
+  const titresSimilaires = [...localSimilarBooks, ...googleSimilarBooks].filter(b => {
+    const key = b.title.toLowerCase();
+    if (seen2.has(key)) return false;
+    seen2.add(key);
+    return true;
+  }).slice(0, 12);
 
   return (
     <div className="flex flex-col" style={{ gap: '32px' }}>

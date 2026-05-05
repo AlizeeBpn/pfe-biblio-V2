@@ -21,19 +21,28 @@ import { searchGoogleBooks } from '../services/googleBooks';
    FILTER HELPERS
    ════════════════════════════════════════════════════ */
 
-// Map des labels de filtre UI vers les genres présents dans les livres
+// Map des labels de filtre UI vers les genres (français + anglais Google Books)
 const GENRE_BOOK_MAP = {
-  'Fantasy':         ['Fantasy', 'Fantastique'],
-  'BD & Manga':      ['Manga', 'Bande dessinée', 'BD'],
-  'Biographie':      ['Biographie', 'Autobiographie', 'Témoignage'],
-  'Autobiographie':  ['Autobiographie', 'Biographie'],
-  'Science-fiction': ['Science-fiction', 'Dystopie'],
-  'Aventure':        ['Aventure', 'Action'],
+  'Fantasy':         ['Fantasy', 'Fantastique', 'Fantasy fiction', 'Epic fantasy', 'High fantasy'],
+  'BD & Manga':      ['Manga', 'Bande dessinée', 'BD', 'Comics', 'Graphic novels', 'Comic books'],
+  'Biographie':      ['Biographie', 'Autobiographie', 'Témoignage', 'Biography', 'Autobiography', 'Biography & Autobiography'],
+  'Autobiographie':  ['Autobiographie', 'Biographie', 'Autobiography', 'Biography & Autobiography'],
+  'Science-fiction': ['Science-fiction', 'Dystopie', 'Science fiction', 'Dystopian fiction', 'Sci-fi', 'Science Fiction'],
+  'Aventure':        ['Aventure', 'Action', 'Adventure', 'Adventure stories', 'Action & Adventure', 'Adventure fiction'],
+  'Roman':           ['Roman', 'Fiction', 'Literary fiction', 'General fiction'],
+  'Policier':        ['Policier', 'Thriller', 'Mystery', 'Crime', 'Detective', 'Mystery & Detective'],
+  'Thriller':        ['Thriller', 'Suspense', 'Mystery', 'Psychological thriller', 'Crime thriller'],
+  'Horreur':         ['Horreur', 'Horror', 'Horror fiction'],
+  'Jeunesse':        ['Jeunesse', 'Young adult', "Children's fiction", 'Juvenile fiction', 'Young Adult Fiction'],
+  'Histoire':        ['Histoire', 'History', 'Historical fiction', 'Historical'],
+  'Romance':         ['Romance', 'Love stories', 'Romantic fiction'],
 };
 
 function matchGenre(bookGenres, filterGenre) {
   const mapped = GENRE_BOOK_MAP[filterGenre] || [filterGenre];
-  return bookGenres.some(bg => mapped.some(m => bg.toLowerCase() === m.toLowerCase()));
+  return bookGenres.some(bg =>
+    mapped.some(m => bg.toLowerCase().includes(m.toLowerCase()) || m.toLowerCase().includes(bg.toLowerCase()))
+  );
 }
 
 function extractYear(publisher) {
@@ -280,12 +289,13 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
 
   useEffect(() => {
     const q = query?.trim();
-    if (!q || genre) { setGoogleResults([]); setGoogleError(null); return; }
+    const searchQuery = genre ? `subject:${genre}` : q;
+    if (!searchQuery) { setGoogleResults([]); setGoogleError(null); return; }
 
     let cancelled = false;
     setGoogleLoading(true);
     setGoogleError(null);
-    searchGoogleBooks(q, 10)
+    searchGoogleBooks(searchQuery, 10)
       .then((res) => { if (!cancelled) { setGoogleResults(res); } })
       .catch((err) => { if (!cancelled) { setGoogleResults([]); setGoogleError(err.message); } })
       .finally(() => { if (!cancelled) setGoogleLoading(false); });
@@ -518,9 +528,11 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
 
         {/* ══ RESULTS (catalogue + Google Books fusionnés) ══════ */}
         {(() => {
-          const merged = genre
-            ? results
-            : [...results, ...googleResults.map(b => ({ ...b, available: true }))];
+          const googleFiltered = applyAdvancedFilters(
+            googleResults.map(b => ({ ...b, available: true })),
+            selections
+          );
+          const merged = [...results, ...googleFiltered];
           return (
             <div className="flex flex-col" style={{ gap: '16px' }}>
               <p style={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.5, color: 'var(--color-text-subtle)', margin: 0 }}>
