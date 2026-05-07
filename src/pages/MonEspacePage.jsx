@@ -9,7 +9,6 @@ import {
   IconMessageCircleUser,
   IconMessageChatbot,
   IconShoppingBagCheck,
-  IconChevronRight,
   IconBookmark,
   IconHistory,
   IconX,
@@ -48,11 +47,12 @@ const SHADOW_DROPDOWN = '0px 10px 20px rgba(142,141,143,0.20), 0px 10px 38px rgb
 
 
 /* ════════════════════════════════════════════════════
-   INFO CARD
+   INFO CARD — v2
    ════════════════════════════════════════════════════ */
 const BADGE_ICON_COLOR = { success: 'var(--success-11)', default: 'var(--secondary-11)' };
 
 function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, badgeVariant = 'default', onClick }) {
+  const iconColor = BADGE_ICON_COLOR[badgeVariant] ?? 'var(--secondary-11)';
   return (
     <motion.div
       whileTap={{ scale: 0.98 }}
@@ -62,32 +62,50 @@ function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, bad
         flex:            '1 0 0',
         minWidth:         0,
         backgroundColor: 'var(--neutral-1)',
-        border:          '1px solid var(--neutral-6)',
+        border:          '1px solid var(--neutral-3)',
         borderRadius:    '12px',
-        boxShadow:        SHADOW_CARD,
-        padding:         '12px',
-        gap:             '0px',
+        boxShadow:       SHADOW_LIST,
+        padding:         '8px',
+        gap:             '12px',
         overflow:        'hidden',
         justifyContent:  'flex-end',
       }}
     >
-      <div className="flex flex-col w-full" style={{ gap: '0px' }}>
+      {/* Info container */}
+      <div className="flex flex-col w-full" style={{ gap: '8px' }}>
+        {/* Badge — haut */}
+        <Badge
+          variant={badgeVariant}
+          size="medium"
+          icon={BadgeIcon && <BadgeIcon size={14} strokeWidth={2} color={iconColor} />}
+        >
+          {badge}
+        </Badge>
+
+        {/* Catégorie */}
         <p style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>
           {category}
         </p>
-        <div className="flex flex-col items-start" style={{ gap: '12px', padding: '8px 0' }}>
-          <div className="flex items-center" style={{ gap: '4px' }}>
-            <span style={{ fontSize: '20px', fontWeight: 800, lineHeight: 1.5, color: 'var(--color-text-title)' }}>{count}</span>
-            <span style={{ fontSize: '16px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-title)' }}>{typeLabel}</span>
-          </div>
-          <Badge variant={badgeVariant} size="medium" icon={BadgeIcon && <BadgeIcon size={14} strokeWidth={2} color={BADGE_ICON_COLOR[badgeVariant]} />}>
-            {badge}
-          </Badge>
+
+        {/* Compteur centré */}
+        <div className="flex items-center justify-center w-full" style={{ gap: '6px' }}>
+          <span style={{ fontFamily: 'var(--font-brand)', fontSize: '24px', fontWeight: 700, lineHeight: 1.2, color: 'var(--color-text-title)' }}>
+            {count}
+          </span>
+          <span style={{ fontFamily: 'var(--font-brand)', fontSize: '16px', fontWeight: 700, lineHeight: 1.2, color: 'var(--color-text-title)' }}>
+            {typeLabel}
+          </span>
         </div>
       </div>
-      <div className="flex items-center justify-end w-full" style={{ gap: '4px' }}>
-        <span style={{ fontSize: '14px', fontWeight: 500, color: 'var(--primary-11)', textDecoration: 'underline' }}>Voir détail</span>
-        <IconChevronRight size={16} strokeWidth={2} color="var(--primary-11)" />
+
+      {/* Bouton Voir détail */}
+      <div
+        className="flex items-center justify-center w-full"
+        style={{ height: '32px', backgroundColor: 'var(--primary-3)', borderRadius: '6px' }}
+      >
+        <span style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--primary-11)' }}>
+          Voir détail
+        </span>
       </div>
     </motion.div>
   );
