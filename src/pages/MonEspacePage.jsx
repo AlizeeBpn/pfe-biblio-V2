@@ -74,17 +74,19 @@ function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, bad
     >
       {/* Info container */}
       <div className="flex flex-col w-full" style={{ gap: '8px' }}>
-        {/* Badge — haut */}
-        <Badge
-          variant={badgeVariant}
-          size="medium"
-          icon={BadgeIcon && <BadgeIcon size={14} strokeWidth={2} color={iconColor} />}
-        >
-          {badge}
-        </Badge>
+        {/* Badge — haut, compact */}
+        <div className="flex shrink-0">
+          <Badge
+            variant={badgeVariant}
+            size="medium"
+            icon={BadgeIcon && <BadgeIcon size={14} strokeWidth={2} color={iconColor} />}
+          >
+            {badge}
+          </Badge>
+        </div>
 
-        {/* Catégorie */}
-        <p style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>
+        {/* Catégorie — centré */}
+        <p style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0, textAlign: 'center', width: '100%' }}>
           {category}
         </p>
 
