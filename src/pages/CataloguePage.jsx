@@ -591,7 +591,7 @@ export default function CataloguePage({
                     }}
                   >
                     <IconAdjustmentsHorizontal size={16} strokeWidth={2} color="var(--neutral-10)" />
-                    Recherche par critères
+                    Filtrer
                   </m.button>
                 </div>
 

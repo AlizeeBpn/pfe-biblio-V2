@@ -187,8 +187,7 @@ const FILTER_SECTIONS = [
     id:      'type',
     title:   'Type de document',
     options: [
-      'Livre', 'eBook', 'Audiolivre', 'Revue', 'Magazine', 'DVD', 'CD musical',
-      'BD', 'Partition musicale', 'Carte géographique', 'Jeu', 'Thèse',
+      'Roman', 'Thèse', 'Magazine', 'BD', 'Livre documentaire', 'eBook',
     ],
   },
   {
@@ -221,8 +220,7 @@ const FILTER_SECTIONS = [
     id:      'public',
     title:   'Public',
     options: [
-      'Bébés (0–3 ans)', 'Enfants (4–10 ans)', 'Ados (11–17 ans)', 'Adulte',
-      'Senior', 'Étudiant', 'Professionnel',
+      'Enfant', 'Ados', 'Adulte',
     ],
   },
   {
@@ -235,7 +233,7 @@ const FILTER_SECTIONS = [
   },
   {
     id:      'accessible',
-    title:   'Accessible',
+    title:   'Accessibilité',
     options: [
       'Accès handicap', 'Braille', 'Grands caractères', 'FALC',
       'LSF (Langue des Signes)', 'Audio-description',

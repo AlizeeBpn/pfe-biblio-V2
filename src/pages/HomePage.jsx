@@ -10,6 +10,7 @@ import {
   IconArrowRight,
   IconCategory,
   IconShoppingBagCheck,
+  IconSearch,
 } from '@tabler/icons-react';
 
 import { BarButton }        from '../components/ui/BarButton';
@@ -27,10 +28,10 @@ const NARUTO = ALL_BOOKS.find(b => b.id === 7);
    SHADOWS  (exact Figma values)
    ════════════════════════════════════════════════════ */
 const SHADOW_DEPTH =       // depth-neutral-2 (header & cards)
-  '0px 18px 7px 0px var(--alpha-grey-01), 0px 10px 6px 0px var(--alpha-grey-05), 0px 4px 4px 0px var(--alpha-grey-09), 0px 1px 2px 0px var(--alpha-grey-10)';
+  '0px 1px 2px 0px var(--alpha-grey-10), 0px 4px 4px 0px var(--alpha-grey-09), 0px 10px 6px 0px var(--alpha-grey-05), 0px 18px 7px 0px var(--alpha-grey-01)';
 
 const SHADOW_OBJECT =       // object-depth-neutral-2 (book cover)
-  '0px 16px 9px 0px var(--alpha-grey-05), 0px 7px 7px 0px var(--alpha-grey-09), 0px 2px 4px 0px var(--alpha-grey-10), 0px -11px 4px 0px var(--alpha-grey-01), 0px -6px 4px 0px var(--alpha-grey-05), 0px -3px 3px 0px var(--alpha-grey-09), 0px -1px 2px 0px var(--alpha-grey-10)';
+  '0px 2px 4px 0px var(--alpha-grey-10), 0px 7px 7px 0px var(--alpha-grey-09), 0px 16px 9px 0px var(--alpha-grey-05), 0px -1px 2px 0px var(--alpha-grey-10), 0px -3px 3px 0px var(--alpha-grey-09), 0px -6px 4px 0px var(--alpha-grey-05), 0px -11px 4px 0px var(--alpha-grey-01)';
 
 /* ════════════════════════════════════════════════════
    EXACT PIXEL VALUES FROM FIGMA DEV MODE
@@ -92,49 +93,40 @@ function ReservationCard({ books = [], count = 5, onClick }) {
       }}
     >
       {/* Info — padding-left laisse la place aux livres absolus */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px', paddingLeft: '104px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px', paddingLeft: '96px' }}>
         <Badge variant="success" size="large" icon={<IconShoppingBagCheck size={16} strokeWidth={1.8} color="var(--success-11)" />}>
           Disponible à Mériadeck
         </Badge>
-        <p style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-title)', margin: 0 }}>
-          {count} titre{count > 1 ? 's' : ''} vous attendent
+        <div style={{ position: "absolute", right: "0px", top: "0px", padding: "8px", lineHeight: 1, fontSize: "12px", fontWeight: 500, color: "var(--color-text-subtle)" }}>
+          <IconChevronRight size={24} strokeWidth={2} color="var(--color-text-subtle)" />
+        </div>
+        <p style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.5, color: "var(--color-text-title)", margin: 0 }}>
+          {count} titre{count > 1 ? "s" : ""} vous attendent
         </p>
         <p style={{ fontSize: 14, fontWeight: 500, lineHeight: 1.5, color: 'var(--color-text-body)', margin: 0 }}>
           À récupérer avant le 15 janvier
         </p>
       </div>
 
-      {/* Livres absolus — dépassent sur le bord gauche */}
-      <BookCover
-        cover={cover1}
-        title={books[0]?.title ?? ''}
-        style={{
-          position:        'absolute',
-          left:            '-2px',
-          top:             '7px',
-          transform:       'rotate(13.81deg)',
-          transformOrigin: 'bottom center',
-          borderRadius:    '6px',
-          width:           '59px',
-          height:          '91px',
-          boxShadow:       SHADOW_OBJECT,
-        }}
-      />
-      <BookCover
-        cover={cover2}
-        title={books[1]?.title ?? ''}
-        style={{
-          position:        'absolute',
-          left:            '-4px',
-          top:             '24px',
-          transform:       'rotate(25.94deg)',
-          transformOrigin: 'bottom center',
-          borderRadius:    '6px',
-          width:           '59px',
-          height:          '91px',
-          boxShadow:       SHADOW_OBJECT,
-        }}
-      />
+      {/* Livres absolus — wrapper positionné, rotation centrée (structure Figma) */}
+      <div style={{ position: 'absolute', left: '-2px', top: '7px', width: '79px', height: '103px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ flexShrink: 0, transform: 'rotate(13.81deg)' }}>
+          <BookCover
+            cover={cover1}
+            title={books[0]?.title ?? ''}
+            style={{ width: '59px', height: '91px', borderRadius: '6px', boxShadow: SHADOW_OBJECT }}
+          />
+        </div>
+      </div>
+      <div style={{ position: 'absolute', left: '-4px', top: '24px', width: '93px', height: '108px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ flexShrink: 0, transform: 'rotate(25.94deg)' }}>
+          <BookCover
+            cover={cover2}
+            title={books[1]?.title ?? ''}
+            style={{ width: '59px', height: '91px', borderRadius: '6px', boxShadow: SHADOW_OBJECT }}
+          />
+        </div>
+      </div>
     </motion.div>
   );
 }
@@ -183,6 +175,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
           padding:    '16px',
           background: 'var(--secondary-1)',    // #fffafc
           boxShadow:  SHADOW_DEPTH,
+          position:   'relative', // Added for absolute positioning of search icon
         }}
       >
         {/* Container — flex-row gap:12px flex-grow:1 */}
@@ -227,8 +220,10 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
           </div>
         </div>
 
-        {/* Chevron right — stroke:2 neutral #656366 */}
-        <IconChevronRight size={24} strokeWidth={2} color="var(--color-text-subtle)" />
+        {/* Search icon - absolute position */}
+        <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)' }}>
+          <IconSearch size={24} strokeWidth={2} color="var(--color-text-subtle)" />
+        </div>
       </header>
 
       {/* ══════════════════════════════════════ MAIN */}
@@ -270,9 +265,9 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                   onClick={() => setReservationOpen(true)}
                   className="inline-flex items-center outline-none"
                   style={{
-                    gap: '6px', height: '40px', padding: '0 16px', borderRadius: '8px',
-                    background: 'var(--primary-3)', color: 'var(--primary-11)',
-                    fontSize: '14px', fontWeight: 700, lineHeight: 1.5, flexShrink: 0,
+                    gap: "6px", height: "32px", padding: "0 12px", borderRadius: "6px",
+                    background: "var(--primary-3)", color: "var(--primary-11)",
+                    fontSize: "14px", fontWeight: 700, lineHeight: 1.5, flexShrink: 0,
                   }}
                 >
                   Voir tout (4 réservations)
@@ -315,7 +310,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                 <div className="flex flex-col flex-1 h-full" style={{ gap: '8px' }}>
 
                   {/* Badge — calendar-time, h:28px, p:6px, radius:2px, semibold */}
-                  <Badge variant="default" size="large" icon={<IconCalendarTime size={16} strokeWidth={2} color="var(--secondary-11)" />}>12 juin 2024</Badge>
+                  <Badge variant="info" size="large" icon={<IconCalendarTime size={16} strokeWidth={2} color="var(--info-11)" />}>12 juin 2024</Badge>
 
                   {/* Title + author */}
                   <div className="flex flex-col flex-1" style={{ gap: '2px' }}>
@@ -408,7 +403,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                     className="flex flex-col flex-1"
                     style={{ gap: '8px', paddingBottom: '12px', alignSelf: 'flex-start' }}
                   >
-                    <Badge variant="default" size="large" icon={<IconCalendarTime size={16} strokeWidth={2} color="var(--secondary-11)" />}>24 juin 2026</Badge>
+                    <Badge variant="info" size="large" icon={<IconCalendarTime size={16} strokeWidth={2} color="var(--info-11)" />}>24 juin 2026</Badge>
 
                     {/* content-text — gap 2px */}
                     <div className="flex flex-col" style={{ gap: '2px' }}>
@@ -486,7 +481,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
 
               {/* Info — flex-1, gap:4px */}
               <div className="flex flex-col flex-1" style={{ gap: '4px' }}>
-                <Badge variant="default" size="large" icon={<IconCalendarEvent size={16} strokeWidth={2} color="var(--secondary-11)" />}>9 : 00 – 10:00 | 12 Juin 2026</Badge>
+                    <Badge variant="info" size="large" icon={<IconCalendarEvent size={16} strokeWidth={2} color="var(--info-11)" />}>9 : 00 – 10:00 | 12 Juin 2026</Badge>
                 <div className="flex flex-col" style={{ gap: '2px' }}>
                   <p style={{ fontSize: '16px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-title)', margin: 0 }}>
                     Salle d'étude 4

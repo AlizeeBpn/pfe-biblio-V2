@@ -40,17 +40,17 @@ const BORROWED_BOOKS = [
 /* ════════════════════════════════════════════════════
    SHADOWS
    ════════════════════════════════════════════════════ */
-const SHADOW_CARD = '0px -2px 10px rgba(99,181,180,0.08), 0px 2px 10px rgba(99,181,180,0.08)';
-const SHADOW_BTN  = '0px -2px 10px rgba(99,181,180,0.08), 0px 2px 10px rgba(99,181,180,0.08)';
-const SHADOW_LIST = '0px 18px 7px rgba(142,141,143,0.01),0px 10px 6px rgba(142,141,143,0.05),0px 4px 4px rgba(142,141,143,0.09),0px 1px 2px rgba(142,141,143,0.10)';
-const SHADOW_BOOK_CARD = '0px 2px 10px rgba(142,141,143,0.07)';
-const SHADOW_DROPDOWN = '0px 10px 20px rgba(142,141,143,0.20), 0px 10px 38px rgba(142,141,143,0.35)';
+const SHADOW_CARD =   '0px 1px 2px 0px var(--alpha-grey-10), 0px 4px 4px 0px var(--alpha-grey-09), 0px 10px 6px 0px var(--alpha-grey-05), 0px 18px 7px 0px var(--alpha-grey-01)';
+const SHADOW_BTN  =   '0px 1px 2px 0px var(--alpha-primary-25), 0px 4px 4px 0px var(--alpha-primary-25), 0px 10px 6px 0px var(--alpha-primary-25), 0px 18px 7px 0px var(--alpha-primary-08)';
+const SHADOW_LIST =   '0px 1px 2px 0px var(--alpha-grey-10), 0px 4px 4px 0px var(--alpha-grey-09), 0px 10px 6px 0px var(--alpha-grey-05), 0px 18px 7px 0px var(--alpha-grey-01)';
+const SHADOW_BOOK_CARD = '0px 1px 2px 0px var(--alpha-grey-10), 0px 4px 4px 0px var(--alpha-grey-09), 0px 10px 6px 0px var(--alpha-grey-05), 0px 18px 7px 0px var(--alpha-grey-01)';
+const SHADOW_DROPDOWN = '0px 10px 20px 0px var(--alpha-grey-20), 0px 2px 8px 0px var(--alpha-grey-20)';
 
 
 /* ════════════════════════════════════════════════════
    INFO CARD — v2
    ════════════════════════════════════════════════════ */
-const BADGE_ICON_COLOR = { success: 'var(--success-11)', default: 'var(--secondary-11)' };
+const BADGE_ICON_COLOR = { success: 'var(--success-11)', default: 'var(--secondary-11)', info: 'var(--info-11)' };
 
 function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, badgeVariant = 'default', onClick }) {
   const iconColor = BADGE_ICON_COLOR[badgeVariant] ?? 'var(--secondary-11)';
@@ -78,8 +78,8 @@ function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, bad
         <div className="flex shrink-0">
           <Badge
             variant={badgeVariant}
-            size="medium"
-            icon={BadgeIcon && <BadgeIcon size={14} strokeWidth={2} color={iconColor} />}
+            size="large"
+            icon={BadgeIcon && <BadgeIcon size={16} strokeWidth={2} color={iconColor} />}
           >
             {badge}
           </Badge>
@@ -101,9 +101,9 @@ function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, bad
         </div>
       </div>
 
-      {/* Bouton Voir détail */}
+      {/* Bouton Voir détail — la carte parente gère le clic */}
       <div
-        className="flex items-center justify-center w-full"
+        className="flex items-center justify-center w-full pointer-events-none"
         style={{ height: '32px', backgroundColor: 'var(--primary-3)', borderRadius: '6px' }}
       >
         <span style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--primary-11)' }}>
@@ -408,10 +408,10 @@ function ListBookCard({ book, removeMode, onRemove, onSelect }) {
       }}
     >
       {/* Cover */}
-      <div style={{ width: '127px', height: '100%', flexShrink: 0, borderRadius: '8px 8px 0 0', overflow: 'hidden', position: 'relative' }}>
+      <div style={{ width: '127px', height: '100%', flexShrink: 0, borderRadius: '6px', overflow: 'hidden', position: 'relative' }}>
         {book.cover
-          ? <img src={book.cover} alt={book.title} style={{ width: '127px', height: '144px', objectFit: 'cover', borderRadius: '8px 8px 0 0' }} />
-          : <div style={{ width: '127px', height: '144px', backgroundColor: 'var(--neutral-3)', borderRadius: '8px 8px 0 0' }} />
+          ? <img src={book.cover} alt={book.title} style={{ width: '127px', height: '144px', objectFit: 'cover', borderRadius: '6px' }} />
+          : <div style={{ width: '127px', height: '144px', backgroundColor: 'var(--neutral-3)', borderRadius: '6px' }} />
         }
       </div>
 
@@ -695,12 +695,12 @@ export default function MonEspacePage({
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
 
         {/* CTA — Afficher ma carte */}
-        <motion.button type="button" whileTap={{ scale: 0.98 }} onClick={() => setQrOpen(true)}
-          className="flex items-center justify-center w-full outline-none cursor-pointer"
-          style={{ gap: '8px', height: '48px', padding: '0 20px', backgroundColor: 'var(--primary-10)', borderRadius: 'var(--br-md)', border: 'none', boxShadow: SHADOW_BTN }}>
-          <IconQrcode size={20} strokeWidth={2} color="var(--neutral-1)" />
-          <span style={{ fontSize: '16px', fontWeight: 700, lineHeight: 1.5, color: 'var(--neutral-1)', whiteSpace: 'nowrap' }}>Afficher ma carte d'adhérente</span>
-        </motion.button>
+          <motion.button type="button" whileTap={{ scale: 0.98 }} onClick={() => setQrOpen(true)}
+            className="flex items-center justify-center w-full outline-none cursor-pointer"
+            style={{ gap: "8px", height: "48px", padding: "0 20px", backgroundColor: "var(--primary-10)", borderRadius: "var(--br-md)", border: "none", boxShadow: SHADOW_BTN }}>
+            <IconQrcode size={20} strokeWidth={2} color="var(--neutral-1)" />
+            <span style={{ fontSize: "16px", fontWeight: 700, lineHeight: 1.5, color: "var(--neutral-1)", whiteSpace: "nowrap" }}>Afficher ma carte d\"adhérente</span>
+          </motion.button>
 
         {/* Tabs */}
         <TabList tabs={NAV_TABS} value={currentTabIdx} onChange={changeTab} />
@@ -733,15 +733,15 @@ export default function MonEspacePage({
                   <InfoCard category="Réservations" count="4" typeLabel="Titres" badge="Disponible à Mériadeck" badgeIcon={IconShoppingBagCheck} badgeVariant="success" onClick={() => setReservationSheet('reservations')} />
                 </motion.div>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Services" count="1" typeLabel="Salle d'étude" badge="12 janv. (9h - 12h)" badgeIcon={IconCalendarEvent} badgeVariant="default" />
+                  <InfoCard category="Services" count="1" typeLabel="Salle d'étude" badge="12 janv. (9h - 12h)" badgeIcon={IconCalendarEvent} badgeVariant="info" />
                 </motion.div>
               </div>
               <div className="flex" style={{ gap: '6px' }}>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Prêt bibliothèque" count="3" typeLabel="Emprunts" badge="24 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="default" onClick={() => setReservationSheet('emprunts')} />
+                  <InfoCard category="Prêt bibliothèque" count="3" typeLabel="Emprunts" badge="24 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('emprunts')} />
                 </motion.div>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Prêt numérique" count="1" typeLabel="Emprunts" badge="12 janv. 2026" badgeIcon={IconCalendarTime} badgeVariant="default" onClick={() => setReservationSheet('emprunts')} />
+                  <InfoCard category="Prêt numérique" count="1" typeLabel="Emprunts" badge="12 janv. 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('emprunts')} />
                 </motion.div>
               </div>
             </div>
