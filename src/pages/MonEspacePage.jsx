@@ -9,6 +9,7 @@ import {
   IconMessageCircleUser,
   IconMessageChatbot,
   IconShoppingBagCheck,
+  IconChevronRight,
   IconBookmark,
   IconHistory,
   IconX,
