@@ -8,7 +8,7 @@ import {
   IconCalendarTime,
   IconCalendarEvent,
   IconArrowRight,
-  IconSchoolBell,
+  IconCategory,
   IconShoppingBagCheck,
 } from '@tabler/icons-react';
 
@@ -80,36 +80,19 @@ function ReservationCard({ books = [], count = 5, onClick }) {
     <motion.div
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      style={{ ...CARD, display: 'flex', alignItems: 'stretch', overflow: 'hidden', cursor: 'pointer', minHeight: '120px', gap: 'var(--gap-2md)' }}
+      style={{
+        ...CARD,
+        position:       'relative',
+        display:        'flex',
+        alignItems:     'center',
+        justifyContent: 'flex-end',
+        overflow:       'hidden',
+        cursor:         'pointer',
+        minHeight:      '116px',
+      }}
     >
-      {/* Cover area — two gently tilted books */}
-      <div style={{ width: '120px', flexShrink: 0, position: 'relative', alignSelf: 'stretch' }}>
-        {/* Back book */}
-        <BookCover
-          cover={cover1}
-          title={books[0]?.title ?? ''}
-          style={{
-            position: 'absolute', left: '4px', bottom: '0px',
-            transform: 'rotate(-10deg)', transformOrigin: 'bottom center',
-            borderRadius: '6px', width: 64, height: 100,
-            boxShadow: SHADOW_OBJECT,
-          }}
-        />
-        {/* Front book */}
-        <BookCover
-          cover={cover2}
-          title={books[1]?.title ?? ''}
-          style={{
-            position: 'absolute', left: '44px', bottom: '0px',
-            transform: 'rotate(10deg)', transformOrigin: 'bottom center',
-            borderRadius: '6px', width: 64, height: 100,
-            boxShadow: SHADOW_OBJECT,
-          }}
-        />
-      </div>
-
-      {/* Info */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4, padding: '16px 12px 16px 8px' }}>
+      {/* Info — padding-left laisse la place aux livres absolus */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px', padding: '8px', paddingLeft: '104px' }}>
         <Badge variant="success" size="large" icon={<IconShoppingBagCheck size={16} strokeWidth={1.8} color="var(--success-11)" />}>
           Disponible à Mériadeck
         </Badge>
@@ -120,6 +103,38 @@ function ReservationCard({ books = [], count = 5, onClick }) {
           À récupérer avant le 15 janvier
         </p>
       </div>
+
+      {/* Livres absolus — dépassent sur le bord gauche */}
+      <BookCover
+        cover={cover1}
+        title={books[0]?.title ?? ''}
+        style={{
+          position:        'absolute',
+          left:            '-2px',
+          top:             '7px',
+          transform:       'rotate(13.81deg)',
+          transformOrigin: 'bottom center',
+          borderRadius:    '6px',
+          width:           '59px',
+          height:          '91px',
+          boxShadow:       SHADOW_OBJECT,
+        }}
+      />
+      <BookCover
+        cover={cover2}
+        title={books[1]?.title ?? ''}
+        style={{
+          position:        'absolute',
+          left:            '-4px',
+          top:             '24px',
+          transform:       'rotate(25.94deg)',
+          transformOrigin: 'bottom center',
+          borderRadius:    '6px',
+          width:           '59px',
+          height:          '91px',
+          boxShadow:       SHADOW_OBJECT,
+        }}
+      />
     </motion.div>
   );
 }
@@ -415,7 +430,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                 </div>
               </motion.div>
 
-              {/* "Voir tout" — right-aligned, br-sm=8px, bg-primary-3, text-primary-11 bold */}
+              {/* "Voir tout" — right-aligned, h:32px, br:6px */}
               <div className="flex justify-end">
                 <motion.button
                   type="button"
@@ -424,9 +439,9 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                   className="inline-flex items-center outline-none"
                   style={{
                     gap:          '6px',
-                    height:       '40px',
-                    padding:      '0 16px',
-                    borderRadius: '8px',
+                    height:       '32px',
+                    padding:      '0 12px',
+                    borderRadius: '6px',
                     background:   'var(--primary-3)',
                     color:        'var(--primary-11)',
                     fontSize:     '14px',
@@ -435,7 +450,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                     flexShrink:   0,
                   }}
                 >
-                  Voir tout (3 retours)
+                  Voir tout (2 autres retours)
                   <IconArrowRight size={16} strokeWidth={2} />
                 </motion.button>
               </div>
@@ -454,8 +469,22 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
               transition={{ delay: 0.2, type: 'spring', stiffness: 160, damping: 16 }}
               style={{ ...CARD, display: 'flex', alignItems: 'center', padding: '8px', gap: '16px', cursor: 'pointer' }}
             >
+              {/* Icône ronde — gauche, primary-3 teal, category 28px */}
+              <div
+                className="shrink-0 flex items-center justify-center"
+                style={{
+                  width:           '44px',
+                  height:          '44px',
+                  padding:         '8px',
+                  backgroundColor: 'var(--primary-3)',
+                  borderRadius:    'var(--br-round)',
+                  flexShrink:      0,
+                }}
+              >
+                <IconCategory size={28} strokeWidth={2} color="var(--primary-11)" />
+              </div>
 
-              {/* Info — flex-1, gap:4px (Figma: Info Section gap=4px) */}
+              {/* Info — flex-1, gap:4px */}
               <div className="flex flex-col flex-1" style={{ gap: '4px' }}>
                 <Badge variant="default" size="large" icon={<IconCalendarEvent size={16} strokeWidth={2} color="var(--secondary-11)" />}>9 : 00 – 10:00 | 12 Juin 2026</Badge>
                 <div className="flex flex-col" style={{ gap: '2px' }}>
@@ -466,20 +495,6 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                     Bibliothèque Mériadeck
                   </p>
                 </div>
-              </div>
-
-              {/* Round icon — secondary-4, school-bell 24px stroke:2 secondary-11(#4D0F26) */}
-              <div
-                className="shrink-0 flex items-center justify-center"
-                style={{
-                  width:           '40px',
-                  height:          '40px',
-                  padding:         '8px',
-                  backgroundColor: 'var(--secondary-4)',
-                  borderRadius:    'var(--br-round)',
-                }}
-              >
-                <IconSchoolBell size={24} strokeWidth={2} color="var(--secondary-11)" />
               </div>
             </motion.div>
           </section>
