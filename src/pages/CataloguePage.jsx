@@ -11,12 +11,14 @@ import {
   IconStarFilled,
   IconArrowsSort,
   IconAdjustmentsHorizontal,
+  IconChevronDown,
 } from '@tabler/icons-react';
 
 import { BottomNavigation }  from '../components/ui/BottomNavigation';
 import Badge from '../components/ui/Badge';
-import FilterBottomSheet     from '../components/ui/FilterBottomSheet';
-import SortBottomSheet       from '../components/ui/SortBottomSheet';
+import FilterBottomSheet       from '../components/ui/FilterBottomSheet';
+import SortBottomSheet         from '../components/ui/SortBottomSheet';
+import BibliothequeBottomSheet from '../components/ui/BibliothequeBottomSheet';
 import {
   BOOKS as ALL_BOOKS,
   GENRES,
@@ -114,28 +116,60 @@ function ResultCard({ book, onClick }) {
 }
 
 /* ════════════════════════════════════════════════════
-   MÉRIADECK TOGGLE
+   BIBLIOTHÈQUE BUTTON — label adaptatif
+   0 sélection  → "Bibliothèque ▼"
+   1 sélection  → nom de la bibliothèque
+   2+ sélections → premier nom + badge "+N"
    ════════════════════════════════════════════════════ */
-function MeriadeckToggle({ active, onToggle }) {
+function BibliothequeBtn({ selectedLibraries, onClick }) {
+  const entries = Object.entries(selectedLibraries).filter(([, v]) => v);
+  const count     = entries.length;
+  const isActive  = count > 0;
+  const firstName = count > 0 ? entries[0][0] : null;
+  const extra     = count > 1 ? count - 1 : 0;
+
   return (
     <m.button
       type="button"
       whileTap={{ scale: 0.95 }}
-      onClick={() => onToggle(!active)}
-      className="inline-flex items-center justify-center shrink-0 outline-none cursor-pointer overflow-hidden"
+      onClick={onClick}
+      className="inline-flex items-center shrink-0 outline-none cursor-pointer"
       style={{
+        gap:             '6px',
         height:          '40px',
         padding:         '0 14px',
-        gap:             '6px',
+        backgroundColor: isActive ? 'var(--primary-3)' : 'var(--neutral-1)',
+        border:          isActive ? '1px solid var(--primary-8)' : '2px solid var(--neutral-7)',
         borderRadius:    'var(--br-md)',
-        border:          active ? '1px solid var(--primary-8)' : '1px solid var(--neutral-6)',
-        backgroundColor: active ? 'var(--primary-3)' : 'var(--neutral-2)',
+        color:           isActive ? 'var(--primary-11)' : 'var(--neutral-11)',
+        fontSize:        '14px',
+        fontWeight:      700,
+        whiteSpace:      'nowrap',
       }}
     >
-      <span style={{ fontSize: '14px', fontWeight: 700, color: active ? 'var(--primary-11)' : 'var(--neutral-11)', whiteSpace: 'nowrap' }}>
-        Mériadeck
-      </span>
-      {active && <IconX size={16} strokeWidth={2} color="var(--primary-11)" />}
+      {count === 0 && <span>Bibliothèque</span>}
+      {count === 1 && <span>{firstName}</span>}
+      {count > 1 && (
+        <>
+          <span>{firstName}</span>
+          <span style={{
+            minWidth:        '20px',
+            height:          '20px',
+            borderRadius:    '9999px',
+            backgroundColor: 'var(--primary-10)',
+            display:         'inline-flex',
+            alignItems:      'center',
+            justifyContent:  'center',
+            padding:         '0 4px',
+            fontSize:        '11px',
+            fontWeight:      700,
+            color:           'var(--primary-1)',
+          }}>
+            +{extra}
+          </span>
+        </>
+      )}
+      <IconChevronDown size={16} strokeWidth={2} color={isActive ? 'var(--primary-11)' : 'var(--neutral-10)'} />
     </m.button>
   );
 }
@@ -335,18 +369,16 @@ export default function CataloguePage({
   const inputRef = useRef(null);
 
   /* ── Filter/sort state (active in search mode) ── */
-  const [disponible,   setDisponible]   = useState(false);
-  const [filterOpen,   setFilterOpen]   = useState(false);
-  const [sortOpen,     setSortOpen]     = useState(false);
-  const [sortBy,       setSortBy]       = useState('pertinence');
-  const [selections,   setSelections]   = useState({});
+  const [disponible,         setDisponible]         = useState(false);
+  const [filterOpen,         setFilterOpen]         = useState(false);
+  const [sortOpen,           setSortOpen]           = useState(false);
+  const [libSheetOpen,       setLibSheetOpen]       = useState(false);
+  const [sortBy,             setSortBy]             = useState('pertinence');
+  const [selections,         setSelections]         = useState({});
+  const [selectedLibraries,  setSelectedLibraries]  = useState({});
   const [googleResults, setGoogleResults] = useState([]);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError,   setGoogleError]   = useState(null);
-
-  const meriadeckActive = selections.bibliotheque?.['Mériadeck'] ?? true;
-  const toggleMeriadeck = (val) =>
-    setSelections(prev => ({ ...prev, bibliotheque: { ...(prev.bibliotheque || {}), 'Mériadeck': val } }));
 
   const handleApplyFilter = ({ disponible: d, selections: s }) => {
     setSelections(s);
@@ -519,12 +551,13 @@ export default function CataloguePage({
               style={{ gap: '16px' }}
             >
               {/* Filter row */}
-              <div className="flex items-center" style={{ gap: '8px' }}>
-                <MeriadeckToggle active={meriadeckActive} onToggle={toggleMeriadeck} />
-                <div className="flex-1 flex items-center justify-end" style={{ gap: '8px' }}>
-                  <SortFilterBtn label="Trier"   Icon={IconArrowsSort}            onClick={() => setSortOpen(true)} />
-                  <SortFilterBtn label="Filtrer" Icon={IconAdjustmentsHorizontal} onClick={() => setFilterOpen(true)} />
-                </div>
+              <div
+                className="flex items-center"
+                style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}
+              >
+                <SortFilterBtn label="Trier"   Icon={IconArrowsSort}            onClick={() => setSortOpen(true)} />
+                <SortFilterBtn label="Filtrer" Icon={IconAdjustmentsHorizontal} onClick={() => setFilterOpen(true)} />
+                <BibliothequeBtn selectedLibraries={selectedLibraries} onClick={() => setLibSheetOpen(true)} />
               </div>
 
               {/* Results — catalogue local + Google Books fusionnés */}
@@ -571,28 +604,12 @@ export default function CataloguePage({
             >
               {/* Bouton Recherche par critères + Catégories — gap 12px entre eux */}
               <div className="flex flex-col" style={{ gap: '12px' }}>
-                <div className="flex justify-end">
-                  <m.button
-                    type="button"
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setFilterOpen(true)}
-                    className="inline-flex items-center outline-none cursor-pointer"
-                    style={{
-                      gap:             '6px',
-                      height:          '40px',
-                      padding:         '0 14px',
-                      backgroundColor: 'var(--neutral-1)',
-                      border:          '2px solid var(--neutral-7)',
-                      borderRadius:    'var(--br-md)',
-                      color:           'var(--neutral-11)',
-                      fontSize:        '14px',
-                      fontWeight:      700,
-                      whiteSpace:      'nowrap',
-                    }}
-                  >
-                    <IconAdjustmentsHorizontal size={16} strokeWidth={2} color="var(--neutral-10)" />
-                    Filtrer
-                  </m.button>
+                <div
+                  className="flex items-center"
+                  style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}
+                >
+                  <SortFilterBtn label="Filtrer" Icon={IconAdjustmentsHorizontal} onClick={() => setFilterOpen(true)} />
+                  <BibliothequeBtn selectedLibraries={selectedLibraries} onClick={() => setLibSheetOpen(true)} />
                 </div>
 
                 {/* Categories */}
@@ -652,6 +669,12 @@ export default function CataloguePage({
         onClose={() => setSortOpen(false)}
         value={sortBy}
         onChange={setSortBy}
+      />
+      <BibliothequeBottomSheet
+        open={libSheetOpen}
+        onClose={() => setLibSheetOpen(false)}
+        onApply={setSelectedLibraries}
+        selectedLibraries={selectedLibraries}
       />
     </div>
   );

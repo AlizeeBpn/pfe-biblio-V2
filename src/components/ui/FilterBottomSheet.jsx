@@ -175,45 +175,33 @@ function FilterAccordion({ title, options, selections, onToggle, permanentOption
    ═══════════════════════════════════════════════════════════════ */
 const FILTER_SECTIONS = [
   {
-    id:      'genre',
-    title:   'Genre',
-    options: [
-      'Roman', 'Science-fiction', 'Policier', 'Thriller', 'Fantasy', 'Aventure',
-      'Horreur', 'Romance', 'Biographie', 'Autobiographie', 'Essai', 'Poésie',
-      'Théâtre', 'Conte', 'Humour', 'BD & Manga', 'Jeunesse', 'Drame historique',
-    ],
-  },
-  {
     id:      'type',
     title:   'Type de document',
     options: [
-      'Roman', 'Thèse', 'Magazine', 'BD', 'Livre documentaire', 'eBook',
+      'Roman', 'BD', 'Manga', 'Livre documentaire', 'Livre numérique', 'Presse & Revues',
+    ],
+  },
+  {
+    id:      'genre',
+    title:   'Genre',
+    options: [
+      'Science-fiction', 'Policier', 'Thriller', 'Fantaisie', 'Aventure',
+      'Horreur', 'Romance', 'Biographie', 'Autobiographie', 'Essai', 'Poésie',
+      'Théâtre', 'Conte', 'Humour', 'Jeunesse', 'Drame historique',
     ],
   },
   {
     id:      'domaine',
-    title:   "Domaine d'étude",
+    title:   'Thématique',
     options: [
-      'Littérature', 'Sciences', 'Histoire', 'Géographie', 'Philosophie', 'Art',
-      'Musique', 'Cinéma', 'Droit', 'Économie', 'Informatique', 'Mathématiques',
-      'Médecine', 'Psychologie', 'Sociologie', 'Linguistique', 'Religion', 'Sport',
-    ],
-  },
-  {
-    id:              'bibliotheque',
-    title:           'Bibliothèque',
-    permanentOption: 'Mériadeck',
-    options: [
-      'Grand Parc', 'Bacalan', 'Saint-Michel', 'Bordeaux-Lac',
-      'Sainte-Croix', 'Bordeaux-Maritime', 'Chartrons', 'Bordeaux-Sud',
-    ],
-  },
-  {
-    id:      'annee',
-    title:   'Année de publication',
-    options: [
-      'Avant 1800', '1800–1900', '1900–1950', '1950–1980',
-      '1980–2000', '2000–2010', '2010–2015', '2015–2020', 'Après 2020',
+      'Philosophie', 'Psychologie', 'Spiritualité & Religion',
+      'Sociologie', 'Économie', 'Droit', 'Politique',
+      'Langues',
+      'Mathématiques', 'Physique & Chimie', 'Biologie & Sciences naturelles', 'Astronomie & Espace',
+      'Santé & Médecine', 'Cuisine & Art de vivre', 'Jardinage & Nature', 'Activités créatives',
+      'Art & Architecture', 'Musique', 'Cinéma', 'Sport & Loisirs', 'Voyage',
+      'Histoire', 'Géographie',
+      'Technologie & Numérique',
     ],
   },
   {
@@ -237,6 +225,14 @@ const FILTER_SECTIONS = [
     options: [
       'Accès handicap', 'Braille', 'Grands caractères', 'FALC',
       'LSF (Langue des Signes)', 'Audio-description',
+    ],
+  },
+  {
+    id:      'annee',
+    title:   'Année de publication',
+    options: [
+      'Avant 1800', '1800–1900', '1900–1950', '1950–1980',
+      '1980–2000', '2000–2010', '2010–2015', '2015–2020', 'Après 2020',
     ],
   },
 ];
@@ -394,7 +390,7 @@ export default function FilterBottomSheet({
             >
               <div style={{ paddingLeft: '12px', paddingRight: '12px' }}>
                 <CheckboxRow
-                  label="Disponible maintenant"
+                  label="Disponible en bibliothèque"
                   checked={disponible}
                   onChange={setDisponible}
                 />
@@ -436,7 +432,7 @@ export default function FilterBottomSheet({
                   lineHeight:      1.5,
                 }}
               >
-                Annuler
+                Réinitialiser
               </motion.button>
 
               <motion.button
