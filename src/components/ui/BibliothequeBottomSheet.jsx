@@ -175,7 +175,7 @@ export default function BibliothequeBottomSheet({ open, onClose, onApply, select
             {/* Library list */}
             <div
               className="flex flex-col overflow-y-auto flex-1"
-              style={{ paddingTop: '16px', paddingLeft: '12px', paddingRight: '12px' }}
+              style={{ paddingTop: '16px', paddingLeft: '12px', paddingRight: '12px', minHeight: 0, WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
             >
               <LibraryRow
                 name="Titre numérique"

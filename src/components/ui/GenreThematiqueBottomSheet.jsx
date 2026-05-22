@@ -248,7 +248,7 @@ export default function GenreThematiqueBottomSheet({ open, onClose, onApply, ext
             </div>
 
             {/* Scrollable content */}
-            <div className="flex flex-col overflow-y-auto flex-1" style={{ paddingBottom: '8px' }}>
+            <div className="flex flex-col overflow-y-auto flex-1" style={{ paddingBottom: '8px', minHeight: 0, WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
 
               {/* ── FICTION ── */}
               <div style={{ borderBottom: '1px solid var(--neutral-4)', padding: '16px 20px' }}>

@@ -352,7 +352,7 @@ export default function FilterBottomSheet({
             {/* Scrollable content */}
             <div
               className="flex flex-col overflow-y-auto flex-1"
-              style={{ paddingTop: '16px' }}
+              style={{ paddingTop: '16px', minHeight: 0, WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
             >
               <div style={{ paddingLeft: '12px', paddingRight: '12px' }}>
                 <CheckboxRow
