@@ -99,64 +99,35 @@ const SHADOW_COLOR_BTN =
 function LocationSection({ library, available, returnDate, fonds, cote, isLast }) {
   return (
     <>
-      <div
-        className="flex flex-col"
-        style={{ gap: '12px', padding: '8px' }}
-      >
+      <div className="flex flex-col" style={{ gap: '12px', padding: '8px' }}>
         {/* Library name + badge */}
+        <div className="flex items-center" style={{ gap: '8px' }}>
+          <span style={{ fontSize: '16px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-title)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {library}
+          </span>
+          <Badge
+            variant={available ? 'success' : 'warning'}
+            size="large"
+            icon={<IconCalendarTime size={14} strokeWidth={2} color={available ? 'var(--success-11)' : 'var(--warning-11)'} />}
+          >
+            {available ? 'Disponible' : `Retour ${returnDate || 'bientôt'}`}
+          </Badge>
+        </div>
+
+        {/* Fonds + cote */}
         <div className="flex flex-col" style={{ gap: '6px' }}>
-          <div className="flex items-center" style={{ gap: '8px' }}>
-            <span style={{
-              fontSize:   '16px',
-              fontWeight: 700,
-              lineHeight: 1.5,
-              color:      'var(--color-text-title)',
-              whiteSpace: 'nowrap',
-              overflow:   'hidden',
-              textOverflow: 'ellipsis',
-            }}>
-              {library}
+          <p style={{ fontSize: '14px', fontWeight: 400, lineHeight: 1.5, color: 'var(--color-text-body)', margin: 0 }}>
+            {fonds}
+          </p>
+          <div className="flex items-center" style={{ gap: '6px' }}>
+            <IconBook2 size={20} strokeWidth={2} color="var(--color-text-subtle)" style={{ flexShrink: 0 }} />
+            <span style={{ fontSize: '14px', fontWeight: 400, lineHeight: 1.5, color: 'var(--color-text-body)' }}>
+              {cote}
             </span>
-
-            {/* Tiny badge h-20px */}
-            <Badge
-              variant={available ? 'success' : 'warning'}
-              size="large"
-              icon={<IconCalendarTime size={14} strokeWidth={2} color={available ? 'var(--success-11)' : 'var(--warning-11)'} />}
-            >
-              {available ? 'Disponible' : `Retour ${returnDate || 'bientôt'}`}
-            </Badge>
-          </div>
-
-          {/* Description Container */}
-          <div className="flex flex-col" style={{ gap: '6px' }}>
-            {/* Fonds description */}
-            <p style={{
-              fontSize:   '14px',
-              fontWeight: 400,
-              lineHeight: 1.5,
-              color:      'var(--color-text-body)',
-              margin:     0,
-            }}>
-              {fonds}
-            </p>
-
-            {/* Cote with book icon */}
-            <div className="flex items-center" style={{ gap: '6px' }}>
-              <IconBook2 size={20} strokeWidth={2} color="var(--color-text-subtle)" style={{ flexShrink: 0 }} />
-              <span style={{
-                fontSize:   '14px',
-                fontWeight: 400,
-                lineHeight: 1.5,
-                color:      'var(--color-text-body)',
-              }}>
-                {cote}
-              </span>
-            </div>
           </div>
         </div>
 
-        {/* CTA button */}
+        {/* Réserver */}
         <motion.button
           type="button"
           whileTap={{ scale: 0.97 }}
@@ -164,28 +135,21 @@ function LocationSection({ library, available, returnDate, fonds, cote, isLast }
           style={{
             height:          '32px',
             padding:         '0 12px',
-            gap:             '6px',
             backgroundColor: 'var(--primary-10)',
             borderRadius:    'var(--br-sm)',
             boxShadow:       SHADOW_COLOR_BTN,
+            fontSize:        '14px',
+            fontWeight:      700,
+            lineHeight:      1.5,
+            color:           'var(--neutral-1)',
           }}
         >
-          <IconMessageChatbot size={16} strokeWidth={2} color="var(--neutral-1)" />
-          <span style={{
-            fontSize:   '14px',
-            fontWeight: 700,
-            lineHeight: 1.5,
-            color:      'var(--neutral-1)',
-            whiteSpace: 'nowrap',
-          }}>
-            Demande de communication sur place
-          </span>
+          Réserver
         </motion.button>
       </div>
 
-      {/* Divider between sections */}
       {!isLast && (
-        <div style={{ height: '1px', backgroundColor: 'var(--primary-4)', margin: '0' }} />
+        <div style={{ height: '1px', backgroundColor: 'var(--primary-4)' }} />
       )}
     </>
   );
@@ -918,7 +882,7 @@ function AddToListModal({ book, lists, onAddToList, onCreateList, onClose }) {
         {/* Header */}
         <div className="flex items-center" style={{ padding: '0 20px 2px', gap: 4, flexShrink: 0 }}>
           <p style={{ flex: '1 0 0', fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, color: 'var(--color-text-title)', margin: 0 }}>
-            {view === 'select' ? 'Ajouter à une liste' : 'Créer une liste'}
+            {view === 'select' ? 'Ajouter à une liste de favoris' : 'Créer une liste de favoris'}
           </p>
           <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={onClose}
             style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: 'var(--neutral-4)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -965,7 +929,7 @@ function AddToListModal({ book, lists, onAddToList, onCreateList, onClose }) {
               <motion.button type="button" whileTap={{ scale: 0.97 }} onClick={handleValidate}
                 disabled={selectedId === null}
                 style={{ flex: 1, height: 48, backgroundColor: selectedId !== null ? 'var(--primary-10)' : 'var(--neutral-5)', border: 'none', borderRadius: 10, fontSize: '16px', fontWeight: 700, color: selectedId !== null ? 'white' : 'var(--neutral-9)', cursor: selectedId !== null ? 'pointer' : 'default', boxShadow: selectedId !== null ? SHADOW_MODAL_BTN : 'none', transition: 'background-color 0.2s' }}>
-                Valider la sélection
+                Ajouter
               </motion.button>
             </div>
           </>
@@ -1076,14 +1040,29 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
 
           <div className="flex-1" />
 
-          {/* Availability badge — right aligned */}
-          <Badge
-            variant={available ? 'success' : 'warning'}
-            size="large"
-            icon={<IconCalendarTime size={20} strokeWidth={2} color={available ? 'var(--success-11)' : 'var(--warning-11)'} />}
+          {/* Favoris button */}
+          <motion.button
+            type="button"
+            whileTap={{ scale: 0.93 }}
+            onClick={() => setListModalOpen(true)}
+            className="inline-flex items-center justify-center outline-none border-none cursor-pointer"
+            style={{
+              height:          '40px',
+              padding:         '0 14px',
+              gap:             '6px',
+              borderRadius:    'var(--br-md)',
+              backgroundColor: saved ? 'var(--primary-4)' : 'var(--primary-3)',
+              border:          saved ? '1px solid var(--primary-8)' : '1px solid var(--primary-6)',
+            }}
           >
-            {available ? 'Disponible' : `Retour ${returnDate || 'bientôt'}`}
-          </Badge>
+            {saved
+              ? <IconBookmarkFilled size={18} color="var(--primary-11)" />
+              : <IconBookmarkPlus   size={18} strokeWidth={2} color="var(--primary-11)" />
+            }
+            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--primary-11)', whiteSpace: 'nowrap' }}>
+              Favoris
+            </span>
+          </motion.button>
         </div>
       </div>
 
@@ -1115,8 +1094,8 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
             {title}
           </p>
 
-          {/* key_info: rating + pages — side by side */}
-          <div className="flex items-center justify-center" style={{ gap: '16px' }}>
+          {/* key_info: rating + pages + dispo */}
+          <div className="flex items-center justify-center flex-wrap" style={{ gap: '12px' }}>
             {/* Rating — Lora Bold 16px text-subtle + star 16px secondary */}
             {rating != null && (
               <div className="flex items-center" style={{ gap: '6px', height: '32px' }}>
@@ -1133,23 +1112,26 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
               </div>
             )}
 
-            {/* Pages — Lora Medium 16px text-subtle */}
+            {/* Pages */}
             <div className="flex items-center" style={{ height: '32px' }}>
-              <span style={{
-                fontFamily: 'var(--font-brand)',
-                fontSize:   '16px',
-                fontWeight: 500,
-                lineHeight: 1.2,
-                color:      'var(--color-text-subtle)',
-              }}>
+              <span style={{ fontFamily: 'var(--font-brand)', fontSize: '16px', fontWeight: 500, lineHeight: 1.2, color: 'var(--color-text-subtle)' }}>
                 {pages} pages
               </span>
             </div>
+
+            {/* Disponibilité */}
+            <Badge
+              variant={available ? 'success' : 'warning'}
+              size="large"
+              icon={<IconCalendarTime size={14} strokeWidth={2} color={available ? 'var(--success-11)' : 'var(--warning-11)'} />}
+            >
+              {available ? 'Disponible' : `Retour ${returnDate || 'bientôt'}`}
+            </Badge>
           </div>
 
           {/* Genre badges — secondary colored, wrapping, centered */}
           <div className="flex flex-wrap justify-center w-full" style={{ gap: '8px' }}>
-            {genreList.map(g => <Badge key={g} variant="default" size="large">{g}</Badge>)}
+            {genreList.map(g => <Badge key={g} variant="neutral" size="large">{g}</Badge>)}
           </div>
         </div>
 
@@ -1172,7 +1154,7 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
           if (info.offset.x < -50 && activeTab < TABS.length - 1) changeTab(activeTab + 1);
           else if (info.offset.x > 50 && activeTab > 0) changeTab(activeTab - 1);
         }}
-        style={{ padding: '32px 20px 160px', cursor: 'grab', touchAction: 'pan-y' }}
+        style={{ padding: '32px 20px 48px', cursor: 'grab', touchAction: 'pan-y' }}
       >
         {activeTab === 0 && (
           <TabPropos book={book || {}} onBookSelect={onBookSelect} />
@@ -1190,70 +1172,18 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
       </motion.div>
       </AnimatePresence>
 
-      {/* ══ FIXED BOTTOM BAR ═════════════════════════ */}
-      {/*  bg neutral-1, shadow depth-neutral-3, p-20      */}
-      <div
-        className="fixed bottom-0 left-0 right-0 z-40 flex items-center"
-        style={{
-          backgroundColor: 'var(--neutral-1)',
-          boxShadow:       SHADOW_BOTTOM,
-          padding:         '20px',
-          gap:             '12px',
-        }}
-      >
-        {/* Bookmark button — ouvre la modale Ajouter à une liste */}
-        <motion.button
-          type="button"
-          whileTap={{ scale: 0.93 }}
-          onClick={() => setListModalOpen(true)}
-          className="flex items-center justify-center outline-none border-none cursor-pointer shrink-0"
-          style={{
-            width:           '48px',
-            height:          '48px',
-            borderRadius:    'var(--br-md)',
-            backgroundColor: saved ? 'var(--primary-4)' : 'var(--primary-3)',
-          }}
-        >
-          {saved
-            ? <IconBookmarkFilled size={20} color="var(--primary-10)" />
-            : <IconBookmarkPlus   size={20} strokeWidth={2} color="var(--primary-10)" />
-          }
-        </motion.button>
-
-        {/* ADD TO LIST MODAL */}
-        <AnimatePresence>
-          {listModalOpen && (
-            <AddToListModal
-              book={book}
-              lists={lists}
-              onAddToList={onAddToList}
-              onCreateList={onCreateList}
-              onClose={() => setListModalOpen(false)}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Réserver — flex-1, primary-10 bg, white text */}
-        <motion.button
-          type="button"
-          whileTap={{ scale: 0.97 }}
-          className="flex-1 flex items-center justify-center outline-none border-none cursor-pointer"
-          style={{
-            height:          '48px',
-            padding:         '0 20px',
-            borderRadius:    'var(--br-md)',
-            backgroundColor: 'var(--primary-10)',
-            boxShadow:       SHADOW_RESERV,
-            fontSize:        '16px',
-            fontWeight:      700,
-            lineHeight:      1.5,
-            color:           'var(--neutral-1)',
-            whiteSpace:      'nowrap',
-          }}
-        >
-          Réserver
-        </motion.button>
-      </div>
+      {/* ADD TO LIST MODAL */}
+      <AnimatePresence>
+        {listModalOpen && (
+          <AddToListModal
+            book={book}
+            lists={lists}
+            onAddToList={onAddToList}
+            onCreateList={onCreateList}
+            onClose={() => setListModalOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

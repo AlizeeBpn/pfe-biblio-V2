@@ -7,6 +7,7 @@ import {
   IconUsers,
   IconChevronRight,
   IconSparkles,
+  IconMessageChatbot,
 } from '@tabler/icons-react';
 import { BottomNavigation } from '../components/ui/BottomNavigation';
 import { RoundIcon } from '../components/ui/RoundIcon';
@@ -22,6 +23,15 @@ const SHADOW_HEADER = '0px -2px 10px rgba(99,181,180,0.08), 0px 2px 10px rgba(99
    SERVICE CARD
    ════════════════════════════════════════════════════ */
 const SERVICES = [
+  {
+    id: 7,
+    icon: IconMessageChatbot,
+    title: 'Demander à un·e bibliothécaire',
+    description: 'Réserver une communication ou demander conseil à un professionnel sur place',
+    variant: 'secondary',
+    badge: 'Sur place',
+    badgeVariant: 'default',
+  },
   {
     id: 1,
     icon: IconCalendarEvent,

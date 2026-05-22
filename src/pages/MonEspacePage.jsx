@@ -572,7 +572,7 @@ function ListDetailScreen({ list, onBack, onRemoveBook, onBookSelect }) {
 /* ════════════════════════════════════════════════════
    PAGE
    ════════════════════════════════════════════════════ */
-const NAV_TABS = ['Mon activité', 'Mes listes', 'Historique'];
+const NAV_TABS = ['Mon activité', 'Mes favoris', 'Historique'];
 
 export default function MonEspacePage({
   activeTab: activeTabProp,
