@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BrowserMultiFormatOneDReader, BarcodeFormat } from '@zxing/browser';
 import { DecodeHintType } from '@zxing/library';
-import { IconArrowLeft, IconCamera, IconCameraOff, IconLoader2 } from '@tabler/icons-react';
+import { IconArrowLeft, IconCamera, IconCameraOff, IconLoader2, IconBookOff, IconRefresh } from '@tabler/icons-react';
 import BookBottomSheet from '../components/BookBottomSheet';
 import { BOOKS } from '../data/books';
 
@@ -133,6 +133,7 @@ export default function ScannerPage({ onBack, onBookSelect }) {
   const isProcessingRef = useRef(false);  // debounce — prevents multi-fire from ZXing
   const [phase,       setPhase]       = useState('idle');
   const [scannedBook, setScannedBook] = useState(null);
+  const [scannedIsbn, setScannedIsbn] = useState(null);
 
   /* ── Full cleanup: stop ZXing controls + kill camera tracks ── */
   const stopAll = useCallback(() => {
@@ -210,19 +211,22 @@ export default function ScannerPage({ onBack, onBookSelect }) {
             return cleanLocal === cleanIsbn;
           });
 
+          setScannedIsbn(cleanIsbn);
+
           if (localBook) {
             setScannedBook(localBook);
             setPhase('scanned');
           } else {
             fetchBookByISBN(cleanIsbn)
               .then(bookData => {
-                setScannedBook(bookData ?? FALLBACK_BOOK);
-                setPhase('scanned');
+                if (bookData) {
+                  setScannedBook(bookData);
+                  setPhase('scanned');
+                } else {
+                  setPhase('not_found');
+                }
               })
-              .catch(() => {
-                setScannedBook(FALLBACK_BOOK);
-                setPhase('scanned');
-              });
+              .catch(() => setPhase('not_found'));
           }
         }
       )
@@ -609,6 +613,52 @@ export default function ScannerPage({ onBack, onBookSelect }) {
           </div>
         )}
       </div>
+
+      {/* ── Not found placeholder ── */}
+      <AnimatePresence>
+        {phase === 'not_found' && (
+          <motion.div
+            key="not-found"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 40 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 50,
+              background: 'linear-gradient(180deg, var(--secondary-2) 0%, var(--neutral-2) 49.04%), var(--neutral-2)',
+              display: 'flex', flexDirection: 'column',
+            }}
+          >
+            {Header}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px', padding: '32px' }}>
+              <div style={{ width: '88px', height: '88px', borderRadius: 'var(--br-round)', backgroundColor: 'var(--neutral-4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <IconBookOff size={44} strokeWidth={1.5} color="var(--neutral-10)" />
+              </div>
+              <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '280px' }}>
+                <p style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.4, color: 'var(--color-text-title)', margin: 0 }}>
+                  Livre introuvable
+                </p>
+                {scannedIsbn && (
+                  <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-subtle)', margin: 0 }}>
+                    ISBN : {scannedIsbn}
+                  </p>
+                )}
+                <p style={{ fontSize: '14px', fontWeight: 400, lineHeight: 1.6, color: 'var(--color-text-body)', margin: 0 }}>
+                  Ce livre n'est pas référencé dans notre base de données. Essayez de le rechercher manuellement.
+                </p>
+              </div>
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.97 }}
+                onClick={() => { setPhase('scanning'); setScannedIsbn(null); }}
+                style={{ height: '48px', padding: '0 24px', borderRadius: 'var(--br-md)', backgroundColor: 'var(--primary-3)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 700, color: 'var(--primary-11)' }}
+              >
+                <IconRefresh size={20} strokeWidth={2} color="var(--primary-11)" />
+                Scanner à nouveau
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Bottom sheet + backdrop */}
       <AnimatePresence>
