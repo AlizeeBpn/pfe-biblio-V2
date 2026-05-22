@@ -133,12 +133,12 @@ function LocationSection({ library, available, returnDate, fonds, cote, isLast }
           whileTap={{ scale: 0.97 }}
           className="w-full flex items-center justify-center outline-none border-none cursor-pointer"
           style={{
-            height:          '32px',
-            padding:         '0 12px',
+            height:          '48px',
+            padding:         '0 16px',
             backgroundColor: 'var(--primary-10)',
-            borderRadius:    'var(--br-sm)',
+            borderRadius:    'var(--br-md)',
             boxShadow:       SHADOW_COLOR_BTN,
-            fontSize:        '14px',
+            fontSize:        '16px',
             fontWeight:      700,
             lineHeight:      1.5,
             color:           'var(--neutral-1)',
@@ -882,7 +882,7 @@ function AddToListModal({ book, lists, onAddToList, onCreateList, onClose }) {
         {/* Header */}
         <div className="flex items-center" style={{ padding: '0 20px 2px', gap: 4, flexShrink: 0 }}>
           <p style={{ flex: '1 0 0', fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, color: 'var(--color-text-title)', margin: 0 }}>
-            {view === 'select' ? 'Ajouter à une liste de favoris' : 'Créer une liste de favoris'}
+            {view === 'select' ? 'Ajouter aux favoris' : 'Créer une liste de favoris'}
           </p>
           <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={onClose}
             style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: 'var(--neutral-4)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1040,28 +1040,23 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
 
           <div className="flex-1" />
 
-          {/* Favoris button */}
+          {/* Bookmark — icône rond, style back button */}
           <motion.button
             type="button"
             whileTap={{ scale: 0.93 }}
             onClick={() => setListModalOpen(true)}
-            className="inline-flex items-center justify-center outline-none border-none cursor-pointer"
+            className="flex items-center justify-center outline-none border-none cursor-pointer shrink-0"
             style={{
+              width:           '40px',
               height:          '40px',
-              padding:         '0 14px',
-              gap:             '6px',
-              borderRadius:    'var(--br-md)',
-              backgroundColor: saved ? 'var(--primary-4)' : 'var(--primary-3)',
-              border:          saved ? '1px solid var(--primary-8)' : '1px solid var(--primary-6)',
+              borderRadius:    'var(--br-round)',
+              backgroundColor: saved ? 'var(--primary-3)' : 'var(--neutral-4)',
             }}
           >
             {saved
-              ? <IconBookmarkFilled size={18} color="var(--primary-11)" />
-              : <IconBookmarkPlus   size={18} strokeWidth={2} color="var(--primary-11)" />
+              ? <IconBookmarkFilled size={20} color="var(--primary-10)" />
+              : <IconBookmarkPlus   size={20} strokeWidth={2} color="var(--color-text-title)" />
             }
-            <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--primary-11)', whiteSpace: 'nowrap' }}>
-              Favoris
-            </span>
           </motion.button>
         </div>
       </div>

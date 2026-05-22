@@ -699,7 +699,7 @@ export default function MonEspacePage({
             className="flex items-center justify-center w-full outline-none cursor-pointer"
             style={{ gap: "8px", height: "48px", padding: "0 20px", backgroundColor: "var(--primary-10)", borderRadius: "var(--br-md)", border: "none", boxShadow: SHADOW_BTN }}>
             <IconQrcode size={20} strokeWidth={2} color="var(--neutral-1)" />
-            <span style={{ fontSize: "16px", fontWeight: 700, lineHeight: 1.5, color: "var(--neutral-1)", whiteSpace: "nowrap" }}>Afficher ma carte d\"adhérente</span>
+            <span style={{ fontSize: "16px", fontWeight: 700, lineHeight: 1.5, color: "var(--neutral-1)", whiteSpace: "nowrap" }}>Afficher ma carte d'adhérente</span>
           </motion.button>
 
         {/* Tabs */}
