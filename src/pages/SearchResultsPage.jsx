@@ -394,7 +394,7 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
     let cancelled = false;
     setGoogleLoading(true);
     setGoogleError(null);
-    searchGoogleBooks(searchQuery, 10)
+    searchGoogleBooks(searchQuery, 20)
       .then((res) => { if (!cancelled) { setGoogleResults(res); } })
       .catch((err) => { if (!cancelled) { setGoogleResults([]); setGoogleError(err.message); } })
       .finally(() => { if (!cancelled) setGoogleLoading(false); });

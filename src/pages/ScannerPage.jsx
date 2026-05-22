@@ -635,21 +635,16 @@ export default function ScannerPage({ onBack, onBookSelect }) {
               </div>
               <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '280px' }}>
                 <p style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.4, color: 'var(--color-text-title)', margin: 0 }}>
-                  Livre introuvable
+                  Livre non trouvé
                 </p>
-                {scannedIsbn && (
-                  <p style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-subtle)', margin: 0 }}>
-                    ISBN : {scannedIsbn}
-                  </p>
-                )}
                 <p style={{ fontSize: '14px', fontWeight: 400, lineHeight: 1.6, color: 'var(--color-text-body)', margin: 0 }}>
-                  Ce livre n'est pas référencé dans notre base de données. Essayez de le rechercher manuellement.
+                  On n'a pas trouvé ce livre. Essayez de le rechercher par son titre dans la barre de recherche.
                 </p>
               </div>
               <motion.button
                 type="button"
                 whileTap={{ scale: 0.97 }}
-                onClick={() => { setPhase('scanning'); setScannedIsbn(null); }}
+                onClick={() => { isProcessingRef.current = false; setScannedIsbn(null); setPhase('scanning'); }}
                 style={{ height: '48px', padding: '0 24px', borderRadius: 'var(--br-md)', backgroundColor: 'var(--primary-3)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 700, color: 'var(--primary-11)' }}
               >
                 <IconRefresh size={20} strokeWidth={2} color="var(--primary-11)" />

@@ -465,7 +465,7 @@ export default function CataloguePage({
     const timer = setTimeout(() => {
       setGoogleLoading(true);
       setGoogleError(null);
-      searchGoogleBooks(q, 6)
+      searchGoogleBooks(q, 15)
         .then(res  => { if (!cancelled) { setGoogleResults(res); } })
         .catch(err => { if (!cancelled) { setGoogleResults([]); setGoogleError(err.message); } })
         .finally(() => { if (!cancelled) setGoogleLoading(false); });
