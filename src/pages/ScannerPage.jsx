@@ -212,16 +212,14 @@ export default function ScannerPage({ onBack, onBookSelect }) {
 
           if (localBook) {
             setScannedBook(localBook);
-            if (mounted) setPhase('scanned');
+            setPhase('scanned');
           } else {
             fetchBookByISBN(cleanIsbn)
               .then(bookData => {
-                if (!mounted) return;
                 setScannedBook(bookData ?? FALLBACK_BOOK);
                 setPhase('scanned');
               })
               .catch(() => {
-                if (!mounted) return;
                 setScannedBook(FALLBACK_BOOK);
                 setPhase('scanned');
               });
