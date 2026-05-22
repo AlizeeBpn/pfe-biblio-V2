@@ -152,8 +152,6 @@ function DocAccordion({ section, parentSelected, onParentToggle, itemSelections,
      externalState  — { types, genres, docParents, docItems }
    ═══════════════════════════════════════════════════ */
 export default function GenreThematiqueBottomSheet({ open, onClose, onApply, externalState }) {
-  const [fictionExpanded,     setFictionExpanded]     = useState(false);
-  const [documentaireExpanded, setDocumentaireExpanded] = useState(false);
   const [types,           setTypes]           = useState(externalState?.types      ?? {});
   const [genres,          setGenres]          = useState(externalState?.genres     ?? {});
   const [docParents,      setDocParents]      = useState(externalState?.docParents ?? {});
@@ -252,104 +250,50 @@ export default function GenreThematiqueBottomSheet({ open, onClose, onApply, ext
             {/* Scrollable content */}
             <div className="flex flex-col overflow-y-auto flex-1" style={{ paddingBottom: '8px' }}>
 
-              {/* ── FICTION accordion ── */}
-              <div style={{ borderBottom: '1px solid var(--neutral-4)' }}>
-                <motion.div
-                  whileTap={{ opacity: 0.7 }}
-                  onClick={() => setFictionExpanded(v => !v)}
-                  className="flex items-center cursor-pointer"
-                  style={{ minHeight: '56px', paddingLeft: '20px', paddingRight: '12px', gap: '8px' }}
-                >
+              {/* ── FICTION ── */}
+              <div style={{ borderBottom: '1px solid var(--neutral-4)', padding: '16px 20px' }}>
+                <div className="flex items-center" style={{ marginBottom: '12px' }}>
                   <span className="flex-1" style={{ fontFamily: 'var(--font-brand)', fontSize: '16px', fontWeight: 700, lineHeight: 1.4, color: 'var(--color-text-body)' }}>
                     Fiction
                   </span>
                   <CountBadge count={Object.values(types).filter(Boolean).length + Object.values(genres).filter(Boolean).length} />
-                  {fictionExpanded
-                    ? <IconChevronUp   size={24} strokeWidth={2} color="var(--neutral-10)" />
-                    : <IconChevronDown size={24} strokeWidth={2} color="var(--neutral-10)" />
-                  }
-                </motion.div>
-
-                <AnimatePresence initial={false}>
-                  {fictionExpanded && (
-                    <motion.div
-                      key="fiction-body"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2, ease: 'easeInOut' }}
-                      style={{ overflow: 'hidden' }}
-                    >
-                      <div className="flex flex-col" style={{ gap: '12px', padding: '4px 20px 16px' }}>
-                        {/* Types — Roman, BD, Manga */}
-                        <div className="flex flex-wrap" style={{ gap: '8px' }}>
-                          {FICTION_TYPES.map(t => (
-                            <ToggleButton key={t} size="medium" selected={!!types[t]} onChange={val => toggleType(t, val)}>
-                              {t}
-                            </ToggleButton>
-                          ))}
-                        </div>
-                        {/* Séparateur */}
-                        <div style={{ height: '1px', backgroundColor: 'var(--neutral-3)' }} />
-                        {/* Sous-genres */}
-                        <div className="flex flex-wrap" style={{ gap: '8px' }}>
-                          {FICTION_GENRES.map(g => (
-                            <ToggleButton key={g} size="medium" selected={!!genres[g]} onChange={val => toggleGenre(g, val)}>
-                              {g}
-                            </ToggleButton>
-                          ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                </div>
+                <div className="flex flex-col" style={{ gap: '12px' }}>
+                  <div className="flex flex-wrap" style={{ gap: '8px' }}>
+                    {FICTION_TYPES.map(t => (
+                      <ToggleButton key={t} size="medium" selected={!!types[t]} onChange={val => toggleType(t, val)}>{t}</ToggleButton>
+                    ))}
+                  </div>
+                  <div style={{ height: '1px', backgroundColor: 'var(--neutral-3)' }} />
+                  <div className="flex flex-wrap" style={{ gap: '8px' }}>
+                    {FICTION_GENRES.map(g => (
+                      <ToggleButton key={g} size="medium" selected={!!genres[g]} onChange={val => toggleGenre(g, val)}>{g}</ToggleButton>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {/* ── DOCUMENTAIRE accordion header ── */}
-              <div style={{ borderBottom: documentaireExpanded ? 'none' : '1px solid var(--neutral-4)' }}>
-                <motion.div
-                  whileTap={{ opacity: 0.7 }}
-                  onClick={() => setDocumentaireExpanded(v => !v)}
-                  className="flex items-center cursor-pointer"
-                  style={{ minHeight: '56px', paddingLeft: '20px', paddingRight: '12px', gap: '8px' }}
-                >
+              {/* ── DOCUMENTAIRE ── */}
+              <div style={{ padding: '16px 20px 0' }}>
+                <div className="flex items-center" style={{ marginBottom: '4px' }}>
                   <span className="flex-1" style={{ fontFamily: 'var(--font-brand)', fontSize: '16px', fontWeight: 700, lineHeight: 1.4, color: 'var(--color-text-body)' }}>
                     Documentaire
                   </span>
                   <CountBadge count={Object.values(docParents).filter(Boolean).length + Object.values(docItems).filter(Boolean).length} />
-                  {documentaireExpanded
-                    ? <IconChevronUp   size={24} strokeWidth={2} color="var(--neutral-10)" />
-                    : <IconChevronDown size={24} strokeWidth={2} color="var(--neutral-10)" />
-                  }
-                </motion.div>
+                </div>
               </div>
-
-              {/* ── DOCUMENTAIRE accordions ── */}
-              <AnimatePresence initial={false}>
-                {documentaireExpanded && (
-                  <motion.div
-                    key="doc-sections"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: 'easeInOut' }}
-                    style={{ overflow: 'hidden' }}
-                  >
-                    {DOC_SECTIONS.map(section => (
-                      <DocAccordion
-                        key={section.id}
-                        section={section}
-                        parentSelected={!!docParents[section.id]}
-                        onParentToggle={() => toggleParent(section.id)}
-                        itemSelections={Object.fromEntries(section.items.map(item => [item, !!docItems[item]]))}
-                        onItemToggle={toggleItem}
-                        expanded={!!expanded[section.id]}
-                        onExpandToggle={() => toggleExpand(section.id)}
-                      />
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {DOC_SECTIONS.map(section => (
+                <DocAccordion
+                  key={section.id}
+                  section={section}
+                  parentSelected={!!docParents[section.id]}
+                  onParentToggle={() => toggleParent(section.id)}
+                  itemSelections={Object.fromEntries(section.items.map(item => [item, !!docItems[item]]))}
+                  onItemToggle={toggleItem}
+                  expanded={!!expanded[section.id]}
+                  onExpandToggle={() => toggleExpand(section.id)}
+                />
+              ))}
             </div>
 
             {/* Footer */}

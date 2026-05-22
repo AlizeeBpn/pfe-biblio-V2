@@ -72,25 +72,14 @@ function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, bad
         justifyContent:  'flex-end',
       }}
     >
-      {/* Info container */}
+      {/* Info container — ordre Figma : catégorie → compteur → badge */}
       <div className="flex flex-col w-full" style={{ gap: '8px' }}>
-        {/* Badge — haut, compact */}
-        <div className="flex shrink-0">
-          <Badge
-            variant={badgeVariant}
-            size="large"
-            icon={BadgeIcon && <BadgeIcon size={16} strokeWidth={2} color={iconColor} />}
-          >
-            {badge}
-          </Badge>
-        </div>
-
-        {/* Catégorie — centré */}
+        {/* Catégorie */}
         <p style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0, textAlign: 'center', width: '100%' }}>
           {category}
         </p>
 
-        {/* Compteur centré */}
+        {/* Compteur */}
         <div className="flex items-center justify-center w-full" style={{ gap: '6px' }}>
           <span style={{ fontFamily: 'var(--font-brand)', fontSize: '24px', fontWeight: 700, lineHeight: 1.2, color: 'var(--color-text-title)' }}>
             {count}
@@ -98,6 +87,18 @@ function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, bad
           <span style={{ fontFamily: 'var(--font-brand)', fontSize: '16px', fontWeight: 700, lineHeight: 1.2, color: 'var(--color-text-title)' }}>
             {typeLabel}
           </span>
+        </div>
+
+        {/* Badge — bas, centré, tronqué si texte trop long */}
+        <div style={{ maxWidth: '100%', overflow: 'hidden', display: 'flex', justifyContent: 'center' }}>
+          <Badge
+            variant={badgeVariant}
+            size="large"
+            icon={BadgeIcon && <BadgeIcon size={16} strokeWidth={2} color={iconColor} />}
+            truncate
+          >
+            {badge}
+          </Badge>
         </div>
       </div>
 
@@ -396,6 +397,8 @@ function ListNameModal({ title, confirmLabel = 'Créer la liste', initialValue =
    LIST BOOK CARD — carte livre dans le détail de liste
    ════════════════════════════════════════════════════ */
 function ListBookCard({ book, removeMode, onRemove, onSelect }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <motion.div
       whileTap={!removeMode ? { scale: 0.99 } : {}}
@@ -440,9 +443,8 @@ function ListBookCard({ book, removeMode, onRemove, onSelect }) {
       {/* Content */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '8px', padding: '0 0 16px 12px' }}>
 
-        {/* Availability + Rating row */}
+        {/* Availability + ⋮ row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Badge disponibilité */}
           <Badge
             variant={book.available !== false ? 'success' : 'default'}
             size="large"
@@ -451,11 +453,45 @@ function ListBookCard({ book, removeMode, onRemove, onSelect }) {
             {book.available !== false ? 'Disponible' : 'Indisponible'}
           </Badge>
 
-          {/* Rating */}
           {book.rating && (
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-subtle)', whiteSpace: 'nowrap' }}>{book.rating}/5</span>
-              <IconStar size={16} strokeWidth={0} fill="var(--warning-9)" color="var(--warning-9)" />
+            <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-subtle)', whiteSpace: 'nowrap' }}>{book.rating}/5</span>
+          )}
+
+          <div style={{ flex: 1 }} />
+
+          {/* ⋮ menu */}
+          {!removeMode && (
+            <div style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setMenuOpen(v => !v)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+              >
+                <IconDotsVertical size={18} strokeWidth={2} color="var(--color-text-subtle)" />
+              </motion.button>
+              <AnimatePresence>
+                {menuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.92, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.92, y: -4 }}
+                    transition={{ duration: 0.12 }}
+                    style={{ position: 'absolute', top: '28px', right: 0, zIndex: 100, backgroundColor: 'var(--neutral-1)', borderRadius: '8px', boxShadow: SHADOW_DROPDOWN, padding: '6px', minWidth: '180px' }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <motion.button
+                      type="button"
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => { onRemove(book.id); setMenuOpen(false); }}
+                      style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '6px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: '14px', fontWeight: 600, color: 'var(--error-11)', textAlign: 'left' }}
+                    >
+                      <IconTrash size={16} strokeWidth={2} color="var(--error-11)" />
+                      Retirer de la liste
+                    </motion.button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
         </div>
@@ -490,7 +526,7 @@ function ListDetailScreen({ list, onBack, onRemoveBook, onBookSelect }) {
   return (
     <div
       className="min-h-dvh font-sans flex flex-col"
-      style={{ background: 'linear-gradient(180deg, var(--primary-2) 0%, var(--neutral-2) 49%), var(--neutral-2)', paddingBottom: '100px' }}
+      style={{ background: 'linear-gradient(180deg, var(--secondary-1) 0%, var(--neutral-2) 49.04%), var(--neutral-2)', paddingBottom: '100px' }}
     >
       {/* Header */}
       <div style={{
@@ -666,7 +702,7 @@ export default function MonEspacePage({
   return (
     <div
       className="min-h-dvh font-sans flex flex-col relative"
-      style={{ background: 'linear-gradient(180deg, var(--primary-2) 0%, var(--neutral-2) 49%), var(--neutral-2)', paddingBottom: 'var(--layout-12)' }}
+      style={{ background: 'linear-gradient(180deg, var(--secondary-1) 0%, var(--neutral-2) 49.04%), var(--neutral-2)', paddingBottom: 'var(--layout-12)' }}
     >
 
       {/* ══ HEADER ══════════════════════════════════════ */}
@@ -730,7 +766,7 @@ export default function MonEspacePage({
               <p style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>Réservation et prêt</p>
               <div className="flex" style={{ gap: '6px' }}>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Réservations" count="4" typeLabel="Titres" badge="Disponible à Mériadeck" badgeIcon={IconShoppingBagCheck} badgeVariant="success" onClick={() => setReservationSheet('reservations')} />
+                  <InfoCard category="Réservations" count="4" typeLabel="Titres" badge="Prêt à Mériadeck" badgeIcon={IconShoppingBagCheck} badgeVariant="success" onClick={() => setReservationSheet('reservations')} />
                 </motion.div>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, type: 'spring', stiffness: 260, damping: 20 }}>
                   <InfoCard category="Services" count="1" typeLabel="Salle d'étude" badge="12 janv. (9h - 12h)" badgeIcon={IconCalendarEvent} badgeVariant="info" />

@@ -19,18 +19,21 @@ export const BORDEAUX_LIBRARIES = [
   'Bordeaux-Sud',
 ];
 
-function LibraryRow({ name, checked, onChange }) {
+function LibraryRow({ name, checked, onChange, disabled = false }) {
   return (
     <motion.div
-      whileTap={{ opacity: 0.7 }}
-      onClick={() => onChange(!checked)}
-      className="flex items-center cursor-pointer w-full"
+      whileTap={disabled ? {} : { opacity: 0.7 }}
+      onClick={() => !disabled && onChange(!checked)}
+      className="flex items-center w-full"
       style={{
-        height:        '56px',
+        minHeight:     '56px',
         paddingLeft:   '20px',
         paddingRight:  '20px',
         gap:           '12px',
         borderBottom:  '1px solid var(--neutral-4)',
+        cursor:        disabled ? 'default' : 'pointer',
+        opacity:       disabled ? 0.4 : 1,
+        transition:    'opacity 0.15s',
       }}
     >
       <span className="flex-1" style={{
@@ -172,28 +175,20 @@ export default function BibliothequeBottomSheet({ open, onClose, onApply, select
             {/* Library list */}
             <div
               className="flex flex-col overflow-y-auto flex-1"
-              style={{ paddingTop: '8px', paddingLeft: '12px', paddingRight: '12px' }}
+              style={{ paddingTop: '16px', paddingLeft: '12px', paddingRight: '12px' }}
             >
-              {/* Titre numérique */}
               <LibraryRow
                 name="Titre numérique"
                 checked={!!localSelected['Titre numérique']}
                 onChange={() => toggle('Titre numérique')}
               />
-              {/* Séparateur */}
-              <p style={{
-                fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em',
-                textTransform: 'uppercase', color: 'var(--color-text-subtle)',
-                margin: '12px 0 0 8px',
-              }}>
-                Bibliothèques
-              </p>
               {BORDEAUX_LIBRARIES.map(lib => (
                 <LibraryRow
                   key={lib}
                   name={lib}
                   checked={!!localSelected[lib]}
                   onChange={() => toggle(lib)}
+                  disabled={!!localSelected['Titre numérique']}
                 />
               ))}
               <div style={{ height: '8px', flexShrink: 0 }} />

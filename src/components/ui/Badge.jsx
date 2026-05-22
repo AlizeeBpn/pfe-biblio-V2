@@ -40,7 +40,7 @@ const variants = {
   info:    { bg: 'var(--info-3)',      text: 'var(--info-12)'      },
 };
 
-export const Badge = ({ children, size = 'medium', variant = 'default', icon }) => {
+export const Badge = ({ children, size = 'medium', variant = 'default', icon, truncate = false }) => {
   const s = sizes[size];
   const v = variants[variant];
 
@@ -61,7 +61,7 @@ export const Badge = ({ children, size = 'medium', variant = 'default', icon }) 
       {icon && (
         <span className="flex items-center shrink-0">{icon}</span>
       )}
-      <span style={{ color: v.text, whiteSpace: 'nowrap', lineHeight: 1 }}>
+      <span style={{ color: v.text, whiteSpace: 'nowrap', lineHeight: 1, ...(truncate ? { overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' } : {}) }}>
         {children}
       </span>
     </div>

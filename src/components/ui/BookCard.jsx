@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { IconStarFilled } from '@tabler/icons-react'
+import { IconStarFilled, IconDotsVertical } from '@tabler/icons-react'
 import Badge from './Badge'
 import BookCover from '../BookCover'
 
@@ -40,6 +40,7 @@ export default function BookCard({
   badgeIcon,
   rating,
   onClick,
+  onMenuClick,
   className = '',
 }) {
   return (
@@ -81,26 +82,31 @@ export default function BookCard({
         className="flex flex-col flex-1 min-w-0"
         style={{ gap: 'var(--gap-md)', paddingBottom: '12px' }}
       >
-        {/* Badge + Rating row */}
+        {/* Badge + Rating/Menu row */}
         <div className="flex items-center" style={{ gap: '8px', minWidth: 0 }}>
           <Badge variant={badgeVariant} size="large" icon={badgeIcon}>
             {badgeLabel}
           </Badge>
 
-          {rating != null && (
-            <div className="flex-1 flex items-center justify-end shrink-0" style={{ gap: '4px' }}>
-              <span style={{
-                fontSize:   '12px',
-                fontWeight: 500,
-                lineHeight: 1,
-                color:      'var(--color-text-subtle)',
-                whiteSpace: 'nowrap',
-              }}>
+          <div className="flex-1" />
+
+          {onMenuClick ? (
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.9 }}
+              onClick={e => { e.stopPropagation(); onMenuClick(e); }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+            >
+              <IconDotsVertical size={18} strokeWidth={2} color="var(--color-text-subtle)" />
+            </motion.button>
+          ) : rating != null ? (
+            <div className="flex items-center shrink-0" style={{ gap: '4px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 500, lineHeight: 1, color: 'var(--color-text-subtle)', whiteSpace: 'nowrap' }}>
                 {rating}/5
               </span>
               <IconStarFilled size={16} color="var(--secondary-11)" />
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Text block */}

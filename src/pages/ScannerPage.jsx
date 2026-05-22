@@ -93,7 +93,7 @@ export default function ScannerPage({ onBack, onBookSelect }) {
     return (
       <div style={{
         position: 'fixed', inset: 0,
-        background: 'linear-gradient(180deg, var(--primary-2) 0%, var(--neutral-2) 49%)',
+        background: 'linear-gradient(180deg, var(--secondary-2) 0%, var(--neutral-2) 49.04%), linear-gradient(180deg, #F4FBFB 0%, #F9F9FA 49%, #F9F9FA 100%), var(--secondary-12)',
         display: 'flex', flexDirection: 'column',
       }}>
         <div style={{
@@ -297,7 +297,7 @@ export default function ScannerPage({ onBack, onBookSelect }) {
       <div style={{
         position:        'fixed',
         inset:           0,
-        background: 'linear-gradient(180deg, var(--primary-2) 0%, var(--neutral-2) 49%)',
+        background: 'linear-gradient(180deg, var(--secondary-2) 0%, var(--neutral-2) 49.04%), linear-gradient(180deg, #F4FBFB 0%, #F9F9FA 49%, #F9F9FA 100%), var(--secondary-12)',
         display:         'flex',
         flexDirection:   'column',
       }}>
@@ -395,7 +395,7 @@ export default function ScannerPage({ onBack, onBookSelect }) {
       <div style={{
         position:        'fixed',
         inset:           0,
-        background: 'linear-gradient(180deg, var(--primary-2) 0%, var(--neutral-2) 49%)',
+        background: 'linear-gradient(180deg, var(--secondary-2) 0%, var(--neutral-2) 49.04%), linear-gradient(180deg, #F4FBFB 0%, #F9F9FA 49%, #F9F9FA 100%), var(--secondary-12)',
         display:         'flex',
         flexDirection:   'column',
       }}>

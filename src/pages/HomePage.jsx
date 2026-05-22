@@ -10,7 +10,6 @@ import {
   IconArrowRight,
   IconCategory,
   IconShoppingBagCheck,
-  IconSearch,
 } from '@tabler/icons-react';
 
 import { BarButton }        from '../components/ui/BarButton';
@@ -43,6 +42,36 @@ const SHADOW_OBJECT =       // object-depth-neutral-2 (book cover)
    Header → p:16px
    ════════════════════════════════════════════════════ */
 
+
+/* ── Bouton "Liste des X (Y) →" — right-aligned, style Figma ── */
+function ListLinkButton({ label, count, onClick }) {
+  return (
+    <div className="flex justify-end">
+      <motion.button
+        type="button"
+        whileTap={{ scale: 0.95 }}
+        onClick={onClick}
+        className="inline-flex items-center outline-none border-none cursor-pointer"
+        style={{
+          gap:             '6px',
+          height:          '40px',
+          padding:         '0 16px',
+          borderRadius:    'var(--br-sm)',
+          backgroundColor: 'var(--primary-3)',
+          color:           'var(--primary-11)',
+          fontSize:        '14px',
+          fontWeight:      700,
+          lineHeight:      1.5,
+          flexShrink:      0,
+          whiteSpace:      'nowrap',
+        }}
+      >
+        {label} ({count})
+        <IconArrowRight size={16} strokeWidth={2} color="var(--primary-11)" />
+      </motion.button>
+    </div>
+  );
+}
 
 /* ── Section title — Lora Bold 20px color-text-brand ── */
 function SectionTitle({ children }) {
@@ -97,9 +126,6 @@ function ReservationCard({ books = [], count = 5, onClick }) {
         <Badge variant="success" size="large" icon={<IconShoppingBagCheck size={16} strokeWidth={1.8} color="var(--success-11)" />}>
           Disponible à Mériadeck
         </Badge>
-        <div style={{ position: "absolute", right: "0px", top: "0px", padding: "8px", lineHeight: 1, fontSize: "12px", fontWeight: 500, color: "var(--color-text-subtle)" }}>
-          <IconChevronRight size={24} strokeWidth={2} color="var(--color-text-subtle)" />
-        </div>
         <p style={{ fontSize: 16, fontWeight: 700, lineHeight: 1.5, color: "var(--color-text-title)", margin: 0 }}>
           {count} titre{count > 1 ? "s" : ""} vous attendent
         </p>
@@ -220,9 +246,9 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
           </div>
         </div>
 
-        {/* Search icon - absolute position */}
+        {/* Chevron right */}
         <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)' }}>
-          <IconSearch size={24} strokeWidth={2} color="var(--color-text-subtle)" />
+          <IconChevronRight size={24} strokeWidth={2} color="var(--color-text-subtle)" />
         </div>
       </header>
 
@@ -258,31 +284,17 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                   onClick={() => setReservationOpen(true)}
                 />
               </motion.div>
-              <div className="flex justify-end">
-                <motion.button
-                  type="button"
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setReservationOpen(true)}
-                  className="inline-flex items-center outline-none"
-                  style={{
-                    gap: "6px", height: "32px", padding: "0 12px", borderRadius: "6px",
-                    background: "var(--primary-3)", color: "var(--primary-11)",
-                    fontSize: "14px", fontWeight: 700, lineHeight: 1.5, flexShrink: 0,
-                  }}
-                >
-                  Voir tout (4 réservations)
-                  <IconArrowRight size={16} strokeWidth={2} />
-                </motion.button>
-              </div>
+              <ListLinkButton
+                label="Liste des réservations"
+                count={RESERVED_BOOKS.length}
+                onClick={() => setReservationOpen(true)}
+              />
             </div>
           </section>
 
-          {/* ════ REPRENDRE LA LECTURE ════
-              node 290:4471
-              Card p:8px, cover 127×195px radius:6px
-          */}
+          {/* ════ LIVRE NUMÉRIQUE EMPRUNTÉ ════ */}
           <section className="flex flex-col" style={{ gap: '12px' }}>
-            <SectionTitle>Reprendre la lecture</SectionTitle>
+            <SectionTitle>Livre numérique emprunté</SectionTitle>
 
             <motion.div
               whileTap={{ scale: 0.98 }}
@@ -310,7 +322,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                 <div className="flex flex-col flex-1 h-full" style={{ gap: '8px' }}>
 
                   {/* Badge — calendar-time, h:28px, p:6px, radius:2px, semibold */}
-                  <Badge variant="info" size="large" icon={<IconCalendarTime size={16} strokeWidth={2} color="var(--info-11)" />}>12 juin 2024</Badge>
+                  <Badge variant="info" size="large" icon={<IconCalendarTime size={16} strokeWidth={2} color="var(--info-11)" />}>Retour : 12 juin 2024</Badge>
 
                   {/* Title + author */}
                   <div className="flex flex-col flex-1" style={{ gap: '2px' }}>
@@ -346,11 +358,17 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                 </div>
               </div>
             </motion.div>
+
+            <ListLinkButton
+              label="Liste de prêt numérique"
+              count={1}
+              onClick={() => setActiveTab('Mon Espace')}
+            />
           </section>
 
-          {/* ════ PROCHAIN RETOUR ════ */}
+          {/* ════ EMPRUNTS EN COURS ════ */}
           <section className="flex flex-col" style={{ gap: '12px' }}>
-            <SectionTitle>Prochain retour</SectionTitle>
+            <SectionTitle>Emprunts en cours</SectionTitle>
 
             <div className="flex flex-col" style={{ gap: '16px' }}>
 
@@ -403,7 +421,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                     className="flex flex-col flex-1"
                     style={{ gap: '8px', paddingBottom: '12px', alignSelf: 'flex-start' }}
                   >
-                    <Badge variant="info" size="large" icon={<IconCalendarTime size={16} strokeWidth={2} color="var(--info-11)" />}>24 juin 2026</Badge>
+                    <Badge variant="info" size="large" icon={<IconCalendarTime size={16} strokeWidth={2} color="var(--info-11)" />}>Retour : 24 juin 2026</Badge>
 
                     {/* content-text — gap 2px */}
                     <div className="flex flex-col" style={{ gap: '2px' }}>
@@ -425,30 +443,11 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                 </div>
               </motion.div>
 
-              {/* "Voir tout" — right-aligned, h:32px, br:6px */}
-              <div className="flex justify-end">
-                <motion.button
-                  type="button"
-                  whileTap={{ scale: 0.95 }}
-                  onClick={onShowEmprunts}
-                  className="inline-flex items-center outline-none"
-                  style={{
-                    gap:          '6px',
-                    height:       '32px',
-                    padding:      '0 12px',
-                    borderRadius: '6px',
-                    background:   'var(--primary-3)',
-                    color:        'var(--primary-11)',
-                    fontSize:     '14px',
-                    fontWeight:   700,
-                    lineHeight:   1.5,
-                    flexShrink:   0,
-                  }}
-                >
-                  Voir tout (2 autres retours)
-                  <IconArrowRight size={16} strokeWidth={2} />
-                </motion.button>
-              </div>
+              <ListLinkButton
+                label="Liste emprunts en cours"
+                count={5}
+                onClick={onShowEmprunts}
+              />
 
             </div>
           </section>
@@ -492,6 +491,12 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                 </div>
               </div>
             </motion.div>
+
+            <ListLinkButton
+              label="Liste des services réservés"
+              count={1}
+              onClick={() => setActiveTab('Mon Espace')}
+            />
           </section>
 
         </div>

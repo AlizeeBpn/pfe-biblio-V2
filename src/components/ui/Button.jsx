@@ -62,9 +62,9 @@ const VARIANT = {
     style: {},
   },
   error: {
-    cls: `bg-[var(--error-9)] text-white active:bg-[var(--error-10)] disabled:bg-[var(--neutral-4)] disabled:shadow-none`,
-    shadow: NEUTRAL_SHADOW,
-    style: {},
+    cls: `bg-[var(--error-3)] active:bg-[var(--error-4)] disabled:bg-[var(--neutral-4)] disabled:shadow-none`,
+    shadow: null,
+    style: { color: 'var(--error-11)' },
   },
 }
 

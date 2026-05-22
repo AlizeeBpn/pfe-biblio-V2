@@ -736,6 +736,26 @@ function TabAvis({ book }) {
 
       {/* Review cards */}
       <div className="flex flex-col" style={{ gap: '20px' }}>
+        {/* Bouton laisser un avis */}
+        <motion.button
+          type="button"
+          whileTap={{ scale: 0.97 }}
+          className="inline-flex items-center justify-center outline-none border-none cursor-pointer"
+          style={{
+            height:          '40px',
+            padding:         '0 16px',
+            borderRadius:    'var(--br-sm)',
+            backgroundColor: 'var(--primary-3)',
+            color:           'var(--primary-11)',
+            fontSize:        '14px',
+            fontWeight:      700,
+            lineHeight:      1.5,
+            whiteSpace:      'nowrap',
+            alignSelf:       'flex-start',
+          }}
+        >
+          Laisser un avis
+        </motion.button>
         {reviews.length > 0
           ? reviews.map((r, i) => <ReviewCard key={i} {...r} />)
           : (
@@ -1011,52 +1031,47 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
       }}
     >
 
-      {/* ══ STICKY HEADER (head_fiche) ══════════════ */}
+
+      {/* ══ STICKY HEADER ════════════════════════════ */}
       <div
         className="sticky top-0 z-30 flex flex-col items-center w-full"
-        style={{
-          backgroundColor: 'var(--secondary-1)',
-          boxShadow:       SHADOW_HEAD,
-          padding:         '16px 20px',
-        }}
+        style={{ backgroundColor: 'var(--secondary-1)', boxShadow: SHADOW_HEAD, padding: '16px 20px' }}
       >
         <div className="relative flex items-center w-full" style={{ minHeight: '40px' }}>
-          {/* Back button — round icon */}
+          {/* Back */}
           <motion.button
             type="button"
             whileTap={{ scale: 0.9 }}
             onClick={onBack}
             className="flex items-center justify-center outline-none border-none cursor-pointer shrink-0"
-            style={{
-              width:           '40px',
-              height:          '40px',
-              padding:         '8px',
-              backgroundColor: 'var(--neutral-4)',
-              borderRadius:    'var(--br-round)',
-            }}
+            style={{ width: '40px', height: '40px', padding: '8px', backgroundColor: 'var(--neutral-4)', borderRadius: 'var(--br-round)' }}
           >
             <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" />
           </motion.button>
 
           <div className="flex-1" />
 
-          {/* Bookmark — icône rond, style back button */}
+          {/* Favoris — master_button standard */}
           <motion.button
             type="button"
-            whileTap={{ scale: 0.93 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => setListModalOpen(true)}
-            className="flex items-center justify-center outline-none border-none cursor-pointer shrink-0"
+            className="inline-flex items-center justify-center outline-none border-none cursor-pointer"
             style={{
-              width:           '40px',
-              height:          '40px',
-              borderRadius:    'var(--br-round)',
-              backgroundColor: saved ? 'var(--primary-3)' : 'var(--neutral-4)',
+              height:          '48px',
+              padding:         '0 20px',
+              gap:             '8px',
+              borderRadius:    'var(--br-md)',
+              backgroundColor: saved ? 'var(--primary-4)' : 'var(--primary-3)',
             }}
           >
             {saved
-              ? <IconBookmarkFilled size={20} color="var(--primary-10)" />
-              : <IconBookmarkPlus   size={20} strokeWidth={2} color="var(--color-text-title)" />
+              ? <IconBookmarkFilled size={20} color="var(--primary-11)" />
+              : <IconBookmarkPlus   size={20} strokeWidth={2} color="var(--primary-11)" />
             }
+            <span style={{ fontSize: '16px', fontWeight: 700, lineHeight: 1.5, color: 'var(--primary-11)', whiteSpace: 'nowrap' }}>
+              Favoris
+            </span>
           </motion.button>
         </div>
       </div>
@@ -1126,7 +1141,7 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
 
           {/* Genre badges — secondary colored, wrapping, centered */}
           <div className="flex flex-wrap justify-center w-full" style={{ gap: '8px' }}>
-            {genreList.map(g => <Badge key={g} variant="neutral" size="large">{g}</Badge>)}
+            {genreList.map(g => <Badge key={g} variant="default" size="large">{g}</Badge>)}
           </div>
         </div>
 
