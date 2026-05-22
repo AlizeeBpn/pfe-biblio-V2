@@ -274,18 +274,19 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
 
           {/* ── Action buttons ── */}
           <div style={{ display: 'flex', gap: 'var(--gap-md)', alignItems: 'center' }}>
-            {/* Favoris — 48×48, primary-3 bg, br-md (10px) */}
+            {/* Liste — secondary button avec texte */}
             <motion.button
               type="button"
               whileTap={{ scale: 0.93 }}
               onClick={() => setSaved(s => !s)}
               style={{
-                width:           '48px',
                 height:          '48px',
+                padding:         '0 16px',
                 display:         'flex',
                 alignItems:      'center',
                 justifyContent:  'center',
-                backgroundColor: 'var(--primary-3)',
+                gap:             '8px',
+                backgroundColor: saved ? 'var(--primary-4)' : 'var(--primary-3)',
                 borderRadius:    'var(--br-md)',
                 border:          'none',
                 outline:         'none',
@@ -294,9 +295,12 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
               }}
             >
               {saved
-                ? <IconBookmarkFilled size={20} color="var(--primary-10)" />
-                : <IconBookmarkPlus   size={20} strokeWidth={2} color="var(--primary-10)" />
+                ? <IconBookmarkFilled size={18} color="var(--primary-11)" />
+                : <IconBookmarkPlus   size={18} strokeWidth={2} color="var(--primary-11)" />
               }
+              <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--primary-11)', whiteSpace: 'nowrap' }}>
+                Liste
+              </span>
             </motion.button>
 
             {/* Voir la fiche — flex-1, h-48, primary-10 bg, br-md (10px) */}

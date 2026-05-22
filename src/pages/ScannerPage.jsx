@@ -202,34 +202,30 @@ export default function ScannerPage({ onBack, onBookSelect }) {
           /* ③ Enter loading state */
           setPhase('fetching');
 
-          /* ④ 800ms mock — look up book locally first, fallback to FALLBACK_BOOK */
-         /* ④ 800ms mock — Recherche ultra-simplifiée */
-          /* ④ 800ms mock — Mode Démonstration Infailible */
-          setTimeout(() => {
-            // 1. On nettoie l'ISBN scanné
-            const cleanScannedIsbn = isbn.replace(/\D/g, '').trim();
+          /* ④ Cherche dans le catalogue local, puis Google Books API */
+          const cleanIsbn = isbn.replace(/\D/g, '').trim();
 
-            // 2. On cherche dans ton fichier BOOKS.js
-            const localBook = BOOKS.find(b => {
-              const cleanLocalIsbn = b.isbn?.toString().replace(/\D/g, '').trim();
-              return cleanLocalIsbn === cleanScannedIsbn;
-            });
+          const localBook = BOOKS.find(b => {
+            const cleanLocal = b.isbn?.toString().replace(/\D/g, '').trim();
+            return cleanLocal === cleanIsbn;
+          });
 
-            if (localBook) {
-              // SCÉNARIO A : C'est un des livres de ta liste
-              setScannedBook(localBook);
-            } else {
-              // SCÉNARIO B : Livre inconnu -> On "force" l'affichage du Petit Prince (ID: 1)
-              // Cela permet de montrer que ton interface de fiche livre fonctionne à chaque fois !
-              const demoBook = BOOKS.find(b => b.id === 1); 
-              setScannedBook(demoBook);
-              
-              // Optionnel : Tu peux modifier le titre pour dire que c'est une démo
-              // setScannedBook({ ...demoBook, title: "[Démo] " + demoBook.title });
-            }
-
-            setPhase('scanned');
-          }, 800);
+          if (localBook) {
+            setScannedBook(localBook);
+            if (mounted) setPhase('scanned');
+          } else {
+            fetchBookByISBN(cleanIsbn)
+              .then(bookData => {
+                if (!mounted) return;
+                setScannedBook(bookData ?? FALLBACK_BOOK);
+                setPhase('scanned');
+              })
+              .catch(() => {
+                if (!mounted) return;
+                setScannedBook(FALLBACK_BOOK);
+                setPhase('scanned');
+              });
+          }
         }
       )
       .then((controls) => { if (mounted) controlsRef.current = controls; })
