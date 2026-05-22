@@ -7,12 +7,15 @@ import {
   IconAdjustmentsHorizontal,
   IconCalendarTime,
   IconStarFilled,
+  IconChevronDown,
 } from '@tabler/icons-react';
 
-import { BottomNavigation } from '../components/ui/BottomNavigation';
+import { BottomNavigation }  from '../components/ui/BottomNavigation';
 import Badge from '../components/ui/Badge';
-import FilterBottomSheet from '../components/ui/FilterBottomSheet';
-import SortBottomSheet from '../components/ui/SortBottomSheet';
+import FilterBottomSheet          from '../components/ui/FilterBottomSheet';
+import SortBottomSheet            from '../components/ui/SortBottomSheet';
+import BibliothequeBottomSheet    from '../components/ui/BibliothequeBottomSheet';
+import GenreThematiqueBottomSheet, { DOC_SECTIONS } from '../components/ui/GenreThematiqueBottomSheet';
 import BookCover from '../components/BookCover';
 import { searchBooks, filterByGenre, BOOKS as ALL_BOOKS } from '../data/books';
 import { searchGoogleBooks } from '../services/googleBooks';
@@ -23,19 +26,58 @@ import { searchGoogleBooks } from '../services/googleBooks';
 
 // Map des labels de filtre UI vers les genres (français + anglais Google Books)
 const GENRE_BOOK_MAP = {
-  'Fantasy':         ['Fantasy', 'Fantastique', 'Fantasy fiction', 'Epic fantasy', 'High fantasy'],
-  'BD & Manga':      ['Manga', 'Bande dessinée', 'BD', 'Comics', 'Graphic novels', 'Comic books'],
+  'Fantaisie':       ['Fantasy', 'Fantastique', 'Fantasy fiction', 'Epic fantasy', 'High fantasy'],
+  'BD':              ['Bande dessinée', 'BD', 'Comics', 'Graphic novels', 'Comic books'],
+  'Manga':           ['Manga'],
+  'Roman':           ['Roman', 'Fiction', 'Literary fiction', 'General fiction'],
   'Biographie':      ['Biographie', 'Autobiographie', 'Témoignage', 'Biography', 'Autobiography', 'Biography & Autobiography'],
-  'Autobiographie':  ['Autobiographie', 'Biographie', 'Autobiography', 'Biography & Autobiography'],
+  'Autobiographie':  ['Autobiographie', 'Autobiography', 'Biography & Autobiography'],
   'Science-fiction': ['Science-fiction', 'Dystopie', 'Science fiction', 'Dystopian fiction', 'Sci-fi', 'Science Fiction'],
   'Aventure':        ['Aventure', 'Action', 'Adventure', 'Adventure stories', 'Action & Adventure', 'Adventure fiction'],
-  'Roman':           ['Roman', 'Fiction', 'Literary fiction', 'General fiction'],
-  'Policier':        ['Policier', 'Thriller', 'Mystery', 'Crime', 'Detective', 'Mystery & Detective'],
-  'Thriller':        ['Thriller', 'Suspense', 'Mystery', 'Psychological thriller', 'Crime thriller'],
+  'Policier':        ['Policier', 'Mystery', 'Crime', 'Detective', 'Mystery & Detective'],
+  'Thriller':        ['Thriller', 'Suspense', 'Psychological thriller', 'Crime thriller'],
   'Horreur':         ['Horreur', 'Horror', 'Horror fiction'],
   'Jeunesse':        ['Jeunesse', 'Young adult', "Children's fiction", 'Juvenile fiction', 'Young Adult Fiction'],
-  'Histoire':        ['Histoire', 'History', 'Historical fiction', 'Historical'],
   'Romance':         ['Romance', 'Love stories', 'Romantic fiction'],
+  'Drame historique':['Historical fiction', 'Historical drama', 'Drame historique'],
+  'Humour':          ['Humour', 'Comedy', 'Humor'],
+  'Conte':           ['Conte', 'Tale', 'Fairy tale', 'Short stories'],
+};
+
+const DOC_PARENT_MAP = {
+  histoire: ['Histoire', 'History', 'Géographie', 'Geography', 'Voyage', 'Travel', 'Historical'],
+  sciences: ['Mathématiques', 'Mathematics', 'Physique', 'Chimie', 'Physics', 'Chemistry', 'Biologie', 'Biology', 'Astronomie', 'Astronomy', 'Technologie', 'Technology', 'Science'],
+  nature:   ['Jardinage', 'Gardening', 'Santé', 'Médecine', 'Health', 'Medicine', 'Sport', 'Nature', 'Environment', 'Environnement'],
+  philo:    ['Philosophie', 'Philosophy', 'Psychologie', 'Psychology', 'Spiritualité', 'Religion', 'Spirituality'],
+  societe:  ['Sociologie', 'Sociology', 'Politique', 'Politics', 'Droit', 'Law', 'Économie', 'Economics', 'Langues', 'Languages', 'Social'],
+  arts:     ['Art', 'Architecture', 'Musique', 'Music', 'Cinéma', 'Cinema', 'Film', 'Cuisine', 'Cooking', 'Gastronomie', 'Culture'],
+};
+
+const DOC_ITEM_MAP = {
+  'Histoire':                    ['Histoire', 'History', 'Historical'],
+  'Géographie':                  ['Géographie', 'Geography'],
+  'Voyage':                      ['Voyage', 'Travel', 'Guide'],
+  'Mathématiques':               ['Mathématiques', 'Mathematics', 'Math'],
+  'Physique & Chimie':           ['Physique', 'Chimie', 'Physics', 'Chemistry'],
+  'Biologie & Sciences naturelles': ['Biologie', 'Biology', 'Sciences naturelles', 'Natural sciences', 'Nature'],
+  'Astronomie & Espace':         ['Astronomie', 'Astronomy', 'Espace', 'Space'],
+  'Technologie & Numérique':     ['Technologie', 'Technology', 'Numérique', 'Digital', 'Informatique'],
+  'Jardinage & Nature':          ['Jardinage', 'Gardening', 'Nature'],
+  'Santé & Médecine':            ['Santé', 'Health', 'Médecine', 'Medicine'],
+  'Sport & Loisirs':             ['Sport', 'Sports', 'Loisirs'],
+  'Philosophie':                 ['Philosophie', 'Philosophy'],
+  'Psychologie':                 ['Psychologie', 'Psychology'],
+  'Spiritualité & Religion':     ['Spiritualité', 'Religion', 'Spirituality'],
+  'Sociologie':                  ['Sociologie', 'Sociology', 'Social sciences'],
+  'Politique':                   ['Politique', 'Politics', 'Political'],
+  'Droit':                       ['Droit', 'Law', 'Legal'],
+  'Économie':                    ['Économie', 'Economics', 'Business'],
+  'Langues':                     ['Langues', 'Languages', 'Linguistics', 'Linguistique'],
+  'Art & Architecture':          ['Art', 'Architecture'],
+  'Musique':                     ['Musique', 'Music'],
+  'Cinéma':                      ['Cinéma', 'Cinema', 'Film', 'Movies'],
+  'Activités créatives':         ['Activités créatives', 'Creative', 'DIY', 'Craft'],
+  'Cuisine & Art de vivre':      ['Cuisine', 'Cooking', 'Gastronomie', 'Art de vivre'],
 };
 
 function matchGenre(bookGenres, filterGenre) {
@@ -65,13 +107,7 @@ const YEAR_RANGES = {
 function applyAdvancedFilters(books, selections) {
   let res = books;
 
-  // Genre
-  const selectedGenres = Object.entries(selections.genre || {}).filter(([, v]) => v).map(([k]) => k);
-  if (selectedGenres.length > 0) {
-    res = res.filter(b => selectedGenres.some(fg => matchGenre(b.genres, fg)));
-  }
-
-  // Année de publication
+  // Année de publication (vient de "Plus de filtres")
   const selectedYears = Object.entries(selections.annee || {}).filter(([, v]) => v).map(([k]) => k);
   if (selectedYears.length > 0) {
     res = res.filter(b => {
@@ -84,21 +120,42 @@ function applyAdvancedFilters(books, selections) {
     });
   }
 
-  // Type de document
-  const selectedTypes = Object.entries(selections.type || {}).filter(([, v]) => v).map(([k]) => k);
-  if (selectedTypes.length > 0) {
-    res = res.filter(b => {
-      const bg = b.genres || [];
-      const isMangaOrBD = bg.some(g => ['Manga', 'Bande dessinée', 'BD'].includes(g));
-      return selectedTypes.some(t => {
-        if (t === 'BD & Manga' || t === 'BD') return isMangaOrBD;
-        if (t === 'Livre') return !isMangaOrBD;
-        return false;
-      });
-    });
-  }
-
   return res;
+}
+
+function matchDocItem(bookGenres, itemLabel) {
+  const keywords = DOC_ITEM_MAP[itemLabel] || [itemLabel];
+  return bookGenres.some(bg =>
+    keywords.some(k => bg.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(bg.toLowerCase()))
+  );
+}
+
+function matchDocParent(bookGenres, parentId) {
+  const keywords = DOC_PARENT_MAP[parentId] || [];
+  return bookGenres.some(bg =>
+    keywords.some(k => bg.toLowerCase().includes(k.toLowerCase()) || k.toLowerCase().includes(bg.toLowerCase()))
+  );
+}
+
+function applyGtFilters(books, gtState) {
+  const { types = {}, genres = {}, docParents = {}, docItems = {} } = gtState;
+
+  const activeTypes      = Object.entries(types).filter(([, v]) => v).map(([k]) => k);
+  const activeGenres     = Object.entries(genres).filter(([, v]) => v).map(([k]) => k);
+  const activeDocParents = Object.entries(docParents).filter(([, v]) => v).map(([k]) => k);
+  const activeDocItems   = Object.entries(docItems).filter(([, v]) => v).map(([k]) => k);
+
+  const hasFilter = activeTypes.length + activeGenres.length + activeDocParents.length + activeDocItems.length > 0;
+  if (!hasFilter) return books;
+
+  return books.filter(b => {
+    const bg = b.genres || [];
+    if (activeTypes.length      > 0 && activeTypes.some(t      => matchGenre(bg, t)))       return true;
+    if (activeGenres.length     > 0 && activeGenres.some(g     => matchGenre(bg, g)))       return true;
+    if (activeDocParents.length > 0 && activeDocParents.some(p => matchDocParent(bg, p)))   return true;
+    if (activeDocItems.length   > 0 && activeDocItems.some(i   => matchDocItem(bg, i)))     return true;
+    return false;
+  });
 }
 
 /* ── Shadows ── */
@@ -218,8 +275,13 @@ function ActiveFilterChip({ label, onRemove }) {
 
 /* ════════════════════════════════════════════════════
    SORT / FILTER BUTTON
+   activeLabel — remplace le label quand actif (tri)
+   count       — badge numérique quand actif (filtres)
    ════════════════════════════════════════════════════ */
-function SortFilterBtn({ label, Icon, onClick }) {
+function SortFilterBtn({ label, activeLabel, count, Icon, onClick }) {
+  const isActive     = !!activeLabel || count > 0;
+  const displayLabel = activeLabel || label;
+
   return (
     <motion.button
       type="button"
@@ -229,47 +291,84 @@ function SortFilterBtn({ label, Icon, onClick }) {
       style={{
         gap:             '6px',
         height:          '40px',
-        padding:         '0 16px',
-        backgroundColor: 'var(--neutral-1)',
-        border:          '2px solid var(--neutral-7)',
+        padding:         '0 14px',
+        backgroundColor: isActive ? 'var(--primary-3)' : 'var(--neutral-1)',
+        border:          isActive ? '1px solid var(--primary-8)' : '2px solid var(--neutral-7)',
         borderRadius:    'var(--br-md)',
-        color:           'var(--neutral-11)',
+        color:           isActive ? 'var(--primary-11)' : 'var(--neutral-11)',
         fontSize:        '14px',
         fontWeight:      700,
-        lineHeight:      1.5,
         whiteSpace:      'nowrap',
       }}
     >
-      {label}
-      {Icon && <Icon size={16} strokeWidth={2} color="var(--neutral-10)" />}
+      {displayLabel}
+      {count > 0 && (
+        <span style={{
+          minWidth:        '20px',
+          height:          '20px',
+          borderRadius:    '9999px',
+          backgroundColor: 'var(--primary-10)',
+          display:         'inline-flex',
+          alignItems:      'center',
+          justifyContent:  'center',
+          padding:         '0 4px',
+          fontSize:        '11px',
+          fontWeight:      700,
+          color:           'var(--primary-1)',
+        }}>
+          {count}
+        </span>
+      )}
+      {Icon && <Icon size={16} strokeWidth={2} color={isActive ? 'var(--primary-11)' : 'var(--neutral-10)'} />}
     </motion.button>
   );
 }
 
 /* ════════════════════════════════════════════════════
-   MERIADECK LARGE TOGGLE — Figma 223:8730 size=large
-   h=40 / px=16 / gap=8 / radius=br-md / 16px bold
+   BIBLIOTHÈQUE BUTTON
    ════════════════════════════════════════════════════ */
-function MeriadeckToggle({ active, onToggle }) {
+function BibliothequeBtn({ selectedLibraries, onClick }) {
+  const entries   = Object.entries(selectedLibraries).filter(([, v]) => v);
+  const count     = entries.length;
+  const isActive  = count > 0;
+  const firstName = count > 0 ? entries[0][0] : null;
+  const extra     = count > 1 ? count - 1 : 0;
+
   return (
     <motion.button
       type="button"
       whileTap={{ scale: 0.95 }}
-      onClick={() => onToggle(!active)}
-      className="inline-flex items-center justify-center shrink-0 outline-none cursor-pointer overflow-hidden"
+      onClick={onClick}
+      className="inline-flex items-center shrink-0 outline-none cursor-pointer"
       style={{
+        gap:             '6px',
         height:          '40px',
-        padding:         '0 16px',
-        gap:             '8px',
+        padding:         '0 14px',
+        backgroundColor: isActive ? 'var(--primary-3)' : 'var(--neutral-1)',
+        border:          isActive ? '1px solid var(--primary-8)' : '2px solid var(--neutral-7)',
         borderRadius:    'var(--br-md)',
-        border:          active ? '1px solid var(--primary-8)' : '1px solid var(--neutral-6)',
-        backgroundColor: active ? 'var(--primary-3)' : 'var(--neutral-2)',
+        color:           isActive ? 'var(--primary-11)' : 'var(--neutral-11)',
+        fontSize:        '14px',
+        fontWeight:      700,
+        whiteSpace:      'nowrap',
       }}
     >
-      <span style={{ fontSize: '16px', fontWeight: 700, lineHeight: 1.5, color: active ? 'var(--primary-11)' : 'var(--neutral-11)', whiteSpace: 'nowrap' }}>
-        Mériadeck
-      </span>
-      {active && <IconX size={20} strokeWidth={2} color="var(--primary-11)" />}
+      {count === 0 && <span>Bibliothèque</span>}
+      {count === 1 && <span>{firstName}</span>}
+      {count > 1 && (
+        <>
+          <span>{firstName}</span>
+          <span style={{
+            minWidth: '20px', height: '20px', borderRadius: '9999px',
+            backgroundColor: 'var(--primary-10)', display: 'inline-flex',
+            alignItems: 'center', justifyContent: 'center', padding: '0 4px',
+            fontSize: '11px', fontWeight: 700, color: 'var(--primary-1)',
+          }}>
+            +{extra}
+          </span>
+        </>
+      )}
+      <IconChevronDown size={16} strokeWidth={2} color={isActive ? 'var(--primary-11)' : 'var(--neutral-10)'} />
     </motion.button>
   );
 }
@@ -307,9 +406,21 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
   useEffect(() => { setInputValue(query); }, [query]);
 
   /* ── Sheets ── */
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [sortOpen,   setSortOpen]   = useState(false);
-  const [sortBy,     setSortBy]     = useState('pertinence');
+  const [filterOpen,    setFilterOpen]    = useState(false);
+  const [sortOpen,      setSortOpen]      = useState(false);
+  const [libSheetOpen,  setLibSheetOpen]  = useState(false);
+  const [gtOpen,        setGtOpen]        = useState(false);
+  const [sortBy,        setSortBy]        = useState('pertinence');
+  const [selectedLibraries, setSelectedLibraries] = useState({});
+  const [gtState,       setGtState]       = useState({ types: {}, genres: {}, docParents: {}, docItems: {} });
+
+  const SORT_LABELS = {
+    pertinence:     null,
+    mieux_notes:    'Les mieux notées',
+    plus_empruntes: 'Les plus empruntés',
+    auteur_az:      'Par auteur (A-Z)',
+    titre_az:       'Par titre (A-Z)',
+  };
 
   /* ── Search bar ── */
   const [inputValue, setInputValue] = useState(query);
@@ -355,23 +466,22 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
   };
 
   /* ── Filter state — initialisé depuis initialFilters si fourni ── */
-  const [selections, setSelections] = useState(
-    initialFilters?.selections ?? { bibliotheque: { 'Mériadeck': true } }
-  );
+  const [selections, setSelections] = useState(initialFilters?.selections ?? {});
   const [disponible, setDisponible] = useState(initialFilters?.disponible ?? false);
 
-  const meriadeckActive = selections.bibliotheque?.['Mériadeck'] ?? true;
+  const filterActiveCount = Object.values(selections).reduce(
+    (acc, section) => acc + Object.values(section).filter(Boolean).length, 0
+  ) + (disponible ? 1 : 0);
 
-  const toggleMeriadeck = (val) => {
-    setSelections(prev => ({
-      ...prev,
-      bibliotheque: { ...(prev.bibliotheque || {}), 'Mériadeck': val },
-    }));
-  };
+  const gtActiveCount =
+    Object.values(gtState.types).filter(Boolean).length +
+    Object.values(gtState.genres).filter(Boolean).length +
+    Object.values(gtState.docParents).filter(Boolean).length +
+    Object.values(gtState.docItems).filter(Boolean).length;
 
   const activeChips = Object.entries(selections).flatMap(([sectionId, opts]) =>
     Object.entries(opts)
-      .filter(([opt, val]) => val && !(sectionId === 'bibliotheque' && opt === 'Mériadeck'))
+      .filter(([, val]) => val)
       .map(([opt]) => ({ sectionId, label: opt }))
   );
 
@@ -399,6 +509,7 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
   }
   if (disponible) results = results.filter(b => b.available);
   results = applyAdvancedFilters(results, selections);
+  results = applyGtFilters(results, gtState);
 
   return (
     <div
@@ -495,14 +606,12 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
             )}
           </div>
 
-          {/* ── Fixed filter row: Mériadeck + Trier + Filtrer ── */}
-          <div className="flex items-center" style={{ gap: '8px' }}>
-            <MeriadeckToggle active={meriadeckActive} onToggle={toggleMeriadeck} />
-
-            <div className="flex-1 flex items-center justify-end" style={{ gap: '8px' }}>
-              <SortFilterBtn label="Trier"   Icon={IconArrowsSort}            onClick={() => setSortOpen(true)} />
-              <SortFilterBtn label="Filtrer" Icon={IconAdjustmentsHorizontal} onClick={() => setFilterOpen(true)} />
-            </div>
+          {/* ── Filter row ── */}
+          <div className="flex items-center" style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+            <SortFilterBtn label="Trier"              activeLabel={SORT_LABELS[sortBy]} Icon={IconArrowsSort}            onClick={() => setSortOpen(true)} />
+            <BibliothequeBtn selectedLibraries={selectedLibraries}                                                       onClick={() => setLibSheetOpen(true)} />
+            <SortFilterBtn label="Genre & Thématique" count={gtActiveCount}             Icon={IconChevronDown}           onClick={() => setGtOpen(true)} />
+            <SortFilterBtn label="Plus de filtres"    count={filterActiveCount}         Icon={IconAdjustmentsHorizontal} onClick={() => setFilterOpen(true)} />
           </div>
 
           {/* ── Genre chip (category mode) ── */}
@@ -584,6 +693,18 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
         onClose={() => setSortOpen(false)}
         value={sortBy}
         onChange={setSortBy}
+      />
+      <BibliothequeBottomSheet
+        open={libSheetOpen}
+        onClose={() => setLibSheetOpen(false)}
+        onApply={setSelectedLibraries}
+        selectedLibraries={selectedLibraries}
+      />
+      <GenreThematiqueBottomSheet
+        open={gtOpen}
+        onClose={() => setGtOpen(false)}
+        onApply={setGtState}
+        externalState={gtState}
       />
     </div>
   );

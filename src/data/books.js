@@ -739,6 +739,7 @@ export const AUTHORS = {
 
 /* Genres uniques pour les filtres */
 export const GENRES = [
+  'Nouveauté',
   'Roman',
   'Science-fiction',
   'Fantastique',
@@ -787,6 +788,7 @@ export const SUGGESTION_GROUPS = [
 
 /* Choix éditorial : quel livre illustre chaque catégorie dans les cards */
 export const GENRE_COVERS = {
+  'Nouveauté':      38,  // The Conditions of Will
   'Aventure':       6,   // LOTR — Seigneur des Anneaux
   'Romance':       36,   // Bridgerton
   'Science-fiction': 4,  // Dune
@@ -812,6 +814,7 @@ export const NOUVEAUTES_IDS = [38, 39, 40, 36, 37];
 /** Filtre les livres selon un genre (ou renvoie tout si genre = null) */
 export function filterByGenre(genre) {
   if (!genre) return BOOKS;
+  if (genre === 'Nouveauté') return BOOKS.filter(b => NOUVEAUTES_IDS.includes(b.id));
   return BOOKS.filter((b) => b.genres.includes(genre));
 }
 

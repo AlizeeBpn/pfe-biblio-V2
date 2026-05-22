@@ -16,9 +16,10 @@ import {
 
 import { BottomNavigation }  from '../components/ui/BottomNavigation';
 import Badge from '../components/ui/Badge';
-import FilterBottomSheet       from '../components/ui/FilterBottomSheet';
-import SortBottomSheet         from '../components/ui/SortBottomSheet';
-import BibliothequeBottomSheet from '../components/ui/BibliothequeBottomSheet';
+import FilterBottomSheet            from '../components/ui/FilterBottomSheet';
+import SortBottomSheet              from '../components/ui/SortBottomSheet';
+import BibliothequeBottomSheet      from '../components/ui/BibliothequeBottomSheet';
+import GenreThematiqueBottomSheet   from '../components/ui/GenreThematiqueBottomSheet';
 import {
   BOOKS as ALL_BOOKS,
   GENRES,
@@ -176,8 +177,13 @@ function BibliothequeBtn({ selectedLibraries, onClick }) {
 
 /* ════════════════════════════════════════════════════
    SORT / FILTER BUTTON
+   activeLabel — remplace le label quand actif (tri)
+   count       — badge numérique quand actif (filtres)
    ════════════════════════════════════════════════════ */
-function SortFilterBtn({ label, Icon, onClick }) {
+function SortFilterBtn({ label, activeLabel, count, Icon, onClick }) {
+  const isActive     = !!activeLabel || count > 0;
+  const displayLabel = activeLabel || label;
+
   return (
     <m.button
       type="button"
@@ -188,17 +194,34 @@ function SortFilterBtn({ label, Icon, onClick }) {
         gap:             '6px',
         height:          '40px',
         padding:         '0 14px',
-        backgroundColor: 'var(--neutral-1)',
-        border:          '2px solid var(--neutral-7)',
+        backgroundColor: isActive ? 'var(--primary-3)' : 'var(--neutral-1)',
+        border:          isActive ? '1px solid var(--primary-8)' : '2px solid var(--neutral-7)',
         borderRadius:    'var(--br-md)',
-        color:           'var(--neutral-11)',
+        color:           isActive ? 'var(--primary-11)' : 'var(--neutral-11)',
         fontSize:        '14px',
         fontWeight:      700,
         whiteSpace:      'nowrap',
       }}
     >
-      {label}
-      {Icon && <Icon size={16} strokeWidth={2} color="var(--neutral-10)" />}
+      {displayLabel}
+      {count > 0 && (
+        <span style={{
+          minWidth:        '20px',
+          height:          '20px',
+          borderRadius:    '9999px',
+          backgroundColor: 'var(--primary-10)',
+          display:         'inline-flex',
+          alignItems:      'center',
+          justifyContent:  'center',
+          padding:         '0 4px',
+          fontSize:        '11px',
+          fontWeight:      700,
+          color:           'var(--primary-1)',
+        }}>
+          {count}
+        </span>
+      )}
+      {Icon && <Icon size={16} strokeWidth={2} color={isActive ? 'var(--primary-11)' : 'var(--neutral-10)'} />}
     </m.button>
   );
 }
@@ -373,12 +396,32 @@ export default function CataloguePage({
   const [filterOpen,         setFilterOpen]         = useState(false);
   const [sortOpen,           setSortOpen]           = useState(false);
   const [libSheetOpen,       setLibSheetOpen]       = useState(false);
+  const [gtOpen,             setGtOpen]             = useState(false);
   const [sortBy,             setSortBy]             = useState('pertinence');
   const [selections,         setSelections]         = useState({});
   const [selectedLibraries,  setSelectedLibraries]  = useState({});
+  const [gtState,            setGtState]            = useState({ types: {}, genres: {}, docParents: {}, docItems: {} });
   const [googleResults, setGoogleResults] = useState([]);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError,   setGoogleError]   = useState(null);
+
+  const SORT_LABELS = {
+    pertinence:     null,
+    mieux_notes:    'Les mieux notées',
+    plus_empruntes: 'Les plus empruntés',
+    auteur_az:      'Par auteur (A-Z)',
+    titre_az:       'Par titre (A-Z)',
+  };
+
+  const filterActiveCount = Object.values(selections).reduce(
+    (acc, section) => acc + Object.values(section).filter(Boolean).length, 0
+  ) + (disponible ? 1 : 0);
+
+  const gtActiveCount =
+    Object.values(gtState.types).filter(Boolean).length +
+    Object.values(gtState.genres).filter(Boolean).length +
+    Object.values(gtState.docParents).filter(Boolean).length +
+    Object.values(gtState.docItems).filter(Boolean).length;
 
   const handleApplyFilter = ({ disponible: d, selections: s }) => {
     setSelections(s);
@@ -550,14 +593,15 @@ export default function CataloguePage({
               className="flex flex-col"
               style={{ gap: '16px' }}
             >
-              {/* Filter row */}
+              {/* Filter row — search mode */}
               <div
                 className="flex items-center"
                 style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}
               >
-                <SortFilterBtn label="Trier"   Icon={IconArrowsSort}            onClick={() => setSortOpen(true)} />
-                <SortFilterBtn label="Filtrer" Icon={IconAdjustmentsHorizontal} onClick={() => setFilterOpen(true)} />
-                <BibliothequeBtn selectedLibraries={selectedLibraries} onClick={() => setLibSheetOpen(true)} />
+                <SortFilterBtn label="Trier"             activeLabel={SORT_LABELS[sortBy]} Icon={IconArrowsSort}            onClick={() => setSortOpen(true)} />
+                <BibliothequeBtn selectedLibraries={selectedLibraries}                                                      onClick={() => setLibSheetOpen(true)} />
+                <SortFilterBtn label="Genre & Thématique" count={gtActiveCount}            Icon={IconChevronDown}          onClick={() => setGtOpen(true)} />
+                <SortFilterBtn label="Plus de filtres"   count={filterActiveCount}         Icon={IconAdjustmentsHorizontal} onClick={() => setFilterOpen(true)} />
               </div>
 
               {/* Results — catalogue local + Google Books fusionnés */}
@@ -602,25 +646,21 @@ export default function CataloguePage({
               className="flex flex-col"
               style={{ gap: '32px' }}
             >
-              {/* Bouton Recherche par critères + Catégories — gap 12px entre eux */}
-              <div className="flex flex-col" style={{ gap: '12px' }}>
-                <div
-                  className="flex items-center"
-                  style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}
-                >
-                  <SortFilterBtn label="Filtrer" Icon={IconAdjustmentsHorizontal} onClick={() => setFilterOpen(true)} />
-                  <BibliothequeBtn selectedLibraries={selectedLibraries} onClick={() => setLibSheetOpen(true)} />
-                </div>
+              {/* Filter row — browse mode */}
+              <div
+                className="flex items-center"
+                style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}
+              >
+                <BibliothequeBtn selectedLibraries={selectedLibraries}                                                      onClick={() => setLibSheetOpen(true)} />
+                <SortFilterBtn label="Genre & Thématique" count={gtActiveCount}            Icon={IconChevronDown}          onClick={() => setGtOpen(true)} />
+                <SortFilterBtn label="Plus de filtres"   count={filterActiveCount}         Icon={IconAdjustmentsHorizontal} onClick={() => setFilterOpen(true)} />
+              </div>
 
-                {/* Categories */}
-                <div className="flex flex-col" style={{ gap: '12px' }}>
-                  <SectionLabel>Catégories</SectionLabel>
-                  <div className="flex overflow-x-auto" style={{ gap: '6px', paddingBottom: '4px', scrollbarWidth: 'none' }}>
-                    {GENRES.map(genre => (
-                      <CategoryCard key={genre} label={genre} onClick={() => onGenreFilter?.(genre)} />
-                    ))}
-                  </div>
-                </div>
+              {/* Categories */}
+              <div className="flex overflow-x-auto" style={{ gap: '6px', paddingBottom: '4px', scrollbarWidth: 'none' }}>
+                {GENRES.map(genre => (
+                  <CategoryCard key={genre} label={genre} onClick={() => onGenreFilter?.(genre)} />
+                ))}
               </div>
 
               {/* Suggestions personnalisées */}
@@ -641,7 +681,7 @@ export default function CataloguePage({
                 </div>
               </div>
 
-              {/* Nouveautés Mériadeck */}
+              {/* Livre mis en avant + Nouveautés Mériadeck */}
               <div className="flex flex-col" style={{ gap: '20px' }}>
                 <p style={{ fontFamily: 'var(--font-brand)', fontWeight: 700, fontSize: '24px', lineHeight: 1.2, margin: 0 }}>
                   <span style={{ color: 'var(--primary-12)' }}>Nouveauté </span>
@@ -675,6 +715,12 @@ export default function CataloguePage({
         onClose={() => setLibSheetOpen(false)}
         onApply={setSelectedLibraries}
         selectedLibraries={selectedLibraries}
+      />
+      <GenreThematiqueBottomSheet
+        open={gtOpen}
+        onClose={() => setGtOpen(false)}
+        onApply={setGtState}
+        externalState={gtState}
       />
     </div>
   );

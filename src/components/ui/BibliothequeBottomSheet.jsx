@@ -174,6 +174,20 @@ export default function BibliothequeBottomSheet({ open, onClose, onApply, select
               className="flex flex-col overflow-y-auto flex-1"
               style={{ paddingTop: '8px', paddingLeft: '12px', paddingRight: '12px' }}
             >
+              {/* Titre numérique */}
+              <LibraryRow
+                name="Titre numérique"
+                checked={!!localSelected['Titre numérique']}
+                onChange={() => toggle('Titre numérique')}
+              />
+              {/* Séparateur */}
+              <p style={{
+                fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em',
+                textTransform: 'uppercase', color: 'var(--color-text-subtle)',
+                margin: '12px 0 0 8px',
+              }}>
+                Bibliothèques
+              </p>
               {BORDEAUX_LIBRARIES.map(lib => (
                 <LibraryRow
                   key={lib}

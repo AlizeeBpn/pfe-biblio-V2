@@ -175,41 +175,9 @@ function FilterAccordion({ title, options, selections, onToggle, permanentOption
    ═══════════════════════════════════════════════════════════════ */
 const FILTER_SECTIONS = [
   {
-    id:      'type',
-    title:   'Type de document',
-    options: [
-      'Roman', 'BD', 'Manga', 'Livre documentaire', 'Livre numérique', 'Presse & Revues',
-    ],
-  },
-  {
-    id:      'genre',
-    title:   'Genre',
-    options: [
-      'Science-fiction', 'Policier', 'Thriller', 'Fantaisie', 'Aventure',
-      'Horreur', 'Romance', 'Biographie', 'Autobiographie', 'Essai', 'Poésie',
-      'Théâtre', 'Conte', 'Humour', 'Jeunesse', 'Drame historique',
-    ],
-  },
-  {
-    id:      'domaine',
-    title:   'Thématique',
-    options: [
-      'Philosophie', 'Psychologie', 'Spiritualité & Religion',
-      'Sociologie', 'Économie', 'Droit', 'Politique',
-      'Langues',
-      'Mathématiques', 'Physique & Chimie', 'Biologie & Sciences naturelles', 'Astronomie & Espace',
-      'Santé & Médecine', 'Cuisine & Art de vivre', 'Jardinage & Nature', 'Activités créatives',
-      'Art & Architecture', 'Musique', 'Cinéma', 'Sport & Loisirs', 'Voyage',
-      'Histoire', 'Géographie',
-      'Technologie & Numérique',
-    ],
-  },
-  {
     id:      'public',
     title:   'Public',
-    options: [
-      'Enfant', 'Ados', 'Adulte',
-    ],
+    options: ['Enfant', 'Ados', 'Adulte'],
   },
   {
     id:      'langue',
@@ -254,14 +222,12 @@ export default function FilterBottomSheet({
   externalDisponible,
 }) {
   const [disponible, setDisponible] = useState(externalDisponible ?? false);
-  const [selections, setSelections] = useState(
-    externalSelections ?? { bibliotheque: { 'Mériadeck': true } }
-  );
+  const [selections, setSelections] = useState(externalSelections ?? {});
 
   /* Sync internal state from parent when sheet opens */
   useEffect(() => {
     if (open) {
-      setSelections(externalSelections ?? { bibliotheque: { 'Mériadeck': true } });
+      setSelections(externalSelections ?? {});
       setDisponible(externalDisponible ?? false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -281,7 +247,7 @@ export default function FilterBottomSheet({
   ) + (disponible ? 1 : 0);
 
   const handleReset = () => {
-    setSelections({ bibliotheque: { 'Mériadeck': true } });
+    setSelections({});
     setDisponible(false);
   };
 
@@ -348,7 +314,7 @@ export default function FilterBottomSheet({
                   color:      'var(--color-text-title)',
                   whiteSpace: 'nowrap',
                 }}>
-                  Filtrer
+                  Plus de filtres
                 </span>
                 {activeCount > 0 && (
                   <div style={{
