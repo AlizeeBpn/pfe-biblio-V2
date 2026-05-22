@@ -20,10 +20,12 @@ const FALLBACK_BOOK = {
   publisher: '',
 };
 
-/* ── Fetch book info from Google Books API (no key needed) ── */
+/* ── Fetch book info from Google Books API ── */
 async function fetchBookByISBN(isbn) {
-  const url = `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&maxResults=1`;
-  const resp = await fetch(url);
+  const apiKey = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
+  const params = new URLSearchParams({ q: `isbn:${isbn}`, maxResults: '1' });
+  if (apiKey) params.set('key', apiKey);
+  const resp = await fetch(`https://www.googleapis.com/books/v1/volumes?${params}`);
   if (!resp.ok) return null;
   const data = await resp.json();
   if (!data.totalItems || !data.items?.length) return null;
@@ -128,12 +130,39 @@ export default function ScannerPage({ onBack, onBookSelect }) {
   }
 
   const videoRef        = useRef(null);
-  const streamRef       = useRef(null);   // holds the MediaStream — reused by ZXing
+  const streamRef       = useRef(null);
   const controlsRef     = useRef(null);
-  const isProcessingRef = useRef(false);  // debounce — prevents multi-fire from ZXing
+  const isProcessingRef = useRef(false);
   const [phase,       setPhase]       = useState('idle');
   const [scannedBook, setScannedBook] = useState(null);
   const [scannedIsbn, setScannedIsbn] = useState(null);
+
+  /* ── Re-attache le stream au video quand on revient en scanning ── */
+  useEffect(() => {
+    if (phase !== 'scanning') return;
+    if (!videoRef.current || !streamRef.current) return;
+    if (videoRef.current.srcObject !== streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+    videoRef.current.play().catch(() => {});
+  }, [phase]);
+
+  /* ── Retry : réutilise le stream existant si encore actif ── */
+  const handleRetry = useCallback(() => {
+    isProcessingRef.current = false;
+    setScannedIsbn(null);
+    setScannedBook(null);
+    if (streamRef.current?.active) {
+      if (videoRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+        videoRef.current.play().catch(() => {});
+      }
+      setPhase('scanning');
+    } else {
+      stopAll();
+      setPhase('idle');
+    }
+  }, [stopAll]);
 
   /* ── Full cleanup: stop ZXing controls + kill camera tracks ── */
   const stopAll = useCallback(() => {
@@ -644,7 +673,7 @@ export default function ScannerPage({ onBack, onBookSelect }) {
               <motion.button
                 type="button"
                 whileTap={{ scale: 0.97 }}
-                onClick={() => { isProcessingRef.current = false; setScannedIsbn(null); setPhase('scanning'); }}
+                onClick={handleRetry}
                 style={{ height: '48px', padding: '0 24px', borderRadius: 'var(--br-md)', backgroundColor: 'var(--primary-3)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 700, color: 'var(--primary-11)' }}
               >
                 <IconRefresh size={20} strokeWidth={2} color="var(--primary-11)" />
@@ -675,10 +704,7 @@ export default function ScannerPage({ onBack, onBookSelect }) {
            <BookBottomSheet
               key="sheet"
               book={scannedBook}
-              onClose={() => {
-                 setPhase('scanning'); // ✅ On dit au scanner de se relancer
-                 setScannedBook(null); // ✅ On vide le livre actuel
-               }}
+              onClose={handleRetry}
                onViewBook={handleViewBook}
              />
           </>
