@@ -26,7 +26,11 @@ function RadioRow({ label, checked, onSelect }) {
     <motion.div
       whileTap={{ opacity: 0.7 }}
       onClick={onSelect}
-      className="flex items-center cursor-pointer"
+      role="radio"
+      aria-checked={checked}
+      tabIndex={0}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect?.(); } }}
+      className="flex items-center cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:rounded"
       style={{ height: '40px', gap: '8px' }}
     >
       {/* Radio icon container 32×40 */}
@@ -108,6 +112,7 @@ export default function SortBottomSheet({ open, onClose, value = 'pertinence', o
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
+            aria-hidden="true"
             className="fixed inset-0 z-40"
             style={{ backgroundColor: 'rgba(34,33,35,0.45)' }}
           />
@@ -115,6 +120,9 @@ export default function SortBottomSheet({ open, onClose, value = 'pertinence', o
           {/* Sheet */}
           <motion.div
             key="sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sort-title"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -148,7 +156,7 @@ export default function SortBottomSheet({ open, onClose, value = 'pertinence', o
               style={{ padding: '0 20px', gap: '4px' }}
             >
               <div className="flex-1 flex items-center" style={{ gap: '8px' }}>
-                <span style={{
+                <span id="sort-title" style={{
                   fontFamily: 'Lora, serif',
                   fontSize:   '20px',
                   fontWeight: 700,
@@ -163,19 +171,22 @@ export default function SortBottomSheet({ open, onClose, value = 'pertinence', o
                 type="button"
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="shrink-0 flex items-center justify-center outline-none border-none cursor-pointer"
+                aria-label="Fermer"
+                className="shrink-0 flex items-center justify-center outline-none border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
                 style={{
                   padding:         '8px',
                   borderRadius:    '9999px',
                   backgroundColor: 'var(--neutral-4)',
                 }}
               >
-                <IconX size={20} strokeWidth={2} color="var(--neutral-11)" />
+                <IconX size={20} strokeWidth={2} color="var(--neutral-11)" aria-hidden="true" />
               </motion.button>
             </div>
 
             {/* Radio list */}
             <div
+              role="radiogroup"
+              aria-labelledby="sort-title"
               className="flex flex-col"
               style={{ padding: '0 12px', gap: '4px' }}
             >

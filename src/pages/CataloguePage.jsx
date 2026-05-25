@@ -518,11 +518,18 @@ export default function CataloguePage({
           {/* Left icon */}
           <div className="shrink-0 flex items-center" style={{ cursor: isSearching ? 'pointer' : 'default' }}>
             {isSearching ? (
-              <m.div whileTap={{ scale: 0.9 }} onClick={handleBackFromSearch}>
-                <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-subtle)" />
+              <m.div
+                whileTap={{ scale: 0.9 }}
+                onClick={handleBackFromSearch}
+                role="button"
+                tabIndex={0}
+                aria-label="Retour"
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleBackFromSearch(); } }}
+              >
+                <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
               </m.div>
             ) : (
-              <IconSearch size={24} strokeWidth={2} color="var(--color-text-subtle)" />
+              <IconSearch size={24} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
             )}
           </div>
 
@@ -556,14 +563,19 @@ export default function CataloguePage({
                   className="flex items-center justify-center cursor-pointer"
                   style={{ width: '40px', height: '40px', padding: '8px', backgroundColor: 'var(--neutral-4)', borderRadius: 'var(--br-round)' }}
                   onClick={handleClearText}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Effacer la recherche"
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClearText(); } }}
                 >
-                  <IconX size={24} strokeWidth={2} color="var(--secondary-11)" />
+                  <IconX size={24} strokeWidth={2} color="var(--secondary-11)" aria-hidden="true" />
                 </m.div>
               )
             ) : (
               <>
                 <div className="flex items-center justify-center"
-                  style={{ width: '32px', height: '32px', padding: '6px', backgroundColor: 'var(--neutral-4)', borderRadius: 'var(--br-round)' }}>
+                  style={{ width: '32px', height: '32px', padding: '6px', backgroundColor: 'var(--neutral-4)', borderRadius: 'var(--br-round)' }}
+                  aria-hidden="true">
                   <IconMicrophone size={20} strokeWidth={2} color="var(--color-text-subtle)" />
                 </div>
                 <m.div
@@ -571,8 +583,12 @@ export default function CataloguePage({
                   className="flex items-center justify-center cursor-pointer"
                   style={{ width: '40px', height: '40px', padding: '8px', backgroundColor: 'var(--secondary-4)', borderRadius: 'var(--br-round)' }}
                   onClick={e => { e.stopPropagation(); onScanOpen?.(); }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Scanner un ISBN"
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onScanOpen?.(); } }}
                 >
-                  <IconScan size={24} strokeWidth={2} color="var(--secondary-11)" />
+                  <IconScan size={24} strokeWidth={2} color="var(--secondary-11)" aria-hidden="true" />
                 </m.div>
               </>
             )}

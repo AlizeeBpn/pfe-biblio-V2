@@ -905,8 +905,10 @@ function AddToListModal({ book, lists, onAddToList, onCreateList, onClose }) {
             {view === 'select' ? 'Ajouter aux favoris' : 'Créer une liste de favoris'}
           </p>
           <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={onClose}
+            aria-label="Fermer"
+            className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
             style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: 'var(--neutral-4)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IconX size={18} strokeWidth={2} color="var(--color-text-subtle)" />
+            <IconX size={18} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
           </motion.button>
         </div>
 
@@ -1043,10 +1045,11 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
             type="button"
             whileTap={{ scale: 0.9 }}
             onClick={onBack}
-            className="flex items-center justify-center outline-none border-none cursor-pointer shrink-0"
+            aria-label="Retour"
+            className="flex items-center justify-center outline-none border-none cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
             style={{ width: '40px', height: '40px', padding: '8px', backgroundColor: 'var(--neutral-4)', borderRadius: 'var(--br-round)' }}
           >
-            <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" />
+            <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" aria-hidden="true" />
           </motion.button>
 
           <div className="flex-1" />

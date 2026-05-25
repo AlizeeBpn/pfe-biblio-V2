@@ -42,6 +42,9 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
 
   return (
     <motion.div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="book-sheet-title"
       initial={{ y: '100%' }}
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
@@ -99,6 +102,8 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
           type="button"
           whileTap={{ scale: 0.9 }}
           onClick={onClose}
+          aria-label="Fermer"
+          className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
           style={{
             width:           '36px',
             height:          '36px',
@@ -113,7 +118,7 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
             flexShrink:      0,
           }}
         >
-          <IconX size={20} strokeWidth={2} color="var(--color-text-subtle)" />
+          <IconX size={20} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
         </motion.button>
       </div>
 
@@ -164,7 +169,7 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
             gap:           '4px',
             minWidth:      0,
           }}>
-            <p style={{
+            <p id="book-sheet-title" style={{
               fontFamily: 'var(--font-brand)',
               fontSize:   '20px',
               fontWeight: 700,
@@ -279,6 +284,9 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
               type="button"
               whileTap={{ scale: 0.93 }}
               onClick={() => setSaved(s => !s)}
+              aria-pressed={saved}
+              aria-label={saved ? 'Retirer de la liste' : 'Ajouter à la liste'}
+              className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
               style={{
                 height:          '48px',
                 padding:         '0 16px',
@@ -295,8 +303,8 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
               }}
             >
               {saved
-                ? <IconBookmarkFilled size={18} color="var(--primary-11)" />
-                : <IconBookmarkPlus   size={18} strokeWidth={2} color="var(--primary-11)" />
+                ? <IconBookmarkFilled size={18} color="var(--primary-11)" aria-hidden="true" />
+                : <IconBookmarkPlus   size={18} strokeWidth={2} color="var(--primary-11)" aria-hidden="true" />
               }
               <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--primary-11)', whiteSpace: 'nowrap' }}>
                 Liste
@@ -308,6 +316,7 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
               type="button"
               whileTap={{ scale: 0.97 }}
               onClick={onViewBook}
+              className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:ring-offset-2"
               style={{
                 flex:            1,
                 display:         'flex',
@@ -333,7 +342,7 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
               }}>
                 Voir la fiche du livre
               </span>
-              <IconBook2 size={20} strokeWidth={2} color="var(--neutral-1)" />
+              <IconBook2 size={20} strokeWidth={2} color="var(--neutral-1)" aria-hidden="true" />
             </motion.button>
           </div>
 

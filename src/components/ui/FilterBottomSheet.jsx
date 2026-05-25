@@ -82,7 +82,8 @@ function FilterAccordion({ title, options, selections, onToggle, permanentOption
         type="button"
         whileTap={{ opacity: 0.7 }}
         onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center outline-none border-none bg-transparent cursor-pointer"
+        aria-expanded={open}
+        className="w-full flex items-center outline-none border-none bg-transparent cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
         style={{
           minHeight:     '56px',
           paddingLeft:   '20px',
@@ -120,7 +121,7 @@ function FilterAccordion({ title, options, selections, onToggle, permanentOption
             </div>
           )}
         </div>
-        <span className="shrink-0 flex items-center" style={{ width: '24px', height: '24px' }}>
+        <span className="shrink-0 flex items-center" style={{ width: '24px', height: '24px' }} aria-hidden="true">
           {open
             ? <IconChevronUp   size={24} strokeWidth={2} color="var(--neutral-10)" />
             : <IconChevronDown size={24} strokeWidth={2} color="var(--neutral-10)" />
@@ -191,8 +192,8 @@ const FILTER_SECTIONS = [
     id:      'accessible',
     title:   'Accessibilité',
     options: [
-      'Accès handicap', 'Braille', 'Grands caractères', 'FALC',
-      'LSF (Langue des Signes)', 'Audio-description',
+      'Grands caractères', 'Braille', 'Facile à lire (FALC)',
+      'Langue des signes (LSF)', 'Audio-description',
     ],
   },
   {
@@ -268,6 +269,7 @@ export default function FilterBottomSheet({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
+            aria-hidden="true"
             className="fixed inset-0 z-40"
             style={{ backgroundColor: 'rgba(34,33,35,0.45)' }}
           />
@@ -275,6 +277,9 @@ export default function FilterBottomSheet({
           {/* Sheet */}
           <motion.div
             key="sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="plus-de-filtres-title"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -306,7 +311,7 @@ export default function FilterBottomSheet({
               style={{ padding: '8px 20px 8px', gap: '4px' }}
             >
               <div className="flex-1 flex items-center" style={{ gap: '8px', minWidth: 0 }}>
-                <span style={{
+                <span id="plus-de-filtres-title" style={{
                   fontFamily: 'Lora, serif',
                   fontSize:   '20px',
                   fontWeight: 700,
@@ -338,14 +343,15 @@ export default function FilterBottomSheet({
                 type="button"
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="shrink-0 flex items-center justify-center outline-none border-none cursor-pointer"
+                aria-label="Fermer"
+                className="shrink-0 flex items-center justify-center outline-none border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
                 style={{
                   padding:         '8px',
                   borderRadius:    '9999px',
                   backgroundColor: 'var(--neutral-4)',
                 }}
               >
-                <IconX size={20} strokeWidth={2} color="var(--neutral-11)" />
+                <IconX size={20} strokeWidth={2} color="var(--neutral-11)" aria-hidden="true" />
               </motion.button>
             </div>
 
@@ -356,7 +362,7 @@ export default function FilterBottomSheet({
             >
               <div style={{ paddingLeft: '12px', paddingRight: '12px' }}>
                 <CheckboxRow
-                  label="Disponible en bibliothèque"
+                  label="Disponible maintenant"
                   checked={disponible}
                   onChange={setDisponible}
                 />

@@ -103,9 +103,11 @@ export default function ScannerPage({ onBack, onBookSelect }) {
           display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 20px',
         }}>
           <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={onBack}
+            aria-label="Retour"
+            className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
             style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
               backgroundColor: 'var(--neutral-4)', borderRadius: 'var(--br-round)', border: 'none', outline: 'none', cursor: 'pointer' }}>
-            <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" />
+            <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" aria-hidden="true" />
           </motion.button>
           <span style={{ fontFamily: 'var(--font-body)', fontSize: '16px', fontWeight: 700, color: 'var(--color-text-title)' }}>
             Recherche par scan
@@ -287,6 +289,8 @@ export default function ScannerPage({ onBack, onBookSelect }) {
         type="button"
         whileTap={{ scale: 0.9 }}
         onClick={onBack}
+        aria-label="Retour"
+        className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
         style={{
           width:           '40px',
           height:          '40px',
@@ -301,7 +305,7 @@ export default function ScannerPage({ onBack, onBookSelect }) {
           flexShrink:      0,
         }}
       >
-        <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" />
+        <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" aria-hidden="true" />
       </motion.button>
 
       <span style={{

@@ -265,9 +265,10 @@ function ActiveFilterChip({ label, onRemove }) {
         type="button"
         whileTap={{ scale: 0.9 }}
         onClick={onRemove}
-        className="flex items-center justify-center outline-none border-none bg-transparent p-0 cursor-pointer"
+        aria-label={`Retirer le filtre ${label}`}
+        className="flex items-center justify-center outline-none border-none bg-transparent p-0 cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
       >
-        <IconX size={16} strokeWidth={2} color="var(--primary-11)" />
+        <IconX size={16} strokeWidth={2} color="var(--primary-11)" aria-hidden="true" />
       </motion.button>
     </div>
   );
@@ -540,9 +541,10 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
               type="button"
               whileTap={{ scale: 0.9 }}
               onClick={onBack}
-              className="shrink-0 outline-none border-none bg-transparent p-0 cursor-pointer flex items-center"
+              aria-label="Retour"
+              className="shrink-0 outline-none border-none bg-transparent p-0 cursor-pointer flex items-center focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
             >
-              <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-subtle)" />
+              <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
             </motion.button>
 
             {/* Text / input — click to edit */}
@@ -592,7 +594,8 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
                 type="button"
                 whileTap={{ scale: 0.9 }}
                 onClick={handleXClick}
-                className="shrink-0 flex items-center justify-center outline-none border-none cursor-pointer"
+                aria-label="Effacer la recherche"
+                className="shrink-0 flex items-center justify-center outline-none border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
                 style={{
                   width:           '40px',
                   height:          '40px',
@@ -601,7 +604,7 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
                   borderRadius:    'var(--br-round)',
                 }}
               >
-                <IconX size={24} strokeWidth={2} color="var(--secondary-11)" />
+                <IconX size={24} strokeWidth={2} color="var(--secondary-11)" aria-hidden="true" />
               </motion.button>
             )}
           </div>

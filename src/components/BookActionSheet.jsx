@@ -103,10 +103,14 @@ export function BookActionSheet({ title, subtitle, books = [], actionLabel, acti
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      aria-hidden="true"
       style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', zIndex: 60, display: 'flex', alignItems: 'flex-end' }}
       onClick={onClose}
     >
       <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="book-action-sheet-title"
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
@@ -129,7 +133,7 @@ export function BookActionSheet({ title, subtitle, books = [], actionLabel, acti
         {/* Header */}
         <div style={{ padding: '0 20px 12px', display: 'flex', alignItems: 'flex-start', gap: '8px', flexShrink: 0 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.3, color: 'var(--color-text-title)', margin: '0 0 2px' }}>
+            <p id="book-action-sheet-title" style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.3, color: 'var(--color-text-title)', margin: '0 0 2px' }}>
               {title}
             </p>
             {subtitle && (
@@ -140,9 +144,11 @@ export function BookActionSheet({ title, subtitle, books = [], actionLabel, acti
             type="button"
             whileTap={{ scale: 0.9 }}
             onClick={onClose}
+            aria-label="Fermer"
+            className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
             style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: 'var(--neutral-4)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
           >
-            <IconX size={18} strokeWidth={2} color="var(--color-text-subtle)" />
+            <IconX size={18} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
           </motion.button>
         </div>
 

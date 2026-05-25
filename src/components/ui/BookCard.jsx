@@ -95,16 +95,18 @@ export default function BookCard({
               type="button"
               whileTap={{ scale: 0.9 }}
               onClick={e => { e.stopPropagation(); onMenuClick(e); }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+              aria-label={`Plus d'options pour ${title}`}
+              className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:rounded-full"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', margin: '-8px', display: 'flex', alignItems: 'center', flexShrink: 0 }}
             >
-              <IconDotsVertical size={18} strokeWidth={2} color="var(--color-text-subtle)" />
+              <IconDotsVertical size={18} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
             </motion.button>
           ) : rating != null ? (
-            <div className="flex items-center shrink-0" style={{ gap: '4px' }}>
+            <div className="flex items-center shrink-0" style={{ gap: '4px' }} aria-label={`Note ${rating} sur 5`}>
               <span style={{ fontSize: '12px', fontWeight: 500, lineHeight: 1, color: 'var(--color-text-subtle)', whiteSpace: 'nowrap' }}>
                 {rating}/5
               </span>
-              <IconStarFilled size={16} color="var(--secondary-11)" />
+              <IconStarFilled size={16} color="var(--secondary-11)" aria-hidden="true" />
             </div>
           ) : null}
         </div>

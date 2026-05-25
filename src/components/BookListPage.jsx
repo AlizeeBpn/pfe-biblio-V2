@@ -66,8 +66,10 @@ function BookContextSheet({ book, type, onClose, onBookSelect }) {
               {badgeCfg.label}
             </Badge>
             <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={onClose}
+              aria-label="Fermer"
+              className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
               style={{ width: 36, height: 36, borderRadius: 9999, backgroundColor: 'var(--neutral-4)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <IconX size={18} strokeWidth={2} color="var(--color-text-subtle)" />
+              <IconX size={18} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
             </motion.button>
           </div>
 
@@ -192,13 +194,15 @@ export function BookListPage({
           type="button"
           whileTap={{ scale: 0.9 }}
           onClick={onBack}
+          aria-label="Retour"
+          className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
           style={{
             width: '40px', height: '40px', borderRadius: '9999px',
             backgroundColor: 'var(--neutral-4)', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}
         >
-          <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" />
+          <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" aria-hidden="true" />
         </motion.button>
       </div>
 

@@ -61,15 +61,17 @@ export default function SearchInput({
         size={iconSize}
         strokeWidth={1.5}
         className="shrink-0 text-[var(--color-icon-info)]"
+        aria-hidden="true"
       />
 
       {/* input */}
       <input
-        type="text"
+        type="search"
         value={currentValue}
         onChange={handleChange}
         placeholder={placeholder}
         disabled={disabled}
+        aria-label={placeholder}
         className={`
           flex-1 bg-transparent outline-none border-none
           ${text} text-[var(--color-text-body)]
@@ -84,9 +86,10 @@ export default function SearchInput({
           type="button"
           onTap={handleClear}
           whileTap={{ scale: 0.9 }}
-          className="shrink-0 flex items-center text-[var(--color-icon-action)]"
+          aria-label="Effacer la recherche"
+          className="shrink-0 flex items-center text-[var(--color-icon-action)] focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:rounded-full"
         >
-          <IconX size={iconSize} strokeWidth={1.5} />
+          <IconX size={iconSize} strokeWidth={1.5} aria-hidden="true" />
         </motion.button>
       )}
 
@@ -96,9 +99,10 @@ export default function SearchInput({
           type="button"
           onTap={onFilter}
           whileTap={{ scale: 0.9 }}
-          className="shrink-0 flex items-center text-[var(--color-icon-action)]"
+          aria-label="Filtres"
+          className="shrink-0 flex items-center text-[var(--color-icon-action)] focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:rounded-full"
         >
-          <IconAdjustmentsHorizontal size={iconSize} strokeWidth={1.5} />
+          <IconAdjustmentsHorizontal size={iconSize} strokeWidth={1.5} aria-hidden="true" />
         </motion.button>
       )}
     </div>

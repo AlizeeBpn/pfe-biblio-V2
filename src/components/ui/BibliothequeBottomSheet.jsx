@@ -105,12 +105,16 @@ export default function BibliothequeBottomSheet({ open, onClose, onApply, select
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
+            aria-hidden="true"
             className="fixed inset-0 z-40"
             style={{ backgroundColor: 'rgba(34,33,35,0.45)' }}
           />
 
           <motion.div
             key="sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bibliotheque-title"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -134,7 +138,7 @@ export default function BibliothequeBottomSheet({ open, onClose, onApply, select
             {/* Header */}
             <div className="flex items-center shrink-0" style={{ padding: '8px 20px 8px', gap: '4px' }}>
               <div className="flex-1 flex items-center" style={{ gap: '8px', minWidth: 0 }}>
-                <span style={{
+                <span id="bibliotheque-title" style={{
                   fontFamily: 'Lora, serif',
                   fontSize:   '20px',
                   fontWeight: 700,
@@ -165,10 +169,11 @@ export default function BibliothequeBottomSheet({ open, onClose, onApply, select
                 type="button"
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="shrink-0 flex items-center justify-center outline-none border-none cursor-pointer"
+                aria-label="Fermer"
+                className="shrink-0 flex items-center justify-center outline-none border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
                 style={{ padding: '8px', borderRadius: '9999px', backgroundColor: 'var(--neutral-4)' }}
               >
-                <IconX size={20} strokeWidth={2} color="var(--neutral-11)" />
+                <IconX size={20} strokeWidth={2} color="var(--neutral-11)" aria-hidden="true" />
               </motion.button>
             </div>
 

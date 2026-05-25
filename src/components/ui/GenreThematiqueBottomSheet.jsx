@@ -10,8 +10,8 @@ const SHADOW_CTA =
 
 const FICTION_TYPES  = ['Roman', 'BD', 'Manga'];
 const FICTION_GENRES = [
-  'Thriller', 'Romance', 'Science-fiction', 'Policier', 'Fantaisie',
-  'Aventure', 'Horreur', 'Drame historique', 'Humour', 'Conte', 'Jeunesse',
+  'Policier', 'Thriller', 'Science-fiction', 'Fantastique', 'Romance',
+  'Aventure', 'Historique', 'Horreur', 'Humour', 'Classique',
 ];
 
 export const DOC_SECTIONS = [
@@ -96,12 +96,14 @@ function DocAccordion({ section, parentSelected, onParentToggle, itemSelections,
           type="button"
           whileTap={{ opacity: 0.7 }}
           onClick={onExpandToggle}
-          className="shrink-0 flex items-center justify-center outline-none border-none bg-transparent cursor-pointer"
-          style={{ width: '32px', height: '32px' }}
+          aria-label={expanded ? `Replier ${section.label}` : `Déplier ${section.label}`}
+          aria-expanded={expanded}
+          className="shrink-0 flex items-center justify-center outline-none border-none bg-transparent cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:rounded-full"
+          style={{ width: '44px', height: '44px' }}
         >
           {expanded
-            ? <IconChevronUp   size={24} strokeWidth={2} color="var(--neutral-10)" />
-            : <IconChevronDown size={24} strokeWidth={2} color="var(--neutral-10)" />
+            ? <IconChevronUp   size={24} strokeWidth={2} color="var(--neutral-10)" aria-hidden="true" />
+            : <IconChevronDown size={24} strokeWidth={2} color="var(--neutral-10)" aria-hidden="true" />
           }
         </motion.button>
       </div>
@@ -201,12 +203,16 @@ export default function GenreThematiqueBottomSheet({ open, onClose, onApply, ext
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
+            aria-hidden="true"
             className="fixed inset-0 z-40"
             style={{ backgroundColor: 'rgba(34,33,35,0.45)' }}
           />
 
           <motion.div
             key="sheet"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="genre-thematique-title"
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 z-50 flex flex-col"
@@ -228,7 +234,7 @@ export default function GenreThematiqueBottomSheet({ open, onClose, onApply, ext
             {/* Header */}
             <div className="flex items-center shrink-0" style={{ padding: '8px 20px', gap: '4px' }}>
               <div className="flex-1 flex items-center" style={{ gap: '8px', minWidth: 0 }}>
-                <span style={{
+                <span id="genre-thematique-title" style={{
                   fontFamily: 'Lora, serif', fontSize: '20px', fontWeight: 700,
                   lineHeight: 1.5, color: 'var(--color-text-title)', whiteSpace: 'nowrap',
                 }}>
@@ -240,10 +246,11 @@ export default function GenreThematiqueBottomSheet({ open, onClose, onApply, ext
                 type="button"
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="shrink-0 flex items-center justify-center outline-none border-none cursor-pointer"
+                aria-label="Fermer"
+                className="shrink-0 flex items-center justify-center outline-none border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
                 style={{ padding: '8px', borderRadius: '9999px', backgroundColor: 'var(--neutral-4)' }}
               >
-                <IconX size={20} strokeWidth={2} color="var(--neutral-11)" />
+                <IconX size={20} strokeWidth={2} color="var(--neutral-11)" aria-hidden="true" />
               </motion.button>
             </div>
 

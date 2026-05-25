@@ -87,7 +87,8 @@ export const BarButton = ({
             type="button"
             onClick={() => handleClick(index)}
             whileTap={{ scale: 0.96 }}
-            className="flex-1 flex items-center justify-center font-sans transition-colors duration-150 outline-none"
+            aria-pressed={isActive}
+            className="flex-1 flex items-center justify-center font-sans transition-colors duration-150 outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
             style={{
               height:          c.height,
               fontSize:        c.fontSize,
@@ -101,7 +102,7 @@ export const BarButton = ({
               border:          isActive ? '2px solid var(--neutral-7)' : '2px solid transparent',
             }}
           >
-            {Icon && <Icon size={c.iconSize} strokeWidth={2} color="var(--neutral-10)" />}
+            {Icon && <Icon size={c.iconSize} strokeWidth={2} color="var(--neutral-10)" aria-hidden="true" />}
             {label}
           </motion.button>
         );

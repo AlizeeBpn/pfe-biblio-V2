@@ -37,7 +37,7 @@ export const BottomNavigation = ({ activeTab = 'Accueil', onChange, onScan }) =>
           type="button"
           whileTap={{ scale: 0.94 }}
           onClick={onScan}
-          className="flex items-center outline-none cursor-pointer"
+          className="flex items-center outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
           style={{
             gap:             '6px',
             height:          '44px',
@@ -48,7 +48,7 @@ export const BottomNavigation = ({ activeTab = 'Accueil', onChange, onScan }) =>
             boxShadow:       '0px 10px 6px 0px rgba(142,141,143,0.05), 0px 4px 4px 0px rgba(142,141,143,0.09), 0px 1px 2px 0px rgba(142,141,143,0.10)',
           }}
         >
-          <IconScan size={18} strokeWidth={2} color="var(--neutral-10)" />
+          <IconScan size={18} strokeWidth={2} color="var(--neutral-10)" aria-hidden="true" />
           <span style={{ fontSize: '13px', fontWeight: 700, lineHeight: 1, color: 'var(--neutral-11)', whiteSpace: 'nowrap' }}>
             Scan ISBN
           </span>
@@ -56,6 +56,7 @@ export const BottomNavigation = ({ activeTab = 'Accueil', onChange, onScan }) =>
       )}
 
       <nav
+        aria-label="Navigation principale"
         style={{
           display:        'flex',
           width:          '100%',
@@ -76,7 +77,9 @@ export const BottomNavigation = ({ activeTab = 'Accueil', onChange, onScan }) =>
               type="button"
               onClick={() => onChange?.(id)}
               whileTap={{ scale: 0.92 }}
-              className="flex flex-col items-center outline-none transition-colors duration-150"
+              aria-label={label}
+              aria-current={isActive ? 'page' : undefined}
+              className="flex flex-col items-center outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
               style={{
                 gap:             'var(--gap-xs)',    // 4px
                 padding:         'var(--pad-md) var(--pad-lg)', // 12px 20px
@@ -88,6 +91,7 @@ export const BottomNavigation = ({ activeTab = 'Accueil', onChange, onScan }) =>
                 size={24}
                 strokeWidth={isActive ? 2 : 1.5}
                 color={isActive ? 'var(--primary-11)' : 'var(--neutral-10)'}
+                aria-hidden="true"
               />
               <span
                 style={{

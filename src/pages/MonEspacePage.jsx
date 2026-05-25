@@ -158,8 +158,10 @@ function QRModal({ onClose }) {
         <div className="flex items-center justify-between w-full">
           <p style={{ fontFamily: 'var(--font-brand)', fontSize: '18px', fontWeight: 700, color: 'var(--color-text-brand)', margin: 0 }}>Carte d'adhérente</p>
           <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={onClose}
+            aria-label="Fermer"
+            className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
             style={{ width: '36px', height: '36px', borderRadius: 'var(--br-round)', backgroundColor: 'var(--neutral-4)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IconX size={18} strokeWidth={2} color="var(--color-text-subtle)" />
+            <IconX size={18} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
           </motion.button>
         </div>
         <div style={{ width: '200px', height: '200px', borderRadius: '12px', backgroundColor: 'var(--neutral-3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -318,9 +320,13 @@ function ListItemCard({ list, onSelect, onRename, onDelete }) {
           type="button"
           whileTap={{ scale: 0.9 }}
           onClick={() => setDropdownOpen((v) => !v)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          aria-label="Options de la liste"
+          aria-expanded={dropdownOpen}
+          aria-haspopup="menu"
+          className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:rounded-full"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', margin: '-8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
-          <IconDotsVertical size={20} strokeWidth={2} color="var(--color-text-subtle)" />
+          <IconDotsVertical size={20} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
         </motion.button>
 
         <AnimatePresence>
@@ -363,8 +369,10 @@ function ListNameModal({ title, confirmLabel = 'Créer la liste', initialValue =
         <div className="flex items-center" style={{ padding: '0 20px 2px', gap: '4px' }}>
           <p style={{ flex: '1 0 0', fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, color: 'var(--color-text-title)', margin: 0 }}>{title}</p>
           <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={onClose}
+            aria-label="Fermer"
+            className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
             style={{ width: '36px', height: '36px', borderRadius: '9999px', backgroundColor: 'var(--neutral-4)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <IconX size={18} strokeWidth={2} color="var(--color-text-subtle)" />
+            <IconX size={18} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
           </motion.button>
         </div>
         <div style={{ padding: '24px 20px 0' }}>
@@ -466,9 +474,13 @@ function ListBookCard({ book, removeMode, onRemove, onSelect }) {
                 type="button"
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setMenuOpen(v => !v)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                aria-label={`Plus d'options pour ${book.title}`}
+                aria-expanded={menuOpen}
+                aria-haspopup="menu"
+                className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:rounded-full"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', margin: '-8px', display: 'flex', alignItems: 'center' }}
               >
-                <IconDotsVertical size={18} strokeWidth={2} color="var(--color-text-subtle)" />
+                <IconDotsVertical size={18} strokeWidth={2} color="var(--color-text-subtle)" aria-hidden="true" />
               </motion.button>
               <AnimatePresence>
                 {menuOpen && (
@@ -538,9 +550,11 @@ function ListDetailScreen({ list, onBack, onRemoveBook, onBookSelect }) {
           type="button"
           whileTap={{ scale: 0.9 }}
           onClick={onBack}
+          aria-label="Retour"
+          className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
           style={{ width: '40px', height: '40px', borderRadius: '9999px', backgroundColor: 'var(--neutral-4)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
         >
-          <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" />
+          <IconArrowLeft size={24} strokeWidth={2} color="var(--color-text-title)" aria-hidden="true" />
         </motion.button>
         <div style={{ flex: 1, minWidth: 0 }} />
       </div>

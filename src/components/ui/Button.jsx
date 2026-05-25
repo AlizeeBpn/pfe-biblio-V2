@@ -99,6 +99,7 @@ export default function Button({
         select-none cursor-pointer
         transition-colors duration-100
         outline-none
+        focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:ring-offset-2
         disabled:cursor-not-allowed
         ${iconOnly ? iconOnlyClass : sizeClass}
         ${variantClass}
