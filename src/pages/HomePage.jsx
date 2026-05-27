@@ -264,7 +264,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
         {/* ── BarButton — calendar-star + rss ── */}
         <BarButton
           tabs={[
-            { label: 'Raccourcie',  icon: IconCalendarStar },
+            { label: 'Raccourcis',  icon: IconCalendarStar },
             { label: 'Actualités', icon: IconRss },
           ]}
           size="medium"
@@ -328,7 +328,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
                 <div className="flex flex-col flex-1 h-full" style={{ gap: '8px' }}>
 
                   {/* Badge — calendar-time, h:28px, p:6px, radius:2px, semibold */}
-                  <Badge variant="info" size="large" icon={<IconCalendarTime size={16} strokeWidth={2} color="var(--info-11)" />}>Retour : 12 juin 2024</Badge>
+                  <Badge variant="info" size="large" icon={<IconCalendarTime size={16} strokeWidth={2} color="var(--info-11)" />}>Retour : 12 juin 2026</Badge>
 
                   {/* Title + author */}
                   <div className="flex flex-col flex-1" style={{ gap: '2px' }}>

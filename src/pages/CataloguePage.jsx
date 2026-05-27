@@ -355,10 +355,14 @@ function SuggestionSection({ title, books, onBookSelect, onSeeAll }) {
     <div className="flex flex-col" style={{ gap: '12px' }}>
       {title && <SectionLabel>{title}</SectionLabel>}
 
-      <div className="flex overflow-x-auto" style={{ gap: '16px', paddingBottom: '4px', scrollbarWidth: 'none' }}>
-        {books.map((b, i) => (
-          <BookItem key={i} title={b.title} author={b.author} cover={b.cover} onClick={() => onBookSelect?.(b)} />
-        ))}
+      {/* Carousel : déborde à droite hors du padding du <main> (20px)
+          pour suggérer visuellement le swipe horizontal */}
+      <div style={{ marginRight: '-20px' }}>
+        <div className="flex overflow-x-auto" style={{ gap: '16px', paddingBottom: '4px', paddingRight: '20px', scrollbarWidth: 'none' }}>
+          {books.map((b, i) => (
+            <BookItem key={i} title={b.title} author={b.author} cover={b.cover} onClick={() => onBookSelect?.(b)} />
+          ))}
+        </div>
       </div>
 
       <div className="flex justify-end">
@@ -685,11 +689,13 @@ export default function CataloguePage({
                 <SortFilterBtn label="Plus de filtres"   count={filterActiveCount}         Icon={IconAdjustmentsHorizontal} onClick={() => setFilterOpen(true)} />
               </div>
 
-              {/* Categories */}
-              <div className="flex overflow-x-auto" style={{ gap: '6px', paddingBottom: '4px', scrollbarWidth: 'none' }}>
-                {GENRES.map(genre => (
-                  <CategoryCard key={genre} label={genre} onClick={() => onGenreFilter?.(genre)} />
-                ))}
+              {/* Categories — déborde à droite pour suggérer le swipe */}
+              <div style={{ marginRight: '-20px' }}>
+                <div className="flex overflow-x-auto" style={{ gap: '6px', paddingBottom: '4px', paddingRight: '20px', scrollbarWidth: 'none' }}>
+                  {GENRES.map(genre => (
+                    <CategoryCard key={genre} label={genre} onClick={() => onGenreFilter?.(genre)} />
+                  ))}
+                </div>
               </div>
 
               {/* Suggestions personnalisées */}

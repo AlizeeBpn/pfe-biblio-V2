@@ -401,13 +401,16 @@ function TabPropos({ book, onBookSelect }) {
       {autresDuMemeAuteur.length > 0 && (
         <div className="flex flex-col" style={{ gap: '12px' }}>
           <SectionHeading>D'autres livres de l'auteur</SectionHeading>
-          <div
-            className="flex overflow-x-auto"
-            style={{ gap: '16px', paddingBottom: '4px', scrollbarWidth: 'none' }}
-          >
-            {autresDuMemeAuteur.map((b) => (
-              <MiniBookCard key={b.id} book={b} onSelect={onBookSelect} />
-            ))}
+          {/* Carousel : déborde à droite hors du padding parent (20px) */}
+          <div style={{ marginRight: '-20px' }}>
+            <div
+              className="flex overflow-x-auto"
+              style={{ gap: '16px', paddingBottom: '4px', paddingRight: '20px', scrollbarWidth: 'none' }}
+            >
+              {autresDuMemeAuteur.map((b) => (
+                <MiniBookCard key={b.id} book={b} onSelect={onBookSelect} />
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -416,13 +419,16 @@ function TabPropos({ book, onBookSelect }) {
       {titresSimilaires.length > 0 && (
         <div className="flex flex-col" style={{ gap: '12px' }}>
           <SectionHeading>D'autres titres similaires</SectionHeading>
-          <div
-            className="flex overflow-x-auto"
-            style={{ gap: '16px', paddingBottom: '4px', scrollbarWidth: 'none' }}
-          >
-            {titresSimilaires.map((b) => (
-              <MiniBookCard key={b.id} book={b} onSelect={onBookSelect} />
-            ))}
+          {/* Carousel : déborde à droite hors du padding parent (20px) */}
+          <div style={{ marginRight: '-20px' }}>
+            <div
+              className="flex overflow-x-auto"
+              style={{ gap: '16px', paddingBottom: '4px', paddingRight: '20px', scrollbarWidth: 'none' }}
+            >
+              {titresSimilaires.map((b) => (
+                <MiniBookCard key={b.id} book={b} onSelect={onBookSelect} />
+              ))}
+            </div>
           </div>
         </div>
       )}
