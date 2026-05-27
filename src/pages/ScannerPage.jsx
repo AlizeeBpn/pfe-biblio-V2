@@ -541,19 +541,23 @@ export default function ScannerPage({ onBack, onBookSelect }) {
 
         {/* Fetching — spinner overlay */}
         {phase === 'fetching' && (
-          <div style={{
-            position:        'absolute',
-            inset:           0,
-            backgroundColor: 'rgba(0,0,0,0.65)',
-            display:         'flex',
-            flexDirection:   'column',
-            alignItems:      'center',
-            justifyContent:  'center',
-            gap:             '16px',
-          }}>
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              position:        'absolute',
+              inset:           0,
+              backgroundColor: 'rgba(0,0,0,0.65)',
+              display:         'flex',
+              flexDirection:   'column',
+              alignItems:      'center',
+              justifyContent:  'center',
+              gap:             '16px',
+            }}>
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              aria-hidden="true"
             >
               <IconLoader2 size={40} strokeWidth={2} color="var(--primary-6)" />
             </motion.div>
@@ -571,14 +575,16 @@ export default function ScannerPage({ onBack, onBookSelect }) {
 
         {/* Generic error */}
         {phase === 'error' && (
-          <div style={{
-            position:       'absolute',
-            inset:          0,
-            display:        'flex',
-            alignItems:     'center',
-            justifyContent: 'center',
-            padding:        '32px',
-          }}>
+          <div
+            role="alert"
+            style={{
+              position:       'absolute',
+              inset:          0,
+              display:        'flex',
+              alignItems:     'center',
+              justifyContent: 'center',
+              padding:        '32px',
+            }}>
             <p style={{
               color:      'rgba(255,255,255,0.9)',
               textAlign:  'center',
@@ -655,6 +661,7 @@ export default function ScannerPage({ onBack, onBookSelect }) {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 40 }}
+            role="alert"
             style={{
               position: 'fixed', inset: 0, zIndex: 50,
               background: 'linear-gradient(180deg, var(--secondary-2) 0%, var(--neutral-2) 49.04%), var(--neutral-2)',
@@ -663,7 +670,7 @@ export default function ScannerPage({ onBack, onBookSelect }) {
           >
             {Header}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px', padding: '32px' }}>
-              <div style={{ width: '88px', height: '88px', borderRadius: 'var(--br-round)', backgroundColor: 'var(--neutral-4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '88px', height: '88px', borderRadius: 'var(--br-round)', backgroundColor: 'var(--neutral-4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} aria-hidden="true">
                 <IconBookOff size={44} strokeWidth={1.5} color="var(--neutral-10)" />
               </div>
               <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '8px', maxWidth: '280px' }}>
@@ -678,9 +685,10 @@ export default function ScannerPage({ onBack, onBookSelect }) {
                 type="button"
                 whileTap={{ scale: 0.97 }}
                 onClick={handleRetry}
+                className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
                 style={{ height: '48px', padding: '0 24px', borderRadius: 'var(--br-md)', backgroundColor: 'var(--primary-3)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 700, color: 'var(--primary-11)' }}
               >
-                <IconRefresh size={20} strokeWidth={2} color="var(--primary-11)" />
+                <IconRefresh size={20} strokeWidth={2} color="var(--primary-11)" aria-hidden="true" />
                 Scanner à nouveau
               </motion.button>
             </div>

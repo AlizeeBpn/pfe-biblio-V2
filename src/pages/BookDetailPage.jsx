@@ -45,7 +45,11 @@ function MiniBookCard({ book, onSelect }) {
     <motion.div
       whileTap={{ scale: 0.96 }}
       onClick={() => onSelect?.(book)}
-      className="flex flex-col shrink-0 items-start"
+      role="button"
+      tabIndex={0}
+      aria-label={`${book.title}${book.author ? ` par ${book.author}` : ''}`}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect?.(book); } }}
+      className="flex flex-col shrink-0 items-start focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:outline-none"
       style={{ gap: '6px', width: '120px', cursor: 'pointer' }}
     >
       <BookCover
@@ -218,7 +222,7 @@ function LocationCard() {
    ════════════════════════════════════════════════════ */
 function SectionHeading({ children }) {
   return (
-    <p style={{
+    <h2 style={{
       fontFamily: 'var(--font-brand)',
       fontSize:   '20px',
       fontWeight: 700,
@@ -228,7 +232,7 @@ function SectionHeading({ children }) {
       whiteSpace: 'nowrap',
     }}>
       {children}
-    </p>
+    </h2>
   );
 }
 
@@ -1095,7 +1099,7 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
           />
 
           {/* Title — Lora Bold 24px (h1) text-brand */}
-          <p style={{
+          <h1 style={{
             fontFamily: 'var(--font-brand)',
             fontSize:   '24px',
             fontWeight: 700,
@@ -1105,7 +1109,7 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
             textAlign:  'center',
           }}>
             {title}
-          </p>
+          </h1>
 
           {/* key_info: rating + pages + dispo */}
           <div className="flex items-center justify-center flex-wrap" style={{ gap: '12px' }}>

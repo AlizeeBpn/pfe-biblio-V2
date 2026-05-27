@@ -47,7 +47,11 @@ export default function BookCard({
     <motion.div
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className={`flex items-stretch overflow-hidden cursor-pointer select-none ${className}`}
+      role="button"
+      tabIndex={0}
+      aria-label={`${title}${author ? ` par ${author}` : ''}`}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(); } }}
+      className={`flex items-stretch overflow-hidden cursor-pointer select-none focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:outline-none ${className}`}
       style={{
         backgroundColor: 'var(--neutral-1)',
         border:          '1px solid var(--neutral-3)',

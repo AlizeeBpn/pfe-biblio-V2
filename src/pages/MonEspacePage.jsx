@@ -58,7 +58,11 @@ function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, bad
     <motion.div
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="flex flex-col cursor-pointer"
+      role="button"
+      tabIndex={0}
+      aria-label={`${category} : ${count} ${typeLabel}`}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(); } }}
+      className="flex flex-col cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:outline-none"
       style={{
         flex:            '1 0 0',
         minWidth:         0,
@@ -295,7 +299,11 @@ function ListItemCard({ list, onSelect, onRename, onDelete }) {
   return (
     <motion.div
       whileTap={{ scale: 0.98 }}
-      className="flex items-start cursor-pointer"
+      role="button"
+      tabIndex={0}
+      aria-label={`Ouvrir la liste ${list.name}, ${list.books.length} titre${list.books.length !== 1 ? 's' : ''}`}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect?.(); } }}
+      className="flex items-start cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:outline-none"
       style={{
         gap: '16px', padding: '12px',
         backgroundColor: 'var(--neutral-1)', border: '1px solid var(--neutral-5)',
@@ -733,7 +741,7 @@ export default function MonEspacePage({
             <span style={{ fontSize: '20px', fontWeight: 700, color: 'white', lineHeight: 1.5 }}>AD</span>
           </div>
           <div className="flex flex-col flex-1 min-w-0" style={{ gap: '0px' }}>
-            <p style={{ fontFamily: 'var(--font-brand)', fontSize: '24px', fontWeight: 700, lineHeight: 1.2, color: 'var(--color-text-title)', margin: 0 }}>Amélie Dupont</p>
+            <h1 style={{ fontFamily: 'var(--font-brand)', fontSize: '24px', fontWeight: 700, lineHeight: 1.2, color: 'var(--color-text-title)', margin: 0 }}>Amélie Dupont</h1>
             <p style={{ fontSize: '16px', fontWeight: 400, lineHeight: 1.5, color: 'var(--color-text-body)', margin: 0 }}>
               <span style={{ fontWeight: 500 }}>N° de lecteur : </span>21909006791443
             </p>
@@ -777,7 +785,7 @@ export default function MonEspacePage({
         {currentTabIdx === 0 && (
           <div className="flex flex-col" style={{ gap: '32px' }}>
             <div className="flex flex-col" style={{ gap: '12px' }}>
-              <p style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>Réservation et prêt</p>
+              <h2 style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>Réservation et prêt</h2>
               <div className="flex" style={{ gap: '6px' }}>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04, type: 'spring', stiffness: 260, damping: 20 }}>
                   <InfoCard category="Réservations" count="4" typeLabel="Titres" badge="Prêt à Mériadeck" badgeIcon={IconShoppingBagCheck} badgeVariant="success" onClick={() => setReservationSheet('reservations')} />
@@ -796,7 +804,7 @@ export default function MonEspacePage({
               </div>
             </div>
             <div className="flex flex-col" style={{ gap: '12px' }}>
-              <p style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>Échanges</p>
+              <h2 style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>Échanges</h2>
               <div className="flex flex-col">
                 {[
                   { icon: IconMessageCircle,     label: 'Messages de la bibliothèque', isFirst: true,  isLast: false },
@@ -821,9 +829,9 @@ export default function MonEspacePage({
         {currentTabIdx === 1 && (
           <div className="flex flex-col" style={{ gap: '20px' }}>
             <div className="flex items-center" style={{ gap: '16px' }}>
-              <p style={{ flex: '1 0 0', fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>
+              <h2 style={{ flex: '1 0 0', fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>
                 {lists.length} liste{lists.length > 1 ? 's' : ''} créée{lists.length > 1 ? 's' : ''}
-              </p>
+              </h2>
               <motion.button type="button" whileTap={{ scale: 0.96 }} onClick={() => setCreateListOpen(true)}
                 style={{ height: '40px', padding: '0 16px', backgroundColor: 'var(--primary-3)', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 700, color: 'var(--primary-11)', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Créer une liste

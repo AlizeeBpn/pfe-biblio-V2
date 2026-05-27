@@ -172,7 +172,11 @@ function ResultCard({ title, author, genres, cover, available = true, returnDate
     <motion.div
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="flex items-stretch"
+      role="button"
+      tabIndex={0}
+      aria-label={`${title}${author ? ` par ${author}` : ''}`}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(); } }}
+      className="flex items-stretch focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:outline-none"
       style={{
         backgroundColor: 'var(--neutral-1)',
         border:          '1px solid var(--neutral-3)',
@@ -288,7 +292,9 @@ function SortFilterBtn({ label, activeLabel, count, Icon, onClick }) {
       type="button"
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className="inline-flex items-center outline-none cursor-pointer"
+      aria-haspopup="dialog"
+      aria-label={count > 0 ? `${label} (${count} actif${count > 1 ? 's' : ''})` : label}
+      className="inline-flex items-center outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
       style={{
         gap:             '6px',
         height:          '40px',
@@ -340,7 +346,9 @@ function BibliothequeBtn({ selectedLibraries, onClick }) {
       type="button"
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className="inline-flex items-center shrink-0 outline-none cursor-pointer"
+      aria-haspopup="dialog"
+      aria-label={count > 0 ? `Bibliothèque (${count} sélectionnée${count > 1 ? 's' : ''})` : 'Bibliothèque'}
+      className="inline-flex items-center shrink-0 outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
       style={{
         gap:             '6px',
         height:          '40px',
@@ -518,6 +526,7 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
       style={{ background: 'var(--neutral-2)', paddingBottom: 'var(--layout-12)' }}
     >
       <main className="flex flex-col" style={{ padding: '28px 20px 0', gap: '24px' }}>
+        <h1 className="sr-only">Résultats de recherche</h1>
 
         {/* ══ TOP GROUP ══════════════════════════════ */}
         <div className="flex flex-col" style={{ gap: '12px' }}>
@@ -647,14 +656,18 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
           const merged = [...results, ...googleFiltered];
           return (
             <div className="flex flex-col" style={{ gap: '16px' }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.5, color: 'var(--color-text-subtle)', margin: 0 }}>
+              <h2
+                aria-live="polite"
+                aria-busy={googleLoading}
+                style={{ fontSize: '14px', fontWeight: 600, lineHeight: 1.5, color: 'var(--color-text-subtle)', margin: 0 }}
+              >
                 {genre
                   ? <>{merged.length} titre{merged.length !== 1 ? 's' : ''} en <span style={{ color: 'var(--primary-11)' }}>{genre}</span></>
                   : googleLoading
                     ? 'Recherche en cours…'
                     : <>{merged.length} résultat{merged.length !== 1 ? 's' : ''} pour &laquo;&nbsp;{inputValue || query}&nbsp;&raquo;</>
                 }
-              </p>
+              </h2>
 
               {merged.map((book) => (
                 <ResultCard

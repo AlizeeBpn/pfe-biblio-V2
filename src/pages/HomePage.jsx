@@ -76,7 +76,7 @@ function ListLinkButton({ label, count, onClick }) {
 /* ── Section title — Lora Bold 20px color-text-brand ── */
 function SectionTitle({ children }) {
   return (
-    <p style={{
+    <h2 style={{
       fontFamily: 'var(--font-brand)',   // Lora
       fontWeight: 700,
       fontSize:   '20px',
@@ -86,7 +86,7 @@ function SectionTitle({ children }) {
       whiteSpace: 'nowrap',
     }}>
       {children}
-    </p>
+    </h2>
   );
 }
 
@@ -110,6 +110,11 @@ function ReservationCard({ books = [], count = 5, onClick }) {
     <motion.div
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      aria-label={`Voir mes ${count} réservation${count > 1 ? 's' : ''}`}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(); } }}
+      className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:outline-none"
       style={{
         ...CARD,
         position:       'relative',
@@ -254,6 +259,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
 
       {/* ══════════════════════════════════════ MAIN */}
       <main className="flex flex-col" style={{ padding: '24px 16px 0', gap: '24px' }}>
+        <h1 className="sr-only">Accueil</h1>
 
         {/* ── BarButton — calendar-star + rss ── */}
         <BarButton

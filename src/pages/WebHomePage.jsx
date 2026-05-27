@@ -103,7 +103,8 @@ function WebHeader() {
         {/* ── Logo ── */}
         <a
           href="#"
-          className="flex items-center shrink-0 no-underline"
+          aria-label="Bibliothèques de Bordeaux — accueil"
+          className="flex items-center shrink-0 no-underline focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:rounded"
           style={{ gap: 'var(--gap-2md)', textDecoration: 'none' }}
         >
           <div
@@ -115,6 +116,7 @@ function WebHeader() {
               borderRadius:    'var(--br-round)',
               padding:         'var(--pad-sm)',
             }}
+            aria-hidden="true"
           >
             <IconBuildingBridge2 size={22} strokeWidth={2} color="var(--secondary-11)" />
           </div>
@@ -147,12 +149,13 @@ function WebHeader() {
               gap:             'var(--gap-md)',
             }}
           >
-            <IconSearch size={18} strokeWidth={2} color="var(--neutral-9)" />
+            <IconSearch size={18} strokeWidth={2} color="var(--neutral-9)" aria-hidden="true" />
             <input
               type="search"
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Chercher un livre…"
+              aria-label="Chercher un livre"
               className="flex-1 bg-transparent outline-none border-none"
               style={{
                 fontFamily:  'var(--font-body)',
@@ -724,6 +727,14 @@ export default function WebHomePage() {
         color:           'var(--color-text-body)',
       }}
     >
+      {/* Skip-link — invisible jusqu'au focus clavier */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:rounded focus:bg-[var(--primary-10)] focus:text-white focus:font-bold focus:no-underline"
+      >
+        Aller au contenu
+      </a>
+
       <WebHeader />
 
       <main id="main-content">

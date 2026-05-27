@@ -134,7 +134,9 @@ function BibliothequeBtn({ selectedLibraries, onClick }) {
       type="button"
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className="inline-flex items-center shrink-0 outline-none cursor-pointer"
+      aria-haspopup="dialog"
+      aria-label={count > 0 ? `Bibliothèque (${count} sélectionnée${count > 1 ? 's' : ''})` : 'Bibliothèque'}
+      className="inline-flex items-center shrink-0 outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
       style={{
         gap:             '6px',
         height:          '40px',
@@ -189,7 +191,9 @@ function SortFilterBtn({ label, activeLabel, count, Icon, onClick }) {
       type="button"
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className="inline-flex items-center outline-none cursor-pointer"
+      aria-haspopup="dialog"
+      aria-label={count > 0 ? `${label} (${count} actif${count > 1 ? 's' : ''})` : label}
+      className="inline-flex items-center outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
       style={{
         gap:             '6px',
         height:          '40px',
@@ -229,7 +233,7 @@ function SortFilterBtn({ label, activeLabel, count, Icon, onClick }) {
 /* ── Section heading ── */
 function SectionLabel({ children }) {
   return (
-    <p style={{
+    <h3 style={{
       fontFamily:  'var(--font-body)',
       fontWeight:  700,
       fontSize:    '16px',
@@ -238,7 +242,7 @@ function SectionLabel({ children }) {
       margin:      0,
     }}>
       {children}
-    </p>
+    </h3>
   );
 }
 
@@ -253,7 +257,11 @@ function CategoryCard({ label, onClick }) {
     <m.div
       whileTap={{ scale: 0.96 }}
       onClick={onClick}
-      className="relative shrink-0 flex items-center justify-end overflow-hidden"
+      role="button"
+      tabIndex={0}
+      aria-label={`Voir le genre ${label}`}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(); } }}
+      className="relative shrink-0 flex items-center justify-end overflow-hidden focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:outline-none"
       style={{
         height:        '59px',
         paddingLeft:   'var(--layout-8)',
@@ -319,7 +327,11 @@ function BookItem({ title, author, cover, onClick }) {
     <m.div
       whileTap={{ scale: 0.96 }}
       onClick={onClick}
-      className="flex flex-col shrink-0 items-start"
+      role="button"
+      tabIndex={0}
+      aria-label={`${title}${author ? ` par ${author}` : ''}`}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(); } }}
+      className="flex flex-col shrink-0 items-start focus-visible:ring-2 focus-visible:ring-[var(--primary-9)] focus-visible:outline-none"
       style={{ gap: '6px', width: '120px', cursor: 'pointer' }}
     >
       <BookCover
@@ -499,6 +511,7 @@ export default function CataloguePage({
       style={{ background: 'var(--neutral-2)', paddingBottom: 'var(--layout-12)' }}
     >
       <main className="flex flex-col" style={{ padding: '28px 20px 0', gap: '16px' }}>
+        <h1 className="sr-only">Catalogue</h1>
 
         {/* ══ SEARCH BAR — transforms between default ↔ search mode ══ */}
         <div
@@ -681,9 +694,9 @@ export default function CataloguePage({
 
               {/* Suggestions personnalisées */}
               <div className="flex flex-col" style={{ gap: '20px' }}>
-                <p style={{ fontFamily: 'var(--font-brand)', fontWeight: 700, fontSize: '24px', lineHeight: 1.2, color: 'var(--primary-12)', margin: 0 }}>
+                <h2 style={{ fontFamily: 'var(--font-brand)', fontWeight: 700, fontSize: '24px', lineHeight: 1.2, color: 'var(--primary-12)', margin: 0 }}>
                   Suggestions personnalisées
-                </p>
+                </h2>
                 <div className="flex flex-col" style={{ gap: '32px' }}>
                   {suggestions.map(s => (
                     <SuggestionSection
@@ -699,10 +712,10 @@ export default function CataloguePage({
 
               {/* Livre mis en avant + Nouveautés Mériadeck */}
               <div className="flex flex-col" style={{ gap: '20px' }}>
-                <p style={{ fontFamily: 'var(--font-brand)', fontWeight: 700, fontSize: '24px', lineHeight: 1.2, margin: 0 }}>
+                <h2 style={{ fontFamily: 'var(--font-brand)', fontWeight: 700, fontSize: '24px', lineHeight: 1.2, margin: 0 }}>
                   <span style={{ color: 'var(--primary-12)' }}>Nouveauté </span>
                   <span style={{ color: 'var(--secondary-11)' }}>Mériadeck</span>
-                </p>
+                </h2>
                 <SuggestionSection title="" books={nouveautes} onBookSelect={onBookSelect} />
               </div>
             </m.div>
