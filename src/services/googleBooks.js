@@ -49,32 +49,48 @@ export async function searchGoogleBooks(query, maxResults = 10) {
   return (data.items || []).map(toBook);
 }
 
+/** Renvoie le 1er volume feuilletable d'une liste de résultats, sinon null. */
+function pickViewable(items) {
+  for (const item of items || []) {
+    const a = item.accessInfo || {};
+    if (a.embeddable && (a.viewability === 'ALL_PAGES' || a.viewability === 'PARTIAL')) {
+      return { embeddable: true, viewability: a.viewability, volumeId: item.id || null };
+    }
+  }
+  return null;
+}
+
 /**
  * Vérifie si un livre peut être feuilleté via l'Embedded Viewer Google Books.
- * @param {string} isbn
+ * Essaie d'abord par ISBN ; si l'édition trouvée n'est pas feuilletable
+ * (cas fréquent des classiques en édition moderne), retombe sur une recherche
+ * titre/auteur pour trouver une édition feuilletable (souvent le domaine public).
+ * @param {{ isbn?: string, title?: string, author?: string }} params
  * @returns {Promise<{ embeddable: boolean, viewability: string, volumeId: string|null }|null>}
  */
-export async function checkPreviewAvailability(isbn) {
-  if (!isbn) return null;
-  const clean = String(isbn).replace(/[^0-9Xx]/g, '');
-  if (!clean) return null;
-
-  const params = new URLSearchParams({ q: `isbn:${clean}`, maxResults: '1' });
-  if (API_KEY) params.set('key', API_KEY);
-
-  const res = await fetch(`${BASE_URL}?${params}`);
-  if (!res.ok) return null;
-
-  const data = await res.json();
-  const item = data.items?.[0];
-  if (!item) return null;
-
-  const access = item.accessInfo || {};
-  return {
-    embeddable:  !!access.embeddable,
-    viewability: access.viewability || 'UNKNOWN',
-    volumeId:    item.id || null,
+export async function checkPreviewAvailability({ isbn, title, author } = {}) {
+  const runQuery = async (q) => {
+    const params = new URLSearchParams({ q, maxResults: '5', country: 'FR' });
+    if (API_KEY) params.set('key', API_KEY);
+    const res = await fetch(`${BASE_URL}?${params}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return pickViewable(data.items);
   };
+
+  const clean = String(isbn || '').replace(/[^0-9Xx]/g, '');
+  if (clean) {
+    const byIsbn = await runQuery(`isbn:${clean}`);
+    if (byIsbn) return byIsbn;
+  }
+
+  if (title) {
+    const q = author ? `intitle:"${title}" inauthor:"${author}"` : `intitle:"${title}"`;
+    const byTitle = await runQuery(q);
+    if (byTitle) return byTitle;
+  }
+
+  return null;
 }
 
 /**

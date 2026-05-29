@@ -1239,13 +1239,12 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
   useEffect(() => {
     let cancelled = false;
     setPreview(null);
-    const code = isbn || ean;
-    if (!code) return;
-    checkPreviewAvailability(code)
+    if (!isbn && !ean && !title) return;
+    checkPreviewAvailability({ isbn: isbn || ean, title, author })
       .then(info => { if (!cancelled) setPreview(info); })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [isbn, ean]);
+  }, [isbn, ean, title, author]);
 
   const canPreview = preview?.embeddable
     && (preview.viewability === 'ALL_PAGES' || preview.viewability === 'PARTIAL');
