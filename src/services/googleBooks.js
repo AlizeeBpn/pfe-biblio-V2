@@ -54,7 +54,8 @@ function pickViewable(items) {
   for (const item of items || []) {
     const a = item.accessInfo || {};
     if (a.embeddable && (a.viewability === 'ALL_PAGES' || a.viewability === 'PARTIAL')) {
-      return { embeddable: true, viewability: a.viewability, volumeId: item.id || null };
+      const link = (a.webReaderLink || item.volumeInfo?.previewLink || '').replace(/^http:/, 'https:') || null;
+      return { embeddable: true, viewability: a.viewability, volumeId: item.id || null, link };
     }
   }
   return null;

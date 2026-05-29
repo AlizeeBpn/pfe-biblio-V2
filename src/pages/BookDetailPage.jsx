@@ -11,6 +11,7 @@ import {
   IconBook,
   IconBookOff,
   IconLoader2,
+  IconExternalLink,
   IconMessageChatbot,
   IconUser,
   IconX,
@@ -1095,7 +1096,7 @@ function loadGoogleBooksApi() {
 /* ════════════════════════════════════════════════════
    BOOK PREVIEW MODAL — lecteur Google Books intégré
    ════════════════════════════════════════════════════ */
-function BookPreviewModal({ identifier, title, onClose }) {
+function BookPreviewModal({ identifier, title, link, onClose }) {
   const canvasRef = useRef(null);
   const [status, setStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
 
@@ -1187,13 +1188,37 @@ function BookPreviewModal({ identifier, title, onClose }) {
           {status === 'error' && (
             <div role="alert" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 32, textAlign: 'center', backgroundColor: 'var(--neutral-2)' }}>
               <IconBookOff size={40} strokeWidth={1.5} color="var(--neutral-10)" aria-hidden="true" />
-              <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text-title)', margin: 0 }}>Aperçu indisponible</p>
-              <p style={{ fontSize: '14px', fontWeight: 400, lineHeight: 1.6, color: 'var(--color-text-subtle)', margin: 0, maxWidth: 260 }}>
-                L'éditeur n'autorise pas la lecture de ce livre pour le moment.
+              <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text-title)', margin: 0 }}>
+                {link ? 'Aperçu non affichable ici' : 'Aperçu indisponible'}
               </p>
+              <p style={{ fontSize: '14px', fontWeight: 400, lineHeight: 1.6, color: 'var(--color-text-subtle)', margin: 0, maxWidth: 280 }}>
+                {link
+                  ? "Le lecteur intégré ne s'affiche pas sur cet appareil. Ouvrez-le dans Google Books pour lire les pages."
+                  : "L'éditeur n'autorise pas la lecture de ce livre pour le moment."}
+              </p>
+              {link && (
+                <a href={link} target="_blank" rel="noopener noreferrer"
+                  className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
+                  style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 8, height: 44, padding: '0 20px', borderRadius: 'var(--br-md)', backgroundColor: 'var(--primary-10)', color: 'var(--neutral-1)', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}>
+                  Ouvrir dans Google Books
+                  <IconExternalLink size={18} strokeWidth={2} aria-hidden="true" />
+                </a>
+              )}
             </div>
           )}
         </div>
+
+        {/* Footer — repli toujours dispo vers le lecteur Google complet */}
+        {link && status !== 'error' && (
+          <div style={{ flexShrink: 0, padding: '10px 20px', borderTop: '1px solid var(--neutral-4)', backgroundColor: 'var(--neutral-1)', display: 'flex', justifyContent: 'center' }}>
+            <a href={link} target="_blank" rel="noopener noreferrer"
+              className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '14px', fontWeight: 700, color: 'var(--primary-11)', textDecoration: 'none' }}>
+              Ouvrir dans Google Books
+              <IconExternalLink size={16} strokeWidth={2} aria-hidden="true" />
+            </a>
+          </div>
+        )}
       </motion.div>
     </motion.div>
   );
@@ -1440,6 +1465,7 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
           <BookPreviewModal
             identifier={previewIdentifier}
             title={title}
+            link={preview?.link}
             onClose={() => setPreviewOpen(false)}
           />
         )}
