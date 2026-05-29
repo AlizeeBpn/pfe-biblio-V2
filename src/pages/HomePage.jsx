@@ -162,7 +162,7 @@ function ReservationCard({ books = [], count = 5, onClick }) {
   );
 }
 
-export default function HomePage({ activeTab: activeTabProp, onTabChange, onScanOpen, onShowEmprunts }) {
+export default function HomePage({ activeTab: activeTabProp, onTabChange, onScanOpen, onShowEmprunts, onShowNumerique }) {
   const [activeTabInternal, setActiveTabInternal] = useState('Accueil');
   const activeTab   = activeTabProp  ?? activeTabInternal;
   const setActiveTab = onTabChange   ?? setActiveTabInternal;
@@ -368,7 +368,7 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
             <ListLinkButton
               label="Liste de prêt numérique"
               count={1}
-              onClick={() => setActiveTab('Mon Espace')}
+              onClick={onShowNumerique}
             />
           </section>
 

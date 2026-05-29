@@ -131,6 +131,7 @@ export default function App() {
         onTabChange={setActiveTab}
         onScanOpen={handleScanOpen}
         onShowEmprunts={() => { setMonEspaceSheet('emprunts'); setActiveTab('Mon Espace'); }}
+        onShowNumerique={() => { setMonEspaceSheet('numerique'); setActiveTab('Mon Espace'); }}
       />
     );
   }
