@@ -284,6 +284,18 @@ function TabPropos({ book, onBookSelect, canPreview, isFullView, onPreview }) {
   const [googleAuthorBooks,  setGoogleAuthorBooks]  = useState([]);
   const [googleSimilarBooks, setGoogleSimilarBooks] = useState([]);
 
+  /* Synopsis repliable */
+  const synopsisRef = useRef(null);
+  const [synopsisExpanded,  setSynopsisExpanded]  = useState(false);
+  const [synopsisOverflows, setSynopsisOverflows] = useState(false);
+
+  useEffect(() => {
+    setSynopsisExpanded(false);
+    const el = synopsisRef.current;
+    if (!el) return;
+    setSynopsisOverflows(el.scrollHeight > el.clientHeight + 2);
+  }, [synopsis]);
+
   useEffect(() => {
     if (!author) return;
     searchGoogleBooks(`inauthor:"${author}"`, 8)
@@ -326,16 +338,45 @@ function TabPropos({ book, onBookSelect, canPreview, isFullView, onPreview }) {
       {/* Synopsis */}
       <div className="flex flex-col" style={{ gap: '12px' }}>
         <SectionHeading>Synopsis</SectionHeading>
-        <p style={{
-          fontFamily: 'var(--font-body)',
-          fontSize:   '14px',
-          fontWeight: 500,
-          lineHeight: 1.5,
-          color:      'var(--color-text-body)',
-          margin:     0,
-        }}>
-          {synopsis}
-        </p>
+        <div className="flex flex-col" style={{ gap: '4px' }}>
+          <p
+            ref={synopsisRef}
+            style={{
+              fontFamily:      'var(--font-body)',
+              fontSize:        '14px',
+              fontWeight:      500,
+              lineHeight:      1.5,
+              color:           'var(--color-text-body)',
+              margin:          0,
+              overflow:        synopsisExpanded ? 'visible' : 'hidden',
+              display:         synopsisExpanded ? 'block' : '-webkit-box',
+              WebkitLineClamp: synopsisExpanded ? undefined : 6,
+              WebkitBoxOrient: synopsisExpanded ? undefined : 'vertical',
+            }}
+          >
+            {synopsis}
+          </p>
+          {synopsisOverflows && (
+            <button
+              type="button"
+              onClick={() => setSynopsisExpanded(e => !e)}
+              aria-expanded={synopsisExpanded}
+              className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
+              style={{
+                all:            'unset',
+                fontSize:       '14px',
+                fontWeight:     500,
+                lineHeight:     1.5,
+                color:          'var(--primary-11)',
+                textDecoration: 'underline',
+                cursor:         'pointer',
+                alignSelf:      'flex-start',
+              }}
+            >
+              {synopsisExpanded ? 'Voir moins' : 'Voir plus'}
+            </button>
+          )}
+        </div>
 
         {/* Feuilleter — medium, affiché seulement si l'éditeur autorise l'aperçu */}
         {canPreview && (
