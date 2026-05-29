@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, forwardRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import HTMLFlipBook from 'react-pageflip';
 import {
   IconArrowLeft,
   IconCalendarTime,
@@ -9,9 +10,6 @@ import {
   IconCircleArrowUpRight,
   IconBook2,
   IconBook,
-  IconBookOff,
-  IconLoader2,
-  IconExternalLink,
   IconMessageChatbot,
   IconUser,
   IconX,
@@ -20,7 +18,7 @@ import { BOOKS as ALL_BOOKS, AUTHORS } from '../data/books';
 import Badge from '../components/ui/Badge';
 import { TabList } from '../components/ui/Tab';
 import BookCover from '../components/BookCover';
-import { searchGoogleBooks, checkPreviewAvailability } from '../services/googleBooks';
+import { searchGoogleBooks } from '../services/googleBooks';
 
 /* ════════════════════════════════════════════════════
    SHADOWS (exact Figma values)
@@ -271,7 +269,7 @@ function AuthorAvatar({ photo, name }) {
 /* ════════════════════════════════════════════════════
    TAB: À PROPOS
    ════════════════════════════════════════════════════ */
-function TabPropos({ book, onBookSelect, canPreview, isFullView, onPreview }) {
+function TabPropos({ book, onBookSelect, onPreview }) {
   const { synopsis, author, genres } = book;
   const genreList = Array.isArray(genres) ? genres : (genres ?? '').split(',').map(g => g.trim()).filter(Boolean);
 
@@ -379,32 +377,28 @@ function TabPropos({ book, onBookSelect, canPreview, isFullView, onPreview }) {
           )}
         </div>
 
-        {/* Feuilleter — medium, affiché seulement si l'éditeur autorise l'aperçu */}
-        {canPreview && (
-          <motion.button
-            type="button"
-            whileTap={{ scale: 0.97 }}
-            onClick={onPreview}
-            aria-label={isFullView
-              ? `Lire le livre « ${book.title} » dans le lecteur`
-              : `Feuilleter un extrait de « ${book.title} » dans le lecteur`}
-            className="inline-flex items-center justify-center outline-none border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
-            style={{
-              height:          '40px',
-              padding:         '0 16px',
-              gap:             '8px',
-              borderRadius:    'var(--br-sm)',
-              backgroundColor: 'var(--primary-3)',
-              alignSelf:       'flex-start',
-              marginTop:       '4px',
-            }}
-          >
-            <IconBook size={18} strokeWidth={2} color="var(--primary-11)" aria-hidden="true" />
-            <span style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--primary-11)', whiteSpace: 'nowrap' }}>
-              {isFullView ? 'Lire le livre' : 'Feuilleter un extrait'}
-            </span>
-          </motion.button>
-        )}
+        {/* Feuilleter — medium */}
+        <motion.button
+          type="button"
+          whileTap={{ scale: 0.97 }}
+          onClick={onPreview}
+          aria-label={`Feuilleter « ${book.title} »`}
+          className="inline-flex items-center justify-center outline-none border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
+          style={{
+            height:          '40px',
+            padding:         '0 16px',
+            gap:             '8px',
+            borderRadius:    'var(--br-sm)',
+            backgroundColor: 'var(--primary-3)',
+            alignSelf:       'flex-start',
+            marginTop:       '4px',
+          }}
+        >
+          <IconBook size={18} strokeWidth={2} color="var(--primary-11)" aria-hidden="true" />
+          <span style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--primary-11)', whiteSpace: 'nowrap' }}>
+            Feuilleter le livre
+          </span>
+        </motion.button>
       </div>
 
       {/* Où le trouver — Location card */}
@@ -1071,34 +1065,57 @@ function AddToListModal({ book, lists, onAddToList, onCreateList, onClose }) {
 }
 
 /* ════════════════════════════════════════════════════
-   GOOGLE BOOKS EMBEDDED VIEWER — chargement du script (une fois)
+   FLIPBOOK — feuilletage (react-pageflip)
    ════════════════════════════════════════════════════ */
-let booksApiPromise = null;
-function loadGoogleBooksApi() {
-  if (booksApiPromise) return booksApiPromise;
-  booksApiPromise = new Promise((resolve, reject) => {
-    if (window.google?.books) { resolve(); return; }
-    const script = document.createElement('script');
-    script.src = 'https://www.google.com/books/jsapi.js';
-    script.async = true;
-    script.onload = () => {
-      try {
-        window.google.books.load();
-        window.google.books.setOnLoadCallback(() => resolve());
-      } catch (err) { reject(err); }
-    };
-    script.onerror = () => reject(new Error('Échec de chargement du lecteur'));
-    document.body.appendChild(script);
-  });
-  return booksApiPromise;
+const PAGE_BG = '#fdfbf5';
+
+/* Découpe un texte en pages (≈ N caractères, sans couper les mots) */
+function paginateText(text, perPage) {
+  const words = (text || '').split(/\s+/).filter(Boolean);
+  const pages = [];
+  let cur = '';
+  for (const w of words) {
+    if (cur && (cur.length + 1 + w.length) > perPage) { pages.push(cur); cur = w; }
+    else cur = cur ? `${cur} ${w}` : w;
+  }
+  if (cur) pages.push(cur);
+  return pages.length ? pages : [''];
 }
 
+function computeFlipDims() {
+  const vw = typeof window !== 'undefined' ? window.innerWidth  : 360;
+  const vh = typeof window !== 'undefined' ? window.innerHeight : 700;
+  const w = Math.min(vw - 56, 380);
+  const h = Math.min(Math.round(w * 1.5), vh - 180);
+  return { w: Math.round(w), h: Math.round(h) };
+}
+
+/* Une page du flipbook — react-pageflip exige un forwardRef */
+const FlipPage = forwardRef(function FlipPage({ children, cover = false }, ref) {
+  return (
+    <div
+      ref={ref}
+      style={{
+        width:           '100%',
+        height:          '100%',
+        overflow:        'hidden',
+        backgroundColor: cover ? 'var(--primary-10)' : PAGE_BG,
+        display:         'flex',
+        flexDirection:   'column',
+        boxShadow:       cover ? 'none' : 'inset 0 0 40px rgba(142,141,143,0.08)',
+      }}
+    >
+      {children}
+    </div>
+  );
+});
+
 /* ════════════════════════════════════════════════════
-   BOOK PREVIEW MODAL — lecteur Google Books intégré
+   BOOK PREVIEW MODAL — feuilletage démo
    ════════════════════════════════════════════════════ */
-function BookPreviewModal({ identifier, title, link, onClose }) {
-  const canvasRef = useRef(null);
-  const [status, setStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
+function BookPreviewModal({ book, onClose }) {
+  const { title = '', author = '', cover = null, synopsis = '' } = book || {};
+  const [dims] = useState(computeFlipDims);
 
   /* Bloque le scroll de la page derrière tant que le lecteur est ouvert */
   useEffect(() => {
@@ -1107,34 +1124,55 @@ function BookPreviewModal({ identifier, title, link, onClose }) {
     return () => { document.body.style.overflow = prev; };
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    let revealTimer, hardTimer;
+  const synopsisText = synopsis && synopsis.trim()
+    ? synopsis.trim()
+    : "Le résumé de ce livre n'est pas encore disponible.";
+  const synopsisPages = paginateText(synopsisText, dims.h > 540 ? 620 : 460);
 
-    /* Garde-fou : si rien n'aboutit (script bloqué), on bascule en erreur */
-    hardTimer = setTimeout(() => {
-      if (!cancelled) setStatus(s => (s === 'loading' ? 'error' : s));
-    }, 8000);
-
-    loadGoogleBooksApi()
-      .then(() => {
-        if (cancelled || !canvasRef.current) return;
-        const viewer = new window.google.books.DefaultViewer(canvasRef.current);
-        viewer.load(
-          identifier,
-          () => { if (!cancelled) setStatus('error'); },
-          () => { if (!cancelled) setStatus('ready'); },
-        );
-        /* Le callback succès de Google n'est pas toujours déclenché :
-           on dévoile le lecteur après un court délai s'il est encore masqué */
-        revealTimer = setTimeout(() => {
-          if (!cancelled) setStatus(s => (s === 'loading' ? 'ready' : s));
-        }, 1800);
-      })
-      .catch(() => { if (!cancelled) setStatus('error'); });
-
-    return () => { cancelled = true; clearTimeout(revealTimer); clearTimeout(hardTimer); };
-  }, [identifier]);
+  const pages = [
+    /* Couverture */
+    <FlipPage key="cover" cover>
+      {cover
+        ? <img src={cover} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        : (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, padding: 24, textAlign: 'center' }}>
+            <IconBook size={48} strokeWidth={1.5} color="var(--neutral-1)" aria-hidden="true" />
+            <p style={{ fontFamily: 'var(--font-brand)', fontSize: '22px', fontWeight: 700, lineHeight: 1.3, color: 'var(--neutral-1)', margin: 0 }}>{title}</p>
+            <p style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.85)', margin: 0 }}>{author}</p>
+          </div>
+        )}
+    </FlipPage>,
+    /* Page de titre */
+    <FlipPage key="title">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '36px 28px', textAlign: 'center' }}>
+        <p style={{ fontFamily: 'var(--font-brand)', fontSize: '24px', fontWeight: 700, lineHeight: 1.25, color: 'var(--color-text-title)', margin: 0 }}>{title}</p>
+        <div style={{ width: 48, height: 2, backgroundColor: 'var(--primary-8)' }} />
+        <p style={{ fontSize: '15px', fontWeight: 500, color: 'var(--color-text-body)', margin: 0 }}>{author}</p>
+      </div>
+    </FlipPage>,
+    /* Synopsis paginé */
+    ...synopsisPages.map((t, i) => (
+      <FlipPage key={`syn-${i}`}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, padding: '36px 28px', overflow: 'hidden' }}>
+          {i === 0 && (
+            <p style={{ fontFamily: 'var(--font-brand)', fontSize: '18px', fontWeight: 700, color: 'var(--color-text-brand)', margin: 0 }}>Synopsis</p>
+          )}
+          <p style={{ flex: 1, fontSize: '14px', fontWeight: 500, lineHeight: 1.7, color: 'var(--color-text-body)', margin: 0, textAlign: 'justify', overflow: 'hidden' }}>{t}</p>
+          <span style={{ alignSelf: 'center', fontSize: '12px', color: 'var(--color-text-subtle)' }}>{i + 1}</span>
+        </div>
+      </FlipPage>
+    )),
+    /* Fin */
+    <FlipPage key="end">
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 32, textAlign: 'center' }}>
+        <IconBook2 size={36} strokeWidth={1.5} color="var(--primary-9)" aria-hidden="true" />
+        <p style={{ fontFamily: 'var(--font-brand)', fontSize: '16px', fontWeight: 700, color: 'var(--color-text-title)', margin: 0 }}>Fin de l'aperçu</p>
+        <p style={{ fontSize: '13px', fontWeight: 400, lineHeight: 1.6, color: 'var(--color-text-subtle)', margin: 0, maxWidth: 220 }}>
+          Empruntez ce titre à la bibliothèque pour le lire en entier.
+        </p>
+      </div>
+    </FlipPage>,
+  ];
 
   return (
     <motion.div
@@ -1142,84 +1180,54 @@ function BookPreviewModal({ identifier, title, link, onClose }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
-      style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', zIndex: 70 }}
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Feuilleter ${title}`}
+      style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(20,19,21,0.82)', zIndex: 70, display: 'flex', flexDirection: 'column' }}
     >
-      <motion.div
-        initial={{ y: 24, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 24, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-label={`Feuilleter ${title}`}
-        style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', backgroundColor: 'var(--neutral-1)' }}
-      >
-        {/* Header */}
-        <div className="flex items-center" style={{ gap: 12, padding: '16px 20px', boxShadow: SHADOW_HEAD, backgroundColor: 'var(--secondary-1)', flexShrink: 0, zIndex: 2 }}>
-          <span style={{ flex: 1, minWidth: 0, fontFamily: 'var(--font-brand)', fontSize: '18px', fontWeight: 700, lineHeight: 1.3, color: 'var(--color-text-brand)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {title}
-          </span>
-          <motion.button
-            type="button"
-            whileTap={{ scale: 0.9 }}
-            onClick={onClose}
-            aria-label="Fermer le lecteur"
-            className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
-            style={{ width: 40, height: 40, borderRadius: 'var(--br-round)', backgroundColor: 'var(--neutral-4)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-          >
-            <IconX size={20} strokeWidth={2} color="var(--color-text-title)" aria-hidden="true" />
-          </motion.button>
-        </div>
+      {/* Top bar */}
+      <div onClick={e => e.stopPropagation()} className="flex items-center" style={{ gap: 12, padding: '16px 20px', flexShrink: 0 }}>
+        <span style={{ flex: 1, minWidth: 0, fontFamily: 'var(--font-brand)', fontSize: '16px', fontWeight: 700, lineHeight: 1.3, color: 'var(--neutral-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {title}
+        </span>
+        <motion.button
+          type="button"
+          whileTap={{ scale: 0.9 }}
+          onClick={onClose}
+          aria-label="Fermer le lecteur"
+          className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
+          style={{ width: 40, height: 40, borderRadius: 'var(--br-round)', backgroundColor: 'rgba(255,255,255,0.16)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+        >
+          <IconX size={20} strokeWidth={2} color="var(--neutral-1)" aria-hidden="true" />
+        </motion.button>
+      </div>
 
-        {/* Viewer canvas */}
-        <div style={{ position: 'relative', flex: 1, minHeight: 0, backgroundColor: 'var(--neutral-2)' }}>
-          <div ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+      {/* Flipbook */}
+      <div onClick={e => e.stopPropagation()} style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
+        <HTMLFlipBook
+          width={dims.w}
+          height={dims.h}
+          size="fixed"
+          minWidth={200}
+          maxWidth={500}
+          minHeight={300}
+          maxHeight={800}
+          showCover
+          usePortrait
+          mobileScrollSupport
+          drawShadow
+          maxShadowOpacity={0.4}
+          flippingTime={700}
+          style={{ borderRadius: 8, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.45)' }}
+        >
+          {pages}
+        </HTMLFlipBook>
+      </div>
 
-          {status === 'loading' && (
-            <div role="status" aria-live="polite" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, backgroundColor: 'var(--neutral-2)' }}>
-              <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }} aria-hidden="true">
-                <IconLoader2 size={36} strokeWidth={2} color="var(--primary-9)" />
-              </motion.div>
-              <p style={{ fontSize: '14px', fontWeight: 500, color: 'var(--color-text-subtle)', margin: 0 }}>Chargement du lecteur…</p>
-            </div>
-          )}
-
-          {status === 'error' && (
-            <div role="alert" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 32, textAlign: 'center', backgroundColor: 'var(--neutral-2)' }}>
-              <IconBookOff size={40} strokeWidth={1.5} color="var(--neutral-10)" aria-hidden="true" />
-              <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text-title)', margin: 0 }}>
-                {link ? 'Aperçu non affichable ici' : 'Aperçu indisponible'}
-              </p>
-              <p style={{ fontSize: '14px', fontWeight: 400, lineHeight: 1.6, color: 'var(--color-text-subtle)', margin: 0, maxWidth: 280 }}>
-                {link
-                  ? "Le lecteur intégré ne s'affiche pas sur cet appareil. Ouvrez-le dans Google Books pour lire les pages."
-                  : "L'éditeur n'autorise pas la lecture de ce livre pour le moment."}
-              </p>
-              {link && (
-                <a href={link} target="_blank" rel="noopener noreferrer"
-                  className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
-                  style={{ marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 8, height: 44, padding: '0 20px', borderRadius: 'var(--br-md)', backgroundColor: 'var(--primary-10)', color: 'var(--neutral-1)', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}>
-                  Ouvrir dans Google Books
-                  <IconExternalLink size={18} strokeWidth={2} aria-hidden="true" />
-                </a>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Footer — repli toujours dispo vers le lecteur Google complet */}
-        {link && status !== 'error' && (
-          <div style={{ flexShrink: 0, padding: '10px 20px', borderTop: '1px solid var(--neutral-4)', backgroundColor: 'var(--neutral-1)', display: 'flex', justifyContent: 'center' }}>
-            <a href={link} target="_blank" rel="noopener noreferrer"
-              className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '14px', fontWeight: 700, color: 'var(--primary-11)', textDecoration: 'none' }}>
-              Ouvrir dans Google Books
-              <IconExternalLink size={16} strokeWidth={2} aria-hidden="true" />
-            </a>
-          </div>
-        )}
-      </motion.div>
+      {/* Hint */}
+      <p style={{ flexShrink: 0, textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '13px', fontWeight: 500, padding: '12px 0 20px', margin: 0 }}>
+        Glissez ou touchez les bords pour tourner les pages
+      </p>
     </motion.div>
   );
 }
@@ -1231,7 +1239,6 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
   const [activeTab,    setActiveTab]    = useState(0);
   const [tabDir,       setTabDir]       = useState(0);
   const [listModalOpen, setListModalOpen] = useState(false);
-  const [preview,      setPreview]      = useState(null);  // { embeddable, viewability, volumeId } | null
   const [previewOpen,  setPreviewOpen]  = useState(false);
 
   const changeTab = (i) => { setTabDir(i > activeTab ? 1 : -1); setActiveTab(i); };
@@ -1259,23 +1266,6 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
   const genreList = Array.isArray(genres)
     ? genres
     : (genres ?? '').split(',').map(g => g.trim()).filter(Boolean);
-
-  /* Disponibilité du feuilletage (Google Books Embedded Viewer) */
-  useEffect(() => {
-    let cancelled = false;
-    setPreview(null);
-    if (!isbn && !ean && !title) return;
-    checkPreviewAvailability({ isbn: isbn || ean, title, author })
-      .then(info => { if (!cancelled) setPreview(info); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [isbn, ean, title, author]);
-
-  const canPreview = preview?.embeddable
-    && (preview.viewability === 'ALL_PAGES' || preview.viewability === 'PARTIAL');
-  const previewIdentifier = preview?.volumeId
-    || `ISBN:${String(isbn || ean || '').replace(/[^0-9Xx]/g, '')}`;
-  const isFullView = preview?.viewability === 'ALL_PAGES';
 
   const TABS = ['À propos', 'Avis', 'Détails du livre'];
 
@@ -1428,8 +1418,6 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
           <TabPropos
             book={book || {}}
             onBookSelect={onBookSelect}
-            canPreview={canPreview}
-            isFullView={isFullView}
             onPreview={() => setPreviewOpen(true)}
           />
         )}
@@ -1463,9 +1451,7 @@ export default function BookDetailPage({ book, onBack, onBookSelect, lists = [],
       <AnimatePresence>
         {previewOpen && (
           <BookPreviewModal
-            identifier={previewIdentifier}
-            title={title}
-            link={preview?.link}
+            book={book}
             onClose={() => setPreviewOpen(false)}
           />
         )}
