@@ -1066,125 +1066,184 @@ function AddToListModal({ book, lists, onAddToList, onCreateList, onClose }) {
 /* ════════════════════════════════════════════════════
    FEUILLETAGE — pages + helpers (framer-motion)
    ════════════════════════════════════════════════════ */
-const PAGE_BG = '#fdfbf5';
-
-/* Découpe un texte en pages (≈ N caractères, sans couper les mots) */
-function paginateText(text, perPage) {
-  const words = (text || '').split(/\s+/).filter(Boolean);
-  const pages = [];
-  let cur = '';
-  for (const w of words) {
-    if (cur && (cur.length + 1 + w.length) > perPage) { pages.push(cur); cur = w; }
-    else cur = cur ? `${cur} ${w}` : w;
-  }
-  if (cur) pages.push(cur);
-  return pages.length ? pages : [''];
-}
+const PAGE_BG = '#fbf7ec';
+const SERIF = 'Georgia, "Iowan Old Style", "Times New Roman", serif';
 
 function computeFlipDims() {
   const vw = typeof window !== 'undefined' ? window.innerWidth  : 360;
   const vh = typeof window !== 'undefined' ? window.innerHeight : 700;
-  const w = Math.min(vw - 56, 380);
-  const h = Math.min(Math.round(w * 1.5), vh - 180);
+  const w = Math.min(vw - 48, 400);
+  const h = Math.min(Math.round(w * 1.45), vh - 168);
   return { w: Math.round(w), h: Math.round(h) };
 }
 
-/* Une page du livre */
-function FlipPage({ children, cover = false }) {
-  return (
-    <div
-      style={{
-        width:           '100%',
-        height:          '100%',
-        overflow:        'hidden',
-        backgroundColor: cover ? 'var(--primary-10)' : PAGE_BG,
-        display:         'flex',
-        flexDirection:   'column',
-        boxShadow:       cover ? 'none' : 'inset 0 0 40px rgba(142,141,143,0.08)',
-      }}
-    >
-      {children}
-    </div>
-  );
+/* Pagination respectant les paragraphes → tableau de pages (= tableaux de paragraphes) */
+function paginateBook(text, perPage) {
+  const paras = (text || '').split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
+  const pages = [];
+  let cur = [];
+  let len = 0;
+  const flush = () => { if (cur.length) { pages.push(cur); cur = []; len = 0; } };
+
+  for (let p of paras) {
+    while (p.length > perPage) {
+      let cut = p.lastIndexOf(' ', perPage);
+      if (cut < perPage * 0.5) cut = perPage;
+      if (len > 0) flush();
+      pages.push([p.slice(0, cut)]);
+      p = p.slice(cut).trimStart();
+    }
+    if (len > 0 && len + p.length > perPage) flush();
+    cur.push(p);
+    len += p.length + 2;
+  }
+  flush();
+  return pages.length ? pages : [['']];
 }
 
-/* Variantes de tournage de page (3D, pivot sur la reliure gauche) */
-const pageVariants = {
-  enter:  (d) => ({ rotateY: d >= 0 ? 110 : -110, opacity: 0 }),
-  center: { rotateY: 0, opacity: 1 },
-  exit:   (d) => ({ rotateY: d >= 0 ? -110 : 110, opacity: 0 }),
-};
-
 /* ════════════════════════════════════════════════════
-   BOOK PREVIEW MODAL — feuilletage (framer-motion, sans dépendance)
+   BOOK PREVIEW MODAL — feuilletage, vrai texte (Gutenberg) + repli synopsis
    ════════════════════════════════════════════════════ */
 function BookPreviewModal({ book, onClose }) {
   const { title = '', author = '', cover = null, synopsis = '' } = book || {};
   const [dims] = useState(computeFlipDims);
-  const [[page, dir], setPage] = useState([0, 0]);
+  const [status, setStatus] = useState('loading'); // 'loading' | 'ready'
+  const [bodyPages, setBodyPages] = useState([]);   // [[para, …], …]
+  const [isReal, setIsReal] = useState(false);
+  const [page, setPage] = useState(0);
+  const [flip, setFlip] = useState(null);           // { dir, from, to } | null
 
-  /* Bloque le scroll de la page derrière tant que le lecteur est ouvert */
+  /* Bloque le scroll de la page derrière */
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = prev; };
   }, []);
 
-  const synopsisText = synopsis && synopsis.trim()
-    ? synopsis.trim()
-    : "Le résumé de ce livre n'est pas encore disponible.";
-  const synopsisPages = paginateText(synopsisText, dims.h > 540 ? 620 : 460);
+  /* Récupère le vrai texte (classiques) via la fonction serverless, sinon synopsis */
+  useEffect(() => {
+    let cancelled = false;
+    const perPage = Math.max(380, Math.round((dims.w - 52) / 8 * (dims.h - 104) / 26));
+    const fallback = () => {
+      const t = synopsis && synopsis.trim() ? synopsis.trim()
+        : "Le résumé de ce livre n'est pas encore disponible.";
+      if (cancelled) return;
+      setBodyPages(paginateBook(t, perPage));
+      setIsReal(false);
+      setStatus('ready');
+    };
+    const params = new URLSearchParams({ title, author: author || '' });
+    fetch(`/api/book-text?${params}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => {
+        if (cancelled) return;
+        if (d && d.text && d.text.trim().length > 200) {
+          setBodyPages(paginateBook(d.text, perPage));
+          setIsReal(true);
+          setStatus('ready');
+        } else { fallback(); }
+      })
+      .catch(fallback);
+    return () => { cancelled = true; };
+  }, [title, author, synopsis, dims.w, dims.h]);
 
-  const pages = [
-    /* Couverture */
-    <FlipPage key="cover" cover>
-      {cover
+  const total = 2 + bodyPages.length + 1; // couverture + titre + corps + fin
+  const bgFor = (i) => (i === 0 ? 'var(--primary-10)' : PAGE_BG);
+
+  const renderInner = (i) => {
+    if (i === 0) {
+      return cover
         ? <img src={cover} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         : (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, padding: 24, textAlign: 'center' }}>
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, padding: 24, textAlign: 'center' }}>
             <IconBook size={48} strokeWidth={1.5} color="var(--neutral-1)" aria-hidden="true" />
             <p style={{ fontFamily: 'var(--font-brand)', fontSize: '22px', fontWeight: 700, lineHeight: 1.3, color: 'var(--neutral-1)', margin: 0 }}>{title}</p>
             <p style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(255,255,255,0.85)', margin: 0 }}>{author}</p>
           </div>
-        )}
-    </FlipPage>,
-    /* Page de titre */
-    <FlipPage key="title">
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '36px 28px', textAlign: 'center' }}>
-        <p style={{ fontFamily: 'var(--font-brand)', fontSize: '24px', fontWeight: 700, lineHeight: 1.25, color: 'var(--color-text-title)', margin: 0 }}>{title}</p>
-        <div style={{ width: 48, height: 2, backgroundColor: 'var(--primary-8)' }} />
-        <p style={{ fontSize: '15px', fontWeight: 500, color: 'var(--color-text-body)', margin: 0 }}>{author}</p>
-      </div>
-    </FlipPage>,
-    /* Synopsis paginé */
-    ...synopsisPages.map((t, i) => (
-      <FlipPage key={`syn-${i}`}>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, padding: '36px 28px', overflow: 'hidden' }}>
-          {i === 0 && (
-            <p style={{ fontFamily: 'var(--font-brand)', fontSize: '18px', fontWeight: 700, color: 'var(--color-text-brand)', margin: 0 }}>Synopsis</p>
+        );
+    }
+    if (i === 1) {
+      return (
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '40px 30px', textAlign: 'center' }}>
+          <p style={{ fontFamily: SERIF, fontSize: '24px', fontWeight: 700, lineHeight: 1.3, color: '#2b2a26', margin: 0 }}>{title}</p>
+          <div style={{ width: 44, height: 2, backgroundColor: 'var(--primary-8)' }} />
+          <p style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: '15px', color: '#5a564e', margin: 0 }}>{author}</p>
+          {!isReal && (
+            <p style={{ fontFamily: SERIF, fontSize: '12px', color: '#9b8f7a', margin: '4px 0 0' }}>Résumé</p>
           )}
-          <p style={{ flex: 1, fontSize: '14px', fontWeight: 500, lineHeight: 1.7, color: 'var(--color-text-body)', margin: 0, textAlign: 'justify', overflow: 'hidden' }}>{t}</p>
-          <span style={{ alignSelf: 'center', fontSize: '12px', color: 'var(--color-text-subtle)' }}>{i + 1}</span>
         </div>
-      </FlipPage>
-    )),
-    /* Fin */
-    <FlipPage key="end">
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 32, textAlign: 'center' }}>
-        <IconBook2 size={36} strokeWidth={1.5} color="var(--primary-9)" aria-hidden="true" />
-        <p style={{ fontFamily: 'var(--font-brand)', fontSize: '16px', fontWeight: 700, color: 'var(--color-text-title)', margin: 0 }}>Fin de l'aperçu</p>
-        <p style={{ fontSize: '13px', fontWeight: 400, lineHeight: 1.6, color: 'var(--color-text-subtle)', margin: 0, maxWidth: 220 }}>
-          Empruntez ce titre à la bibliothèque pour le lire en entier.
-        </p>
+      );
+    }
+    if (i === total - 1) {
+      return (
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: 32, textAlign: 'center' }}>
+          <IconBook2 size={34} strokeWidth={1.5} color="var(--primary-9)" aria-hidden="true" />
+          <p style={{ fontFamily: SERIF, fontSize: '17px', fontWeight: 700, color: '#2b2a26', margin: 0 }}>
+            {isReal ? "Fin de l'extrait" : "Fin du résumé"}
+          </p>
+          <p style={{ fontFamily: SERIF, fontSize: '13px', lineHeight: 1.6, color: '#7a7468', margin: 0, maxWidth: 230 }}>
+            Empruntez ce titre à la bibliothèque pour le lire en entier.
+          </p>
+        </div>
+      );
+    }
+    const paras = bodyPages[i - 2] || [];
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '32px 26px 22px', boxSizing: 'border-box' }}>
+        <div style={{ fontFamily: SERIF, fontStyle: 'italic', fontSize: '11px', letterSpacing: '0.4px', color: '#a99e88', textAlign: 'center', textTransform: 'uppercase', marginBottom: 16, flexShrink: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {title}
+        </div>
+        <div style={{ flex: 1, overflow: 'hidden' }}>
+          {paras.map((p, idx) => (
+            <p key={idx} style={{ fontFamily: SERIF, fontSize: '15px', lineHeight: 1.72, color: '#2c2a25', margin: 0, textAlign: 'justify', textIndent: idx === 0 ? 0 : '1.3em', hyphens: 'auto' }}>{p}</p>
+          ))}
+        </div>
+        <div style={{ fontFamily: SERIF, fontSize: '12px', color: '#a99e88', textAlign: 'center', marginTop: 8, flexShrink: 0 }}>{i - 1}</div>
       </div>
-    </FlipPage>,
-  ];
+    );
+  };
 
-  const total = pages.length;
-  const go = (d) => setPage(([p]) => {
-    const n = p + d;
-    return (n < 0 || n > total - 1) ? [p, 0] : [n, d];
-  });
+  /* Enveloppe « feuille » avec papier + ombre de reliure */
+  const Sheet = ({ i, motionProps, onDone }) => {
+    const inner = (
+      <>
+        {renderInner(i)}
+        {i !== 0 && (
+          <div aria-hidden="true" style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '14%', background: 'linear-gradient(to right, rgba(70,60,40,0.16), transparent)', pointerEvents: 'none' }} />
+        )}
+      </>
+    );
+    const style = {
+      position: 'absolute', inset: 0, overflow: 'hidden',
+      backgroundColor: bgFor(i), borderRadius: '2px 6px 6px 2px',
+      boxShadow: 'inset 0 0 50px rgba(120,100,70,0.06)',
+    };
+    if (!motionProps) return <div style={{ ...style, zIndex: 1 }}>{inner}</div>;
+    return (
+      <motion.div
+        {...motionProps}
+        onAnimationComplete={onDone}
+        style={{
+          ...style,
+          transformOrigin: 'left center',
+          transformStyle: 'preserve-3d',
+          backfaceVisibility: 'hidden',
+          zIndex: 3,
+          boxShadow: '0 14px 40px rgba(0,0,0,0.45), inset 0 0 50px rgba(120,100,70,0.06)',
+        }}
+      >
+        {inner}
+      </motion.div>
+    );
+  };
+
+  const baseIndex = flip ? (flip.dir > 0 ? flip.to : flip.from) : page;
+  const turn = (d) => {
+    if (flip || status !== 'ready') return;
+    const t = page + d;
+    if (t < 0 || t > total - 1) return;
+    setFlip({ dir: d, from: page, to: t });
+  };
 
   return (
     <motion.div
@@ -1195,10 +1254,10 @@ function BookPreviewModal({ book, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label={`Feuilleter ${title}`}
-      style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(20,19,21,0.85)', zIndex: 70, display: 'flex', flexDirection: 'column' }}
+      style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(20,19,21,0.88)', zIndex: 70, display: 'flex', flexDirection: 'column' }}
     >
       {/* Top bar */}
-      <div onClick={e => e.stopPropagation()} className="flex items-center" style={{ gap: 12, padding: '16px 20px', flexShrink: 0 }}>
+      <div onClick={(e) => e.stopPropagation()} className="flex items-center" style={{ gap: 12, padding: '16px 20px', flexShrink: 0 }}>
         <span style={{ flex: 1, minWidth: 0, fontFamily: 'var(--font-brand)', fontSize: '16px', fontWeight: 700, lineHeight: 1.3, color: 'var(--neutral-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {title}
         </span>
@@ -1215,48 +1274,55 @@ function BookPreviewModal({ book, onClose }) {
       </div>
 
       {/* Livre */}
-      <div onClick={e => e.stopPropagation()} style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
-        <div style={{ width: dims.w, height: dims.h, position: 'relative', perspective: 1800 }}>
-          <AnimatePresence initial={false} custom={dir}>
-            <motion.div
-              key={page}
-              custom={dir}
-              variants={pageVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.5, ease: [0.33, 0, 0.2, 1] }}
-              style={{
-                position:           'absolute',
-                inset:              0,
-                transformOrigin:    'left center',
-                transformStyle:     'preserve-3d',
-                backfaceVisibility: 'hidden',
-                borderRadius:       8,
-                overflow:           'hidden',
-                boxShadow:          '0 18px 50px rgba(0,0,0,0.5)',
-              }}
-            >
-              {pages[page]}
-            </motion.div>
-          </AnimatePresence>
+      <div onClick={(e) => e.stopPropagation()} style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
+        {status === 'loading' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+            <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.9, repeat: Infinity, ease: 'linear' }}
+              style={{ width: 38, height: 38, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.25)', borderTopColor: 'var(--neutral-1)' }} aria-hidden="true" />
+            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', fontWeight: 500, margin: 0 }}>Préparation du livre…</p>
+          </div>
+        ) : (
+          <div style={{ width: dims.w, height: dims.h, position: 'relative', perspective: 2000 }}>
+            {/* Page de fond (révélée) */}
+            <Sheet i={baseIndex} />
 
-          {/* Zones tactiles gauche / droite */}
-          {page > 0 && (
-            <button type="button" aria-label="Page précédente" onClick={() => go(-1)}
-              style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '32%', zIndex: 5, background: 'transparent', border: 'none', cursor: 'pointer' }} />
-          )}
-          {page < total - 1 && (
-            <button type="button" aria-label="Page suivante" onClick={() => go(1)}
-              style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '32%', zIndex: 5, background: 'transparent', border: 'none', cursor: 'pointer' }} />
-          )}
-        </div>
+            {/* Page qui tourne */}
+            {flip && (
+              <Sheet
+                key={`flip-${flip.from}-${flip.to}`}
+                i={flip.dir > 0 ? flip.from : flip.to}
+                motionProps={{
+                  initial:    { rotateY: flip.dir > 0 ? 0 : -180 },
+                  animate:    { rotateY: flip.dir > 0 ? -180 : 0 },
+                  transition: { duration: 0.62, ease: [0.36, 0, 0.28, 1] },
+                }}
+                onDone={() => { setPage(flip.to); setFlip(null); }}
+              />
+            )}
+
+            {/* Zones tactiles */}
+            {page > 0 && (
+              <button type="button" aria-label="Page précédente" onClick={() => turn(-1)}
+                style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '34%', zIndex: 6, background: 'transparent', border: 'none', cursor: 'pointer' }} />
+            )}
+            {page < total - 1 && (
+              <button type="button" aria-label="Page suivante" onClick={() => turn(1)}
+                style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '34%', zIndex: 6, background: 'transparent', border: 'none', cursor: 'pointer' }} />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Indicateur + hint */}
-      <div onClick={e => e.stopPropagation()} style={{ flexShrink: 0, textAlign: 'center', padding: '10px 0 22px' }}>
-        <p style={{ color: 'var(--neutral-1)', fontSize: '13px', fontWeight: 600, margin: '0 0 4px' }}>{page + 1} / {total}</p>
-        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontWeight: 500, margin: 0 }}>Touchez les bords gauche / droit pour tourner les pages</p>
+      <div onClick={(e) => e.stopPropagation()} style={{ flexShrink: 0, textAlign: 'center', padding: '10px 0 22px' }}>
+        {status === 'ready' && (
+          <>
+            <p style={{ color: 'var(--neutral-1)', fontSize: '13px', fontWeight: 600, margin: '0 0 4px' }}>{page + 1} / {total}</p>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontWeight: 500, margin: 0 }}>
+              {isReal ? 'Extrait réel · touchez les bords pour tourner les pages' : 'Touchez les bords pour tourner les pages'}
+            </p>
+          </>
+        )}
       </div>
     </motion.div>
   );
