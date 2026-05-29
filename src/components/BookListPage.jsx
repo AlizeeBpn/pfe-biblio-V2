@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { IconArrowLeft, IconCalendarTime, IconShoppingBagCheck, IconX, IconArrowRight, IconBan, IconCalendarPlus, IconCalendarEvent, IconBook, IconStarFilled } from '@tabler/icons-react';
+import { IconArrowLeft, IconCalendarTime, IconShoppingBagCheck, IconX, IconArrowRight, IconCalendarX, IconCalendarPlus, IconCalendarEvent, IconBook, IconStarFilled } from '@tabler/icons-react';
 import Badge from './ui/Badge';
 import BookCard  from './ui/BookCard';
 import BookCover from './BookCover';
@@ -14,15 +14,24 @@ const SHADOW_BTN_CTA = '0px -2px 10px rgba(99,181,180,0.08), 0px 2px 10px rgba(9
 const CONTEXT = {
   reserved: {
     detail:  'Prêt à Mériadeck',
+    info:    'Votre réservation vous attend à Mériadeck. Récupérez-la avant le 19 mai 2026, après quoi elle sera annulée.',
     actions: [
-      { label: 'Réserver pour plus tard', variant: 'secondary', Icon: IconCalendarEvent },
-      { label: 'Annuler la réservation',  variant: 'error',     Icon: IconBan        },
+      { label: 'Réserver pour plus tard', variant: 'primary', Icon: IconCalendarEvent },
+      { label: 'Annuler la réservation',  variant: 'error',   Icon: IconCalendarX    },
     ],
   },
   borrowed: {
     detail:  (book) => `Retour : ${book.returnDate ?? 'bientôt'}`,
+    info:    (book) => `Emprunt en cours, à rendre le ${book.returnDate ?? 'bientôt'} à Mériadeck. Vous pouvez le prolonger une fois.`,
     actions: [
       { label: "Prolonger l'emprunt", variant: 'primary', Icon: IconCalendarPlus },
+    ],
+  },
+  numerique: {
+    detail:  (book) => `Restitution : ${book.returnDate ?? 'bientôt'}`,
+    info:    (book) => `Prêt numérique en cours. Restitution automatique le ${book.returnDate ?? 'bientôt'} — aucune démarche à prévoir.`,
+    actions: [
+      { label: 'Lire maintenant', variant: 'primary', Icon: IconBook },
     ],
   },
 };
@@ -35,6 +44,7 @@ function BookContextSheet({ book, type, onClose, onBookSelect }) {
   if (!ctx) return null;
 
   const detail    = typeof ctx.detail === 'function' ? ctx.detail(book) : ctx.detail;
+  const info      = typeof ctx.info   === 'function' ? ctx.info(book)   : ctx.info;
   const genreList = Array.isArray(book.genres) ? book.genres : [];
   const badgeCfg  = type === 'reserved'
     ? { variant: 'success', label: 'Prêt à Mériadeck', Icon: IconShoppingBagCheck }
@@ -101,6 +111,11 @@ function BookContextSheet({ book, type, onClose, onBookSelect }) {
 
         {/* Actions */}
         <div style={{ padding: '0 20px 40px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {info && (
+            <p style={{ fontSize: '14px', fontWeight: 500, lineHeight: 1.5, color: 'var(--color-text-body)', margin: '0 0 6px' }}>
+              {info}
+            </p>
+          )}
           {ctx.actions.map(({ label, variant, Icon }) => (
             <Button key={label} variant={variant} size="md" className="w-full" iconRight={Icon && <Icon size={18} strokeWidth={2} />} onClick={onClose}>
               {label}
@@ -145,6 +160,12 @@ const BADGE = {
     label:     () => 'Prêt à Mériadeck',
     iconColor: () => 'var(--success-11)',
     Icon:      IconShoppingBagCheck,
+  },
+  numerique: {
+    variant:   'info',
+    label:     (book) => book.returnDate ? `Restitution : ${book.returnDate}` : 'Prêt numérique',
+    iconColor: () => 'var(--info-11)',
+    Icon:      IconCalendarTime,
   },
 };
 

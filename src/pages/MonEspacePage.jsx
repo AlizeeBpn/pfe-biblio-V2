@@ -37,6 +37,10 @@ const BORROWED_BOOKS = [
   returnDate: b.id === 5 ? '12 juillet 2026' : '24 juin 2026',
 }));
 
+const DIGITAL_BOOKS = [
+  ALL_BOOKS.find(b => b.id === 11),  // Le Da Vinci Code — prêt numérique
+].filter(Boolean).map((b) => ({ ...b, returnDate: '12 juin 2026' }));
+
 /* ════════════════════════════════════════════════════
    SHADOWS
    ════════════════════════════════════════════════════ */
@@ -658,21 +662,18 @@ export default function MonEspacePage({
   const [createListOpen,   setCreateListOpen]   = useState(false);
   const [renameTarget,     setRenameTarget]     = useState(null);
   const [selectedListId,   setSelectedListId]   = useState(null);
-  const [reservationSheet, setReservationSheet] = useState(initialSheet); // null | 'reservations' | 'emprunts'
+  const [reservationSheet, setReservationSheet] = useState(initialSheet); // null | 'reservations' | 'emprunts' | 'numerique'
 
   const selectedList = selectedListId !== null ? lists.find((l) => l.id === selectedListId) ?? null : null;
 
-  /* ── Reservation / Emprunts page ────────────────────── */
+  /* ── Réservations / Prêt bibliothèque / Prêt numérique ── */
   if (reservationSheet === 'reservations') {
     return (
       <BookListPage
-        title="Mes réservations"
+        title="Réservations"
         count={RESERVED_BOOKS.length}
         books={RESERVED_BOOKS}
         cardAvailability="reserved"
-        pageActionLabel="Annuler la réservation"
-        pageActionVariant="outlined"
-        onPageAction={() => {}}
         onBack={() => setReservationSheet(null)}
         onBookSelect={onBookSelect}
       />
@@ -682,13 +683,23 @@ export default function MonEspacePage({
   if (reservationSheet === 'emprunts') {
     return (
       <BookListPage
-        title="Mes emprunts"
+        title="Prêt bibliothèque"
         count={BORROWED_BOOKS.length}
         books={BORROWED_BOOKS}
         cardAvailability="borrowed"
-        pageActionLabel="Prolonger"
-        pageActionVariant="secondary"
-        onPageAction={() => {}}
+        onBack={() => setReservationSheet(null)}
+        onBookSelect={onBookSelect}
+      />
+    );
+  }
+
+  if (reservationSheet === 'numerique') {
+    return (
+      <BookListPage
+        title="Prêt numérique"
+        count={DIGITAL_BOOKS.length}
+        books={DIGITAL_BOOKS}
+        cardAvailability="numerique"
         onBack={() => setReservationSheet(null)}
         onBookSelect={onBookSelect}
       />
@@ -799,7 +810,7 @@ export default function MonEspacePage({
                   <InfoCard category="Prêt bibliothèque" count="3" typeLabel="Emprunts" badge="24 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('emprunts')} />
                 </motion.div>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Prêt numérique" count="1" typeLabel="Emprunts" badge="12 janv. 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('emprunts')} />
+                  <InfoCard category="Prêt numérique" count="1" typeLabel="Emprunts" badge="12 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('numerique')} />
                 </motion.div>
               </div>
             </div>
