@@ -50,6 +50,34 @@ export async function searchGoogleBooks(query, maxResults = 10) {
 }
 
 /**
+ * Vérifie si un livre peut être feuilleté via l'Embedded Viewer Google Books.
+ * @param {string} isbn
+ * @returns {Promise<{ embeddable: boolean, viewability: string, volumeId: string|null }|null>}
+ */
+export async function checkPreviewAvailability(isbn) {
+  if (!isbn) return null;
+  const clean = String(isbn).replace(/[^0-9Xx]/g, '');
+  if (!clean) return null;
+
+  const params = new URLSearchParams({ q: `isbn:${clean}`, maxResults: '1' });
+  if (API_KEY) params.set('key', API_KEY);
+
+  const res = await fetch(`${BASE_URL}?${params}`);
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const item = data.items?.[0];
+  if (!item) return null;
+
+  const access = item.accessInfo || {};
+  return {
+    embeddable:  !!access.embeddable,
+    viewability: access.viewability || 'UNKNOWN',
+    volumeId:    item.id || null,
+  };
+}
+
+/**
  * Récupère les détails d'un volume par son ID Google Books.
  * @param {string} volumeId
  * @returns {Promise<Object>}
