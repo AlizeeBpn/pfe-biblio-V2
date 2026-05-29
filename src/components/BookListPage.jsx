@@ -14,7 +14,7 @@ const SHADOW_BTN_CTA = '0px -2px 10px rgba(99,181,180,0.08), 0px 2px 10px rgba(9
 const CONTEXT = {
   reserved: {
     detail:  'Prêt à Mériadeck',
-    info:    'Votre réservation vous attend à Mériadeck. Récupérez-la avant le 19 mai 2026, après quoi elle sera annulée.',
+    info:    'Votre réservation vous attend à Mériadeck. Récupérez-la avant le 15 janvier 2026, après quoi elle sera annulée.',
     actions: [
       { label: 'Réserver pour plus tard', variant: 'primary', Icon: IconCalendarEvent },
       { label: 'Annuler la réservation',  variant: 'error',   Icon: IconCalendarX    },
@@ -28,10 +28,11 @@ const CONTEXT = {
     ],
   },
   numerique: {
-    detail:  (book) => `Restitution : ${book.returnDate ?? 'bientôt'}`,
+    detail:  (book) => `Retour : ${book.returnDate ?? 'bientôt'}`,
     info:    (book) => `Prêt numérique en cours. Restitution automatique le ${book.returnDate ?? 'bientôt'} — aucune démarche à prévoir.`,
     actions: [
-      { label: 'Lire maintenant', variant: 'primary', Icon: IconBook },
+      { label: 'Lire maintenant',   variant: 'primary',   Icon: IconBook         },
+      { label: 'Prolonger le prêt', variant: 'secondary', Icon: IconCalendarPlus },
     ],
   },
 };
@@ -163,7 +164,7 @@ const BADGE = {
   },
   numerique: {
     variant:   'info',
-    label:     (book) => book.returnDate ? `Restitution : ${book.returnDate}` : 'Prêt numérique',
+    label:     (book) => book.returnDate ? `Retour : ${book.returnDate}` : 'Prêt numérique',
     iconColor: () => 'var(--info-11)',
     Icon:      IconCalendarTime,
   },

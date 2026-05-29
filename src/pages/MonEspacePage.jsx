@@ -38,7 +38,7 @@ const BORROWED_BOOKS = [
 }));
 
 const DIGITAL_BOOKS = [
-  ALL_BOOKS.find(b => b.id === 11),  // Le Da Vinci Code — prêt numérique
+  ALL_BOOKS.find(b => b.id === 10),  // Vingt Mille Lieues — cohérent avec la home
 ].filter(Boolean).map((b) => ({ ...b, returnDate: '12 juin 2026' }));
 
 /* ════════════════════════════════════════════════════
