@@ -149,6 +149,14 @@ export default function ScannerPage({ onBack, onBookSelect }) {
     videoRef.current.play().catch(() => {});
   }, [phase]);
 
+  /* ── Full cleanup: stop ZXing controls + kill camera tracks ── */
+  const stopAll = useCallback(() => {
+    controlsRef.current?.stop();
+    controlsRef.current = null;
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  }, []);
+
   /* ── Retry : réutilise le stream existant si encore actif ── */
   const handleRetry = useCallback(() => {
     isProcessingRef.current = false;
@@ -165,14 +173,6 @@ export default function ScannerPage({ onBack, onBookSelect }) {
       setPhase('idle');
     }
   }, [stopAll]);
-
-  /* ── Full cleanup: stop ZXing controls + kill camera tracks ── */
-  const stopAll = useCallback(() => {
-    controlsRef.current?.stop();
-    controlsRef.current = null;
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
-  }, []);
 
   useEffect(() => () => stopAll(), [stopAll]);
 
