@@ -1058,8 +1058,22 @@ function BookPreviewModal({ identifier, title, onClose }) {
   const canvasRef = useRef(null);
   const [status, setStatus] = useState('loading'); // 'loading' | 'ready' | 'error'
 
+  /* Bloque le scroll de la page derrière tant que le lecteur est ouvert */
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
+    let revealTimer, hardTimer;
+
+    /* Garde-fou : si rien n'aboutit (script bloqué), on bascule en erreur */
+    hardTimer = setTimeout(() => {
+      if (!cancelled) setStatus(s => (s === 'loading' ? 'error' : s));
+    }, 8000);
+
     loadGoogleBooksApi()
       .then(() => {
         if (cancelled || !canvasRef.current) return;
@@ -1069,9 +1083,15 @@ function BookPreviewModal({ identifier, title, onClose }) {
           () => { if (!cancelled) setStatus('error'); },
           () => { if (!cancelled) setStatus('ready'); },
         );
+        /* Le callback succès de Google n'est pas toujours déclenché :
+           on dévoile le lecteur après un court délai s'il est encore masqué */
+        revealTimer = setTimeout(() => {
+          if (!cancelled) setStatus(s => (s === 'loading' ? 'ready' : s));
+        }, 1800);
       })
       .catch(() => { if (!cancelled) setStatus('error'); });
-    return () => { cancelled = true; };
+
+    return () => { cancelled = true; clearTimeout(revealTimer); clearTimeout(hardTimer); };
   }, [identifier]);
 
   return (
