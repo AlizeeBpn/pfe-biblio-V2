@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef, forwardRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import HTMLFlipBook from 'react-pageflip';
 import {
   IconArrowLeft,
   IconCalendarTime,
@@ -1065,7 +1064,7 @@ function AddToListModal({ book, lists, onAddToList, onCreateList, onClose }) {
 }
 
 /* ════════════════════════════════════════════════════
-   FLIPBOOK — feuilletage (react-pageflip)
+   FEUILLETAGE — pages + helpers (framer-motion)
    ════════════════════════════════════════════════════ */
 const PAGE_BG = '#fdfbf5';
 
@@ -1090,11 +1089,10 @@ function computeFlipDims() {
   return { w: Math.round(w), h: Math.round(h) };
 }
 
-/* Une page du flipbook — react-pageflip exige un forwardRef */
-const FlipPage = forwardRef(function FlipPage({ children, cover = false }, ref) {
+/* Une page du livre */
+function FlipPage({ children, cover = false }) {
   return (
     <div
-      ref={ref}
       style={{
         width:           '100%',
         height:          '100%',
@@ -1108,14 +1106,22 @@ const FlipPage = forwardRef(function FlipPage({ children, cover = false }, ref) 
       {children}
     </div>
   );
-});
+}
+
+/* Variantes de tournage de page (3D, pivot sur la reliure gauche) */
+const pageVariants = {
+  enter:  (d) => ({ rotateY: d >= 0 ? 110 : -110, opacity: 0 }),
+  center: { rotateY: 0, opacity: 1 },
+  exit:   (d) => ({ rotateY: d >= 0 ? -110 : 110, opacity: 0 }),
+};
 
 /* ════════════════════════════════════════════════════
-   BOOK PREVIEW MODAL — feuilletage démo
+   BOOK PREVIEW MODAL — feuilletage (framer-motion, sans dépendance)
    ════════════════════════════════════════════════════ */
 function BookPreviewModal({ book, onClose }) {
   const { title = '', author = '', cover = null, synopsis = '' } = book || {};
   const [dims] = useState(computeFlipDims);
+  const [[page, dir], setPage] = useState([0, 0]);
 
   /* Bloque le scroll de la page derrière tant que le lecteur est ouvert */
   useEffect(() => {
@@ -1174,6 +1180,12 @@ function BookPreviewModal({ book, onClose }) {
     </FlipPage>,
   ];
 
+  const total = pages.length;
+  const go = (d) => setPage(([p]) => {
+    const n = p + d;
+    return (n < 0 || n > total - 1) ? [p, 0] : [n, d];
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -1183,7 +1195,7 @@ function BookPreviewModal({ book, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label={`Feuilleter ${title}`}
-      style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(20,19,21,0.82)', zIndex: 70, display: 'flex', flexDirection: 'column' }}
+      style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(20,19,21,0.85)', zIndex: 70, display: 'flex', flexDirection: 'column' }}
     >
       {/* Top bar */}
       <div onClick={e => e.stopPropagation()} className="flex items-center" style={{ gap: 12, padding: '16px 20px', flexShrink: 0 }}>
@@ -1202,32 +1214,50 @@ function BookPreviewModal({ book, onClose }) {
         </motion.button>
       </div>
 
-      {/* Flipbook */}
+      {/* Livre */}
       <div onClick={e => e.stopPropagation()} style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
-        <HTMLFlipBook
-          width={dims.w}
-          height={dims.h}
-          size="fixed"
-          minWidth={200}
-          maxWidth={500}
-          minHeight={300}
-          maxHeight={800}
-          showCover
-          usePortrait
-          mobileScrollSupport
-          drawShadow
-          maxShadowOpacity={0.4}
-          flippingTime={700}
-          style={{ borderRadius: 8, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.45)' }}
-        >
-          {pages}
-        </HTMLFlipBook>
+        <div style={{ width: dims.w, height: dims.h, position: 'relative', perspective: 1800 }}>
+          <AnimatePresence initial={false} custom={dir}>
+            <motion.div
+              key={page}
+              custom={dir}
+              variants={pageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.5, ease: [0.33, 0, 0.2, 1] }}
+              style={{
+                position:           'absolute',
+                inset:              0,
+                transformOrigin:    'left center',
+                transformStyle:     'preserve-3d',
+                backfaceVisibility: 'hidden',
+                borderRadius:       8,
+                overflow:           'hidden',
+                boxShadow:          '0 18px 50px rgba(0,0,0,0.5)',
+              }}
+            >
+              {pages[page]}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Zones tactiles gauche / droite */}
+          {page > 0 && (
+            <button type="button" aria-label="Page précédente" onClick={() => go(-1)}
+              style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '32%', zIndex: 5, background: 'transparent', border: 'none', cursor: 'pointer' }} />
+          )}
+          {page < total - 1 && (
+            <button type="button" aria-label="Page suivante" onClick={() => go(1)}
+              style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '32%', zIndex: 5, background: 'transparent', border: 'none', cursor: 'pointer' }} />
+          )}
+        </div>
       </div>
 
-      {/* Hint */}
-      <p style={{ flexShrink: 0, textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '13px', fontWeight: 500, padding: '12px 0 20px', margin: 0 }}>
-        Glissez ou touchez les bords pour tourner les pages
-      </p>
+      {/* Indicateur + hint */}
+      <div onClick={e => e.stopPropagation()} style={{ flexShrink: 0, textAlign: 'center', padding: '10px 0 22px' }}>
+        <p style={{ color: 'var(--neutral-1)', fontSize: '13px', fontWeight: 600, margin: '0 0 4px' }}>{page + 1} / {total}</p>
+        <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontWeight: 500, margin: 0 }}>Touchez les bords gauche / droit pour tourner les pages</p>
+      </div>
     </motion.div>
   );
 }
