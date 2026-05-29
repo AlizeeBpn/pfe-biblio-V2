@@ -29,13 +29,12 @@ import { BOOKS as ALL_BOOKS } from '../data/books';
 
 const RESERVED_BOOKS = ALL_BOOKS.slice(0, 4);
 const BORROWED_BOOKS = [
-  ALL_BOOKS.find(b => b.id === 7),  // Naruto — 24 juin 2026
-  ALL_BOOKS.find(b => b.id === 6),  // Seigneur des Anneaux — 24 juin 2026
-  ALL_BOOKS.find(b => b.id === 5),  // Harry Potter — 12 juillet 2026 (dernier)
-].map((b) => ({
-  ...b,
-  returnDate: b.id === 5 ? '12 juillet 2026' : '24 juin 2026',
-}));
+  { id: 7,  returnDate: '24 juin 2026'    },  // Naruto (mis en avant sur la home)
+  { id: 6,  returnDate: '24 juin 2026'    },  // Seigneur des Anneaux
+  { id: 8,  returnDate: '28 juin 2026'    },  // One Piece
+  { id: 13, returnDate: '5 juillet 2026'  },  // Fahrenheit 451
+  { id: 5,  returnDate: '12 juillet 2026' },  // Harry Potter
+].map(({ id, returnDate }) => ({ ...ALL_BOOKS.find(b => b.id === id), returnDate }));
 
 const DIGITAL_BOOKS = [
   ALL_BOOKS.find(b => b.id === 10),  // Vingt Mille Lieues — cohérent avec la home
@@ -807,7 +806,7 @@ export default function MonEspacePage({
               </div>
               <div className="flex" style={{ gap: '6px' }}>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Prêt bibliothèque" count="3" typeLabel="Emprunts" badge="24 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('emprunts')} />
+                  <InfoCard category="Prêt bibliothèque" count="5" typeLabel="Emprunts" badge="24 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('emprunts')} />
                 </motion.div>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16, type: 'spring', stiffness: 260, damping: 20 }}>
                   <InfoCard category="Prêt numérique" count="1" typeLabel="Emprunts" badge="12 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('numerique')} />
