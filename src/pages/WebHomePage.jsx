@@ -6,12 +6,13 @@
  * Stack         : React + Tailwind v4 + Framer Motion + Tabler Icons
  *
  * Sections :
- *   A) Header sticky (80px)
- *   B) Hero (320px)
- *   C) Actualité — "À ne pas manquer" (340px)
- *   D) Accès rapides — grille 1×4 (320px)
- *   E) Pour vous — book carousel (450px)
- *   F) Footer (200px)
+ *   A) Header sticky (80px) — logo + recherche fixe + auth
+ *   B) Navigation menu — Pratique, Catalogue, Patrimoine, Agenda, Services
+ *   C) Hero (320px)
+ *   D) Actualité — "À ne pas manquer" (340px)
+ *   E) Accès rapides — grille 1×4 (320px)
+ *   F) Pour vous — book carousel (450px)
+ *   G) Footer (200px)
  */
 
 import { useState } from 'react'
@@ -26,6 +27,18 @@ import {
   IconDeviceMobile,
   IconInfoCircle,
   IconChevronRight,
+  IconArchive,
+  IconUserPlus,
+  IconMenu2,
+  IconX,
+  IconLogout,
+  IconSettings,
+  IconBriefcase,
+  IconSitemap,
+  IconMapPin,
+  IconBooks,
+  IconCalendarDue,
+  IconTools,
 } from '@tabler/icons-react'
 
 import Button  from '../components/ui/Button'
@@ -83,10 +96,11 @@ function SectionTitle({ children }) {
 
 
 /* ══════════════════════════════════════════════════════════════
-   A) HEADER — sticky, 80px, logo + search + connexion
+   A) HEADER — sticky, 80px, logo + recherche fixe + auth
    ══════════════════════════════════════════════════════════════ */
-function WebHeader() {
+function WebHeader({ isLoggedIn, onLogin, onLogout }) {
   const [query, setQuery] = useState('')
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   return (
     <header
@@ -135,12 +149,12 @@ function WebHeader() {
           </span>
         </a>
 
-        {/* ── Barre de recherche — 380px, centré ── */}
-        <div className="flex-1 flex justify-center" style={{ maxWidth: '600px' }}>
+        {/* ── Barre de recherche fixe — prend l'espace disponible ── */}
+        <div className="flex-1 flex justify-center" style={{ maxWidth: '500px' }}>
           <div
             className="w-full flex items-center"
             style={{
-              maxWidth:        '380px',
+              maxWidth:        '400px',
               height:          'var(--sz-xl)',   /* 48px */
               backgroundColor: 'var(--neutral-2)',
               border:          '1.5px solid var(--neutral-6)',
@@ -166,15 +180,98 @@ function WebHeader() {
           </div>
         </div>
 
-        {/* ── Actions droite ── */}
+        {/* ── Actions droite — alignées à droite ── */}
         <div className="flex items-center shrink-0" style={{ gap: 'var(--gap-2md)', marginLeft: 'auto' }}>
-          <Button
-            variant="outlined"
-            size="sm"
-            iconLeft={<IconUser size={16} strokeWidth={2} />}
-          >
-            <span className="hidden md:inline">Connexion</span>
-          </Button>
+          {isLoggedIn ? (
+            /* ── Connecté : UserMenu ── */
+            <div className="relative">
+              <button
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                className="flex items-center gap-[var(--gap-md)] bg-transparent border-none cursor-pointer rounded-[var(--br-md)] px-[var(--pad-2md)] py-[var(--pad-xs)] hover:bg-[var(--neutral-3)] transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
+                style={{ color: 'var(--color-text-body)' }}
+                aria-label="Menu utilisateur"
+                aria-expanded={userMenuOpen}
+              >
+                <div
+                  className="flex items-center justify-center rounded-full"
+                  style={{
+                    width:           'var(--sz-md)',
+                    height:          'var(--sz-md)',
+                    backgroundColor: 'var(--primary-9)',
+                  }}
+                >
+                  <IconUser size={16} strokeWidth={2.5} color="white" />
+                </div>
+                <span className="hidden sm:inline text-[var(--text-body-sm)] font-semibold">Mon espace</span>
+                <IconChevronRight
+                  size={14}
+                  strokeWidth={2}
+                  style={{ transform: userMenuOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 150ms' }}
+                />
+              </button>
+
+              {/* ── Dropdown user menu ── */}
+              {userMenuOpen && (
+                <div
+                  className="absolute right-0 z-50 min-w-[200px]"
+                  style={{
+                    top:              'calc(100% + 8px)',
+                    backgroundColor:  'var(--neutral-1)',
+                    border:           '1px solid var(--neutral-5)',
+                    borderRadius:     'var(--br-md)',
+                    boxShadow:        SHADOW_HEADER,
+                    padding:          'var(--pad-xs) 0',
+                  }}
+                >
+                  <a
+                    href="#mon-espace"
+                    className="flex items-center gap-[var(--gap-2md)] no-underline px-[var(--pad-lg)] py-[var(--pad-md)] hover:bg-[var(--neutral-3)] transition-colors focus:outline-none focus-visible:bg-[var(--neutral-3)]"
+                    style={{ fontSize: 'var(--text-body-sm)', color: 'var(--color-text-body)' }}
+                  >
+                    <IconUser size={18} strokeWidth={1.8} color="var(--primary-9)" />
+                    Mon profil
+                  </a>
+                  <a
+                    href="#parametres"
+                    className="flex items-center gap-[var(--gap-2md)] no-underline px-[var(--pad-lg)] py-[var(--pad-md)] hover:bg-[var(--neutral-3)] transition-colors focus:outline-none focus-visible:bg-[var(--neutral-3)]"
+                    style={{ fontSize: 'var(--text-body-sm)', color: 'var(--color-text-body)' }}
+                  >
+                    <IconSettings size={18} strokeWidth={1.8} color="var(--neutral-9)" />
+                    Paramètres
+                  </a>
+                  <div style={{ height: '1px', backgroundColor: 'var(--neutral-5)', margin: 'var(--pad-xs) 0' }} />
+                  <button
+                    onClick={onLogout}
+                    className="flex items-center gap-[var(--gap-2md)] w-full bg-transparent border-none cursor-pointer px-[var(--pad-lg)] py-[var(--pad-md)] hover:bg-[var(--neutral-3)] transition-colors focus:outline-none focus-visible:bg-[var(--neutral-3)]"
+                    style={{ fontSize: 'var(--text-body-sm)', color: 'var(--error-11)', textAlign: 'left' }}
+                  >
+                    <IconLogout size={18} strokeWidth={1.8} />
+                    Déconnexion
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* ── Non connecté : Inscription + Connexion ── */
+            <>
+              <Button
+                variant="primary"
+                size="sm"
+                iconLeft={<IconUserPlus size={16} strokeWidth={2} />}
+                onClick={onLogin}
+              >
+                <span className="hidden md:inline">Inscription</span>
+              </Button>
+              <Button
+                variant="outlined"
+                size="sm"
+                iconLeft={<IconUser size={16} strokeWidth={2} />}
+                onClick={onLogin}
+              >
+                <span className="hidden md:inline">Connexion</span>
+              </Button>
+            </>
+          )}
         </div>
 
       </Container>
@@ -184,7 +281,127 @@ function WebHeader() {
 
 
 /* ══════════════════════════════════════════════════════════════
-   B) HERO — 320px, fond primary-12, texte blanc
+   B) NAVIGATION MENU — barre secondaire fond sombre
+      Onglets : Pratique, Catalogue, Patrimoine, Agenda, Services
+   ══════════════════════════════════════════════════════════════ */
+const NAV_ITEMS = [
+  { label: 'Pratique',    href: '#pratique',    icon: IconInfoCircle     },
+  { label: 'Catalogue',   href: '#catalogue',   icon: IconSearch         },
+  { label: 'Patrimoine',  href: '#patrimoine',  icon: IconArchive        },
+  { label: 'Agenda',      href: '#agenda',      icon: IconCalendarEvent  },
+  { label: 'Services',    href: '#services',    icon: IconTools          },
+]
+
+function WebNav() {
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  return (
+    <nav
+      className="w-full sticky top-[80px] z-40"
+      style={{
+        backgroundColor: 'var(--primary-12)',   /* teal sombre */
+        borderBottom:    '1px solid var(--primary-11)',
+      }}
+      aria-label="Navigation principale"
+    >
+      <Container className="relative">
+        {/* ── Desktop — horizontal ── */}
+        <ul
+          className="hidden lg:flex items-center list-none m-0 p-0"
+          style={{ gap: 'var(--gap-none)', height: '52px' }}
+        >
+          {NAV_ITEMS.map((item, i) => (
+            <li key={item.href} className="relative h-full">
+              <a
+                href={item.href}
+                onClick={e => { e.preventDefault(); setActiveIndex(i) }}
+                className="flex items-center no-underline h-full px-[var(--pad-lg)] transition-colors duration-150 focus:outline-none focus-visible:bg-[var(--primary-10)] focus-visible:text-white"
+                style={{
+                  gap:           'var(--gap-2md)',
+                  fontSize:      'var(--text-body-sm)',
+                  fontWeight:    activeIndex === i ? 700 : 500,
+                  color:         activeIndex === i ? 'var(--color-white)' : 'rgba(255,255,255,0.75)',
+                  borderBottom:  activeIndex === i ? '3px solid var(--secondary-8)' : '3px solid transparent',
+                  whiteSpace:    'nowrap',
+                  transition:    'color 150ms, border-color 150ms',
+                }}
+                aria-current={activeIndex === i ? 'page' : undefined}
+              >
+                <item.icon size={18} strokeWidth={activeIndex === i ? 2.5 : 1.8} aria-hidden="true" />
+                <span>{item.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        {/* ── Mobile — hamburger toggle ── */}
+        <div className="flex lg:hidden items-center justify-between" style={{ height: '48px' }}>
+          <span
+            style={{
+              fontFamily: 'var(--font-brand)',
+              fontSize:   'var(--text-body-md)',
+              fontWeight: 700,
+              color:      'var(--color-white)',
+            }}
+          >
+            {NAV_ITEMS[activeIndex]?.label || 'Navigation'}
+          </span>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="flex items-center justify-center bg-transparent border-none cursor-pointer"
+            style={{ color: 'var(--color-white)', padding: 'var(--pad-sm)' }}
+            aria-label={mobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <IconX size={24} /> : <IconMenu2 size={24} />}
+          </button>
+        </div>
+
+        {/* ── Mobile — menu déroulant ── */}
+        {mobileOpen && (
+          <div
+            className="lg:hidden absolute left-0 right-0 z-50"
+            style={{
+              top:             '100%',
+              backgroundColor: 'var(--primary-12)',
+              borderTop:       '1px solid var(--primary-11)',
+              boxShadow:       SHADOW_HEADER,
+            }}
+          >
+            <ul className="list-none m-0 p-0 py-[var(--pad-2md)]">
+              {NAV_ITEMS.map((item, i) => (
+                <li key={item.href}>
+                  <a
+                    href={item.href}
+                    onClick={e => { e.preventDefault(); setActiveIndex(i); setMobileOpen(false) }}
+                    className="flex items-center no-underline w-full transition-colors duration-150 focus:outline-none focus-visible:bg-[var(--primary-10)]"
+                    style={{
+                      gap:             'var(--gap-2md)',
+                      padding:         'var(--pad-md) var(--pad-lg)',
+                      fontSize:        'var(--text-body-md)',
+                      fontWeight:      activeIndex === i ? 700 : 500,
+                      color:           activeIndex === i ? 'var(--color-white)' : 'rgba(255,255,255,0.75)',
+                      backgroundColor: activeIndex === i ? 'var(--primary-10)' : 'transparent',
+                    }}
+                    aria-current={activeIndex === i ? 'page' : undefined}
+                  >
+                    <item.icon size={20} strokeWidth={activeIndex === i ? 2.5 : 1.8} aria-hidden="true" />
+                    <span>{item.label}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Container>
+    </nav>
+  )
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   C) HERO — 320px, fond primary-12, texte blanc
    ══════════════════════════════════════════════════════════════ */
 function WebHero() {
   return (
@@ -237,7 +454,7 @@ function WebHero() {
 
 
 /* ══════════════════════════════════════════════════════════════
-   C) ACTUALITÉ — "À ne pas manquer" — 1 news card horizontale
+   D) ACTUALITÉ — "À ne pas manquer" — 1 news card horizontale
    ══════════════════════════════════════════════════════════════ */
 function WebNewsSection() {
   return (
@@ -361,40 +578,37 @@ function WebNewsSection() {
 
 
 /* ══════════════════════════════════════════════════════════════
-   D) ACCÈS RAPIDES — grille 4 colonnes responsive
+   E) ACCÈS RAPIDES — grille 4 colonnes responsive
+      Icônes SVG vectorielles Tabler, couleur Teal unifiée
    ══════════════════════════════════════════════════════════════ */
 const QUICK_ACCESS_ITEMS = [
   {
-    emoji: '🔍',
-    icon:  <IconSearch size={24} strokeWidth={1.8} color="var(--primary-11)" />,
     title: 'Rechercher',
     desc:  'Catalogue en ligne',
     href:  '#catalogue',
+    icon:  <IconSearch size={44} strokeWidth={1.5} color="var(--primary-8)" />,
   },
   {
-    emoji: '📅',
-    icon:  <IconCalendarEvent size={24} strokeWidth={1.8} color="var(--secondary-10)" />,
     title: 'Événements',
     desc:  'Agenda culturel',
     href:  '#evenements',
+    icon:  <IconCalendarDue size={44} strokeWidth={1.5} color="var(--primary-8)" />,
   },
   {
-    emoji: '📱',
-    icon:  <IconDeviceMobile size={24} strokeWidth={1.8} color="var(--info-11)" />,
     title: 'Ressources numériques',
     desc:  'Lire, écouter, voir',
     href:  '#numerique',
+    icon:  <IconDeviceMobile size={44} strokeWidth={1.5} color="var(--primary-8)" />,
   },
   {
-    emoji: 'ℹ️',
-    icon:  <IconInfoCircle size={24} strokeWidth={1.8} color="var(--success-11)" />,
     title: 'Infos pratiques',
     desc:  'Horaires & accès',
     href:  '#infos',
+    icon:  <IconMapPin size={44} strokeWidth={1.5} color="var(--primary-8)" />,
   },
 ]
 
-function QuickAccessCard({ emoji, title, desc, href }) {
+function QuickAccessCard({ icon, title, desc, href }) {
   return (
     <motion.a
       href={href}
@@ -415,12 +629,8 @@ function QuickAccessCard({ emoji, title, desc, href }) {
       }}
       aria-label={title}
     >
-      <span
-        role="img"
-        aria-hidden="true"
-        style={{ fontSize: '44px', lineHeight: 1 }}
-      >
-        {emoji}
+      <span aria-hidden="true" className="flex items-center justify-center" style={{ width: '52px', height: '52px' }}>
+        {icon}
       </span>
       <div className="flex flex-col items-center" style={{ gap: 'var(--gap-xs)' }}>
         <p
@@ -480,7 +690,7 @@ function WebQuickAccessSection() {
 
 
 /* ══════════════════════════════════════════════════════════════
-   E) POUR VOUS — carrousel horizontal de 5 livres
+   F) POUR VOUS — carrousel horizontal de 5 livres
    ══════════════════════════════════════════════════════════════ */
 const RECOMMENDED_BOOKS = BOOKS.slice(0, 5)
 
@@ -511,10 +721,10 @@ function WebRecommendationsSection() {
         <div
           className="flex overflow-x-auto"
           style={{
-            gap:           'var(--gap-lg)',
-            paddingBottom: 'var(--pad-md)',
-            scrollBehavior: 'smooth',
-            scrollbarWidth: 'none',       /* Firefox */
+            gap:             'var(--gap-lg)',
+            paddingBottom:   'var(--pad-md)',
+            scrollBehavior:  'smooth',
+            scrollbarWidth:  'none',       /* Firefox */
             msOverflowStyle: 'none',      /* IE */
             /* Webkit scrollbar hidden via CSS global (voir web.css) */
           }}
@@ -612,14 +822,16 @@ function WebRecommendationsSection() {
 
 
 /* ══════════════════════════════════════════════════════════════
-   F) FOOTER — 200px, neutral-2, navigation + copyright
+   G) FOOTER — neutral-2, navigation + copyright
    ══════════════════════════════════════════════════════════════ */
 const FOOTER_LINKS = [
-  { label: 'Horaires',         href: '#horaires'       },
-  { label: 'Nous rejoindre',   href: '#rejoindre'      },
-  { label: 'Contact',          href: '#contact'        },
-  { label: 'Mentions légales', href: '#mentions-legales' },
-  { label: 'Accessibilité',   href: '#accessibilite'  },
+  { label: 'Horaires',              href: '#horaires'           },
+  { label: 'Nous rejoindre',        href: '#rejoindre'          },
+  { label: 'Contact',               href: '#contact'            },
+  { label: 'Espace professionnels', href: '#espace-pros'        },
+  { label: 'Plan du site',          href: '#plan-du-site'       },
+  { label: 'Mentions légales',      href: '#mentions-legales'   },
+  { label: 'Accessibilité',         href: '#accessibilite'      },
 ]
 
 function WebFooter() {
@@ -718,6 +930,17 @@ function WebFooter() {
    MAIN EXPORT — WebHomePage
    ══════════════════════════════════════════════════════════════ */
 export default function WebHomePage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  const handleLogin = () => {
+    // TODO: intégrer le vrai flow d'authentification
+    setIsLoggedIn(true)
+  }
+
+  const handleLogout = () => {
+    setIsLoggedIn(false)
+  }
+
   return (
     <div
       className="min-h-screen w-full"
@@ -735,7 +958,8 @@ export default function WebHomePage() {
         Aller au contenu
       </a>
 
-      <WebHeader />
+      <WebHeader isLoggedIn={isLoggedIn} onLogin={handleLogin} onLogout={handleLogout} />
+      <WebNav />
 
       <main id="main-content">
         <WebHero />
