@@ -264,8 +264,8 @@ export default function HomePage({ activeTab: activeTabProp, onTabChange, onScan
         {/* ── BarButton — calendar-star + rss ── */}
         <BarButton
           tabs={[
-            { label: 'Raccourcis',  icon: IconCalendarStar },
-            { label: 'Actualités', icon: IconRss },
+            { label: 'Activité',  icon: IconCalendarStar },
+            { label: 'Événements', icon: IconRss },
           ]}
           size="medium"
           value={activeSection}
