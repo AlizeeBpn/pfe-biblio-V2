@@ -51,11 +51,11 @@ const SHADOW_DROPDOWN = '0px 10px 20px 0px var(--alpha-grey-20), 0px 2px 8px 0px
 
 
 /* ════════════════════════════════════════════════════
-   INFO CARD — v2 (Figma design-system neutral)
+   INFO CARD — v2 (Figma design-system neutral / composant infos_user/v2)
    ════════════════════════════════════════════════════ */
 const BADGE_ICON_COLOR = { success: 'var(--success-11)', default: 'var(--secondary-11)', info: 'var(--info-11)' };
 
-function InfoCard({ category, badge, badgeIcon: BadgeIcon, badgeVariant = 'default', onClick }) {
+function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, badgeVariant = 'default', onClick }) {
   const iconColor = BADGE_ICON_COLOR[badgeVariant] ?? 'var(--secondary-11)';
   return (
     <motion.div
@@ -79,12 +79,26 @@ function InfoCard({ category, badge, badgeIcon: BadgeIcon, badgeVariant = 'defau
         justifyContent:  'flex-end',
       }}
     >
-      {/* Info container — Figma v2 : titre → badge (gap: 8px) */}
+      {/* Info container — Figma : titre → books info → badge (gap: 8px) */}
       <div className="flex flex-col items-center w-full" style={{ gap: '8px' }}>
         {/* Titre */}
         <p style={{ fontFamily: 'var(--font-brand)', fontSize: '16px', fontWeight: 700, lineHeight: 1.2, color: 'var(--color-text-brand)', margin: 0, textAlign: 'center', width: '100%' }}>
           {category}
         </p>
+
+        {/* Books Info — Figma : count + typeLabel (gap: 6px, center) */}
+        <div className="flex items-center justify-center w-full" style={{ gap: '6px' }}>
+          {count && (
+            <span style={{ fontSize: '16px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-title)' }}>
+              {count}
+            </span>
+          )}
+          {typeLabel && (
+            <span style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-title)' }}>
+              {typeLabel}
+            </span>
+          )}
+        </div>
 
         {/* Badge — centré, avec icône */}
         <div className="flex justify-center w-full" style={{ maxWidth: '100%', overflow: 'hidden' }}>
@@ -793,18 +807,18 @@ export default function MonEspacePage({
               <h2 style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>Réservation et prêt</h2>
               <div className="flex" style={{ gap: '6px' }}>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Réservations" badge="Disponible à Mériadeck" badgeIcon={IconShoppingBagCheck} badgeVariant="success" onClick={() => setReservationSheet('reservations')} />
+                  <InfoCard category="Réservations" count="4" typeLabel="Titres" badge="Disponible à Mériadeck" badgeIcon={IconShoppingBagCheck} badgeVariant="success" onClick={() => setReservationSheet('reservations')} />
                 </motion.div>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Services" badge="12 janv. (9h - 12h)" badgeIcon={IconCalendarEvent} badgeVariant="info" />
+                  <InfoCard category="Services" count="1" typeLabel="Salle d'étude" badge="12 janv. (9h - 12h)" badgeIcon={IconCalendarEvent} badgeVariant="info" />
                 </motion.div>
               </div>
               <div className="flex" style={{ gap: '6px' }}>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Emprunts en cours" badge="24 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('emprunts')} />
+                  <InfoCard category="Emprunts en cours" count="5" typeLabel="emprunts" badge="24 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('emprunts')} />
                 </motion.div>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Prêt numérique" badge="12 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('numerique')} />
+                  <InfoCard category="Prêt numérique" count="1" typeLabel="emprunts" badge="12 juin 2026" badgeIcon={IconCalendarTime} badgeVariant="info" onClick={() => setReservationSheet('numerique')} />
                 </motion.div>
               </div>
             </div>
