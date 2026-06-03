@@ -99,16 +99,17 @@ function InfoCard({ category, badge, badgeIcon: BadgeIcon, badgeVariant = 'defau
         </div>
       </div>
 
-      {/* CTA bouton secondaire — 80px de gap depuis le badge (Figma) */}
+      {/* CTA bouton secondaire — Figma : bg var(--primary-3), text var(--primary-8), no border */}
       <div
         className="flex items-center justify-center w-full pointer-events-none"
         style={{
           height: '40px',
           borderRadius: '8px',
-          border: '1px solid var(--neutral-7)',
+          padding: '0 16px',
+          backgroundColor: 'var(--primary-3)',
         }}
       >
-        <span style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-subtle)' }}>
+        <span style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--primary-8)' }}>
           Voir détail
         </span>
       </div>
