@@ -50,7 +50,7 @@ export const BottomNavigation = ({ activeTab = 'Accueil', onChange, onScan }) =>
         >
           <IconScan size={18} strokeWidth={2} color="var(--neutral-10)" aria-hidden="true" />
           <span style={{ fontSize: '13px', fontWeight: 700, lineHeight: 1, color: 'var(--neutral-11)', whiteSpace: 'nowrap' }}>
-            Scan ISBN
+            Scanner un livre
           </span>
         </motion.button>
       )}
