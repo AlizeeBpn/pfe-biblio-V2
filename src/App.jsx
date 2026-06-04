@@ -17,6 +17,7 @@ export default function App() {
   const [searchQuery,    setSearchQuery]    = useState(null);
   const [genreFilter,    setGenreFilter]    = useState(null);
   const [activeFilters,  setActiveFilters]  = useState(null);
+  const [activeGtState,  setActiveGtState]  = useState(null);
   const [selectedBook,   setSelectedBook]   = useState(null);
   const [scannerOpen,    setScannerOpen]    = useState(false);
   const [lists,          setLists]          = useState(INITIAL_LISTS);
@@ -52,10 +53,11 @@ export default function App() {
   };
 
   /* ── Navigation helpers ─────────────────────────── */
-  const handleSearch         = (query)   => { setSearchQuery(query);    setGenreFilter(null);  setSelectedBook(null); setActiveFilters(null); };
-  const handleGenreFilter    = (genre)   => { setGenreFilter(genre);    setSearchQuery(null);  setSelectedBook(null); setActiveFilters(null); };
-  const handleCriteriaSearch = (filters) => { setActiveFilters(filters); setSearchQuery('');  setGenreFilter(null);  setSelectedBook(null); };
-  const handleBack           = ()        => { setSearchQuery(null);     setGenreFilter(null);  setActiveFilters(null); };
+  const handleSearch         = (query)   => { setSearchQuery(query);    setGenreFilter(null);  setSelectedBook(null); setActiveFilters(null); setActiveGtState(null); };
+  const handleGenreFilter    = (genre)   => { setGenreFilter(genre);    setSearchQuery(null);  setSelectedBook(null); setActiveFilters(null); setActiveGtState(null); };
+  const handleCriteriaSearch = (filters) => { setActiveFilters(filters); setSearchQuery('');  setGenreFilter(null);  setSelectedBook(null); setActiveGtState(null); };
+  const handleGenreThematique = (gtState) => { setActiveGtState(gtState); setSearchQuery(''); setGenreFilter(null); setSelectedBook(null); setActiveFilters(null); };
+  const handleBack           = ()        => { setSearchQuery(null);     setGenreFilter(null);  setActiveFilters(null); setActiveGtState(null); };
   const handleBookSelect     = (book)    => { setScannerOpen(false);    setSelectedBook(book); };
   const handleBookBack       = ()        => setSelectedBook(null);
   const handleScanOpen       = ()        => setScannerOpen(true);
@@ -81,14 +83,15 @@ export default function App() {
         onAddToList={addBookToList}
       />
     );
-  } else if (searchQuery !== null || genreFilter) {
+  } else if (searchQuery !== null || genreFilter || activeGtState) {
     pageContent = (
       <SearchResultsPage
         query={searchQuery ?? ''}
         genre={genreFilter}
         initialFilters={activeFilters}
+        initialGtState={activeGtState}
         activeTab={activeTab}
-        onTabChange={(tab) => { setSearchQuery(null); setGenreFilter(null); setActiveFilters(null); setActiveTab(tab); }}
+        onTabChange={(tab) => { setSearchQuery(null); setGenreFilter(null); setActiveFilters(null); setActiveGtState(null); setActiveTab(tab); }}
         onBack={handleBack}
         onSearch={handleSearch}
         onBookSelect={handleBookSelect}
@@ -120,6 +123,7 @@ export default function App() {
         onScanOpen={handleScanOpen}
         onGenreFilter={handleGenreFilter}
         onCriteriaSearch={handleCriteriaSearch}
+        onGenreThematique={handleGenreThematique}
       />
     );
   } else if (activeTab === 'Services') {

@@ -397,6 +397,7 @@ export default function CataloguePage({
   onScanOpen,
   onGenreFilter,
   onCriteriaSearch,
+  onGenreThematique,
 }) {
   const [activeTabInternal, setActiveTabInternal] = useState('Catalogue');
   const activeTab    = activeTabProp ?? activeTabInternal;
@@ -444,6 +445,19 @@ export default function CataloguePage({
     setDisponible(d);
     if (!isSearching) {
       onCriteriaSearch?.({ disponible: d, selections: s });
+    }
+  };
+
+  const handleApplyGenreThematique = (newGtState) => {
+    setGtState(newGtState);
+    // En mode navigation (pas en recherche), naviguer vers les résultats
+    const hasActiveFilters =
+      Object.values(newGtState.types).filter(Boolean).length > 0 ||
+      Object.values(newGtState.genres).filter(Boolean).length > 0 ||
+      Object.values(newGtState.docParents).filter(Boolean).length > 0 ||
+      Object.values(newGtState.docItems).filter(Boolean).length > 0;
+    if (!isSearching && hasActiveFilters) {
+      onGenreThematique?.(newGtState);
     }
   };
 
@@ -663,7 +677,7 @@ export default function CataloguePage({
                       </>
                     );
                   })()}
-                </>
+                </>  
               ) : null}
             </m.div>
           )}
@@ -754,7 +768,7 @@ export default function CataloguePage({
       <GenreThematiqueBottomSheet
         open={gtOpen}
         onClose={() => setGtOpen(false)}
-        onApply={setGtState}
+        onApply={handleApplyGenreThematique}
         externalState={gtState}
       />
     </div>

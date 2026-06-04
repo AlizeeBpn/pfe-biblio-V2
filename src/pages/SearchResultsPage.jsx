@@ -311,17 +311,10 @@ function SortFilterBtn({ label, activeLabel, count, Icon, onClick }) {
       {displayLabel}
       {count > 0 && (
         <span style={{
-          minWidth:        '20px',
-          height:          '20px',
-          borderRadius:    '9999px',
-          backgroundColor: 'var(--primary-10)',
-          display:         'inline-flex',
-          alignItems:      'center',
-          justifyContent:  'center',
-          padding:         '0 4px',
-          fontSize:        '11px',
-          fontWeight:      700,
-          color:           'var(--primary-1)',
+          minWidth: '20px', height: '20px', borderRadius: '9999px',
+          backgroundColor: 'var(--primary-10)', display: 'inline-flex',
+          alignItems: 'center', justifyContent: 'center', padding: '0 4px',
+          fontSize: '11px', fontWeight: 700, color: 'var(--primary-1)',
         }}>
           {count}
         </span>
@@ -386,7 +379,7 @@ function BibliothequeBtn({ selectedLibraries, onClick }) {
 /* ════════════════════════════════════════════════════
    PAGE
    ════════════════════════════════════════════════════ */
-export default function SearchResultsPage({ query = '', genre = null, initialFilters = null, activeTab, onTabChange, onBack, onSearch, onBookSelect, onGenreFilter }) {
+export default function SearchResultsPage({ query = '', genre = null, initialFilters = null, initialGtState = null, activeTab, onTabChange, onBack, onSearch, onBookSelect, onGenreFilter }) {
   /* Scroll to top on mount */
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }); }, []);
 
@@ -421,7 +414,7 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
   const [gtOpen,        setGtOpen]        = useState(false);
   const [sortBy,        setSortBy]        = useState('pertinence');
   const [selectedLibraries, setSelectedLibraries] = useState({});
-  const [gtState,       setGtState]       = useState({ types: {}, genres: {}, docParents: {}, docItems: {} });
+  const [gtState,       setGtState]       = useState(initialGtState ?? { types: {}, genres: {}, docParents: {}, docItems: {} });
 
   const SORT_LABELS = {
     pertinence:     null,
@@ -494,10 +487,25 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
       .map(([opt]) => ({ sectionId, label: opt }))
   );
 
+  // Chips GT : regroupe tous les filtres actifs de Genre & Thématique
+  const gtChips = [
+    ...Object.entries(gtState.types || {}).filter(([, v]) => v).map(([label]) => ({ kind: 'types', label })),
+    ...Object.entries(gtState.genres || {}).filter(([, v]) => v).map(([label]) => ({ kind: 'genres', label })),
+    ...Object.entries(gtState.docParents || {}).filter(([, v]) => v).map(([label]) => ({ kind: 'docParents', label })),
+    ...Object.entries(gtState.docItems || {}).filter(([, v]) => v).map(([label]) => ({ kind: 'docItems', label })),
+  ];
+
   const removeChip = (sectionId, label) => {
     setSelections(prev => ({
       ...prev,
       [sectionId]: { ...(prev[sectionId] || {}), [label]: false },
+    }));
+  };
+
+  const removeGtChip = (kind, label) => {
+    setGtState(prev => ({
+      ...prev,
+      [kind]: { ...(prev[kind] || {}), [label]: false },
     }));
   };
 
@@ -641,6 +649,19 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
                   key={`${sectionId}-${label}`}
                   label={label}
                   onRemove={() => removeChip(sectionId, label)}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* ── GT Chips (Genre & Thématique) ── */}
+          {!genre && gtChips.length > 0 && (
+            <div className="flex flex-wrap" style={{ gap: '6px' }}>
+              {gtChips.map(({ kind, label }) => (
+                <ActiveFilterChip
+                  key={`gt-${kind}-${label}`}
+                  label={label}
+                  onRemove={() => removeGtChip(kind, label)}
                 />
               ))}
             </div>
