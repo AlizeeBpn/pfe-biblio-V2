@@ -279,13 +279,13 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
 
           {/* ── Action buttons ── */}
           <div style={{ display: 'flex', gap: 'var(--gap-md)', alignItems: 'center' }}>
-            {/* Liste — secondary button avec texte */}
+            {/* Favoris — secondary button avec texte */}
             <motion.button
               type="button"
               whileTap={{ scale: 0.93 }}
               onClick={() => setSaved(s => !s)}
               aria-pressed={saved}
-              aria-label={saved ? 'Retirer de la liste' : 'Ajouter à la liste'}
+              aria-label={saved ? 'Retirer des favoris' : 'Ajouter aux favoris'}
               className="focus-visible:ring-2 focus-visible:ring-[var(--primary-9)]"
               style={{
                 height:          '48px',
@@ -307,7 +307,7 @@ export default function BookBottomSheet({ book, onClose, onViewBook }) {
                 : <IconBookmarkPlus   size={18} strokeWidth={2} color="var(--primary-11)" aria-hidden="true" />
               }
               <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--primary-11)', whiteSpace: 'nowrap' }}>
-                Liste
+                Favoris
               </span>
             </motion.button>
 
