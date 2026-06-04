@@ -546,7 +546,7 @@ function ListBookCard({ book, removeMode, onRemove, onSelect }) {
   );
 }
 
-/* ═══════════════════════════════════════════════════
+/* ════════════════════════════════════════════════════
    LIST DETAIL SCREEN
    ════════════════════════════════════════════════════ */
 function ListDetailScreen({ list, onBack, onRemoveBook, onBookSelect }) {
@@ -806,7 +806,7 @@ export default function MonEspacePage({
               <h2 style={{ fontFamily: 'var(--font-brand)', fontSize: '20px', fontWeight: 700, lineHeight: 1.5, color: 'var(--color-text-brand)', margin: 0 }}>Réservation et prêt</h2>
               <div className="flex" style={{ gap: '6px' }}>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04, type: 'spring', stiffness: 260, damping: 20 }}>
-                  <InfoCard category="Réservations" count="4" typeLabel="Titres" badge="Disponible à Mériadeck" badgeIcon={IconShoppingBagCheck} badgeVariant="success" onClick={() => setReservationSheet('reservations')} />
+                  <InfoCard category="Réservations" count="4" typeLabel="Titres" badge="Prêt à Mériadeck" badgeIcon={IconShoppingBagCheck} badgeVariant="success" onClick={() => setReservationSheet('reservations')} />
                 </motion.div>
                 <motion.div style={{ flex: '1 0 0', minWidth: 0 }} initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08, type: 'spring', stiffness: 260, damping: 20 }}>
                   <InfoCard category="Services" count="1" typeLabel="Salle d'étude" badge="12 janv. (9h - 12h)" badgeIcon={IconCalendarEvent} badgeVariant="info" />
