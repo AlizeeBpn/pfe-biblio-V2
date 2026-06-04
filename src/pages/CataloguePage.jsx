@@ -643,7 +643,7 @@ export default function CataloguePage({
               {/* Filter row — search mode */}
               <div
                 className="flex items-center"
-                style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}
+                style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none', paddingRight: '20px' }}
               >
                 <SortFilterBtn label="Trier"             activeLabel={SORT_LABELS[sortBy]} Icon={IconArrowsSort}            onClick={() => setSortOpen(true)} />
                 <BibliothequeBtn selectedLibraries={selectedLibraries}                                                      onClick={() => setLibSheetOpen(true)} />
@@ -677,7 +677,7 @@ export default function CataloguePage({
                       </>
                     );
                   })()}
-                </>  
+                </>
               ) : null}
             </m.div>
           )}
@@ -696,7 +696,7 @@ export default function CataloguePage({
               {/* Filter row — browse mode */}
               <div
                 className="flex items-center"
-                style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}
+                style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none', paddingRight: '20px' }}
               >
                 <BibliothequeBtn selectedLibraries={selectedLibraries}                                                      onClick={() => setLibSheetOpen(true)} />
                 <SortFilterBtn label="Genre & Thématique" count={gtActiveCount}            Icon={IconChevronDown}          onClick={() => setGtOpen(true)} />

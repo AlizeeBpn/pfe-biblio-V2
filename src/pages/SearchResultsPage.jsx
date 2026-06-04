@@ -627,7 +627,7 @@ export default function SearchResultsPage({ query = '', genre = null, initialFil
           </div>
 
           {/* ── Filter row ── */}
-          <div className="flex items-center" style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          <div className="flex items-center" style={{ gap: '8px', overflowX: 'auto', scrollbarWidth: 'none', paddingRight: '20px' }}>
             <SortFilterBtn label="Trier"              activeLabel={SORT_LABELS[sortBy]} Icon={IconArrowsSort}            onClick={() => setSortOpen(true)} />
             <BibliothequeBtn selectedLibraries={selectedLibraries}                                                       onClick={() => setLibSheetOpen(true)} />
             <SortFilterBtn label="Genre & Thématique" count={gtActiveCount}             Icon={IconChevronDown}           onClick={() => setGtOpen(true)} />
