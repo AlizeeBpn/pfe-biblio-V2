@@ -49,7 +49,6 @@ const SHADOW_LIST =   '0px 1px 2px 0px var(--alpha-grey-10), 0px 4px 4px 0px var
 const SHADOW_BOOK_CARD = '0px 1px 2px 0px var(--alpha-grey-10), 0px 4px 4px 0px var(--alpha-grey-09), 0px 10px 6px 0px var(--alpha-grey-05), 0px 18px 7px 0px var(--alpha-grey-01)';
 const SHADOW_DROPDOWN = '0px 10px 20px 0px var(--alpha-grey-20), 0px 2px 8px 0px var(--alpha-grey-20)';
 
-
 /* ════════════════════════════════════════════════════
    INFO CARD — v2 (Figma design-system neutral / composant infos_user/v2)
    ════════════════════════════════════════════════════ */
@@ -113,7 +112,7 @@ function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, bad
         </div>
       </div>
 
-      {/* CTA bouton secondaire — Figma : bg var(--primary-3), text var(--primary-8), no border */}
+      {/* CTA bouton secondaire — Figma : bg var(--primary-3), text var(--primary-11), no border */}
       <div
         className="flex items-center justify-center w-full pointer-events-none"
         style={{
@@ -123,7 +122,7 @@ function InfoCard({ category, count, typeLabel, badge, badgeIcon: BadgeIcon, bad
           backgroundColor: 'var(--primary-3)',
         }}
       >
-        <span style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--primary-8)' }}>
+        <span style={{ fontSize: '14px', fontWeight: 700, lineHeight: 1.5, color: 'var(--primary-11)' }}>
           Voir détail
         </span>
       </div>
@@ -194,7 +193,7 @@ function QRModal({ onClose }) {
 
 /* ════════════════════════════════════════════════════
    EMPTY STATE
-   ════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════ */
 function EmptyState({ icon: Icon, label }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '64px 32px' }}>
@@ -547,7 +546,7 @@ function ListBookCard({ book, removeMode, onRemove, onSelect }) {
   );
 }
 
-/* ════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    LIST DETAIL SCREEN
    ════════════════════════════════════════════════════ */
 function ListDetailScreen({ list, onBack, onRemoveBook, onBookSelect }) {
